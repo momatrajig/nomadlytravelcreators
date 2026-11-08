@@ -39,12 +39,9 @@ export function localDb(): Db {
     async payoutsForCreator(creatorId) { return payouts.filter((p) => p.creatorId === creatorId); },
     async payableBookings(creatorId, before) { const paid = new Set(payouts.flatMap((p) => p.items.map((i) => i.bookingId))); return [...bookings.values()].filter((b) => b.creatorId === creatorId && (b.status === "confirmed" || b.status === "completed") && b.checkOut <= before && !paid.has(b.id)); },
     async createPayout(p) { const full: Payout = { ...p, id: randomUUID() }; payouts.push(full); return full; },
-    async storefrontByHost(host, platformHost) {
-      const h = host.toLowerCase().split(":")[0]!;
-      if (h === sf.customDomain) return sf;
-      if (h.endsWith(`.${platformHost}`) && h.split(".")[0] === sf.slug) return sf;
-      if (h === "localhost" || h === "127.0.0.1") return sf; // dev convenience
-      return null;
+    async storefrontByHost() {
+      // local mode is the demo: one storefront answers on every host (localhost, a Vercel preview URL, anything)
+      return sf;
     },
     async storefrontBySlug(slug) { return slug === sf.slug ? sf : null; },
     async pinnedHotels(id) { return id === sf.id ? [...pins].sort((a, b) => a.position - b.position) : []; },
