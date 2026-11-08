@@ -1,0 +1,202 @@
+/**
+ * Booking service: the only code path from "reader looks at a hotel" to "hotel confirmed".
+ *
+ *   searchStays   -> eBooking sync search for the pinned hotels, priced with the engine, parity checked
+ *   holdQuote     -> prebook (availability) one package, store the quote with its tokens
+ *   pay           -> Stripe PaymentIntent for readerPrice (server side amount, never from the client)
+ *   confirmPaid   -> on Stripe webhook: double booking check, book on credit, subscribe webhook, voucher
+ *   cancel        -> compute penalty from the policy, cancel at eBooking, refund through Stripe
+ *
+ * Every monetary value is produced by lib/pricing. Failures are explicit and typed.
+ */
+import { cancellationDeadline, ebc, EbcError } from "@/lib/ebc/client";
+import type { Package, Room } from "@/lib/ebc/types";
+import { db } from "@/lib/db";
+import type { Booking, PriceCheck, Quote, Storefront } from "@/lib/db/types";
+import { lowestReference, parityCeiling, r2, stayLedger, type ReferenceQuote } from "@/lib/pricing/engine";
+
+export class BookingError extends Error {
+  constructor(public readonly code: "NO_AVAILABILITY" | "QUOTE_EXPIRED" | "PRICE_CHANGED" | "ALREADY_BOOKED" | "NOT_FOUND" | "SUPPLIER" | "INVALID", message: string, public readonly detail?: unknown) {
+    super(message); this.name = "BookingError";
+  }
+}
+
+const SOURCE_LABEL: Record<PriceCheck["source"], string> = { booking: "Booking.com", expedia: "Expedia", agoda: "Agoda", tripcom: "Trip.com", hotel: "the hotel's own site" };
+
+export interface StayOffer {
+  ebcId: number; name: string; stars: number;
+  hotelIndex: number; offerIndex: string; srk: string; resultsToken: string;
+  rates: Array<{
+    packageCode: string; packageToken: string; roomTokens: string[]; roomName: string; board: string; refundable: boolean; onRequest: boolean;
+    cancelDeadline: string | null; cancelCharge: number | null;
+    supplierNet: number; readerPrice: number; creatorShare: number; nomadlyNet: number; creatorRate: number;
+  }>;
+  references: ReferenceQuote[]; lowestReference: ReferenceQuote | null; saving: number | null;
+}
+
+export function nights(checkIn: string, checkOut: string): number {
+  const n = Math.round((Date.parse(checkOut) - Date.parse(checkIn)) / 86_400_000);
+  if (!Number.isInteger(n) || n < 1 || n > 30) throw new BookingError("INVALID", "stay must be 1 to 30 nights");
+  return n;
+}
+
+function packagesToRates(pkgs: Package[], rooms: Room[], creatorRate: number): StayOffer["rates"] {
+  return pkgs.filter((p) => p.complete).map((p) => {
+    const refs = p.packageRooms.flatMap((pr) => pr.roomReferences.filter((r) => r.selected).map((r) => r));
+    const room = rooms.find((r) => r.index === refs[0]?.roomCode) ?? rooms[0];
+    const supplierNet = p.price.components?.supplier?.value ?? p.price.selling.value;
+    const l = stayLedger(supplierNet, creatorRate);
+    const dl = room?.cancellationDeadline ?? null;
+    return {
+      packageCode: p.packageCode, packageToken: p.packageToken, roomTokens: refs.map((r) => r.roomToken),
+      roomName: room?.name ?? "Room", board: room?.boardBasis ?? "RO", refundable: !(room?.nonRefundable ?? false), onRequest: p.status === "RQ",
+      cancelDeadline: dl?.date ?? null, cancelCharge: dl?.charge.value ?? null,
+      supplierNet: l.supplierNet, readerPrice: l.readerPrice, creatorShare: l.creatorShare, nomadlyNet: l.nomadlyNet, creatorRate,
+    };
+  }).sort((a, b) => Number(b.refundable) - Number(a.refundable) || a.readerPrice - b.readerPrice); // flexible rates first, then price
+}
+
+/** Effective creator rate for this storefront on these dates: the dial, capped by the parity ceiling. */
+export async function effectiveRate(sf: Storefront, hotelsNet: Array<{ ebcId: number; supplierNet: number }>, checks: PriceCheck[]): Promise<{ rate: number; ceiling: number }> {
+  const ceiling = parityCeiling(hotelsNet.map((h) => ({ supplierNet: h.supplierNet, quotes: checks.filter((c) => c.ebcId === h.ebcId).map((c) => ({ source: SOURCE_LABEL[c.source], price: c.price, checkedAt: c.checkedAt })) })));
+  return { rate: Math.min(sf.creatorRate, ceiling), ceiling };
+}
+
+export async function searchStays(sf: Storefront, checkIn: string, checkOut: string, adults: number, childrenAges: number[] = []): Promise<{ offers: StayOffer[]; rate: number; ceiling: number; checkedAt: string | null }> {
+  nights(checkIn, checkOut);
+  const pins = await db().pinnedHotels(sf.id);
+  if (!pins.length) return { offers: [], rate: sf.creatorRate, ceiling: sf.creatorRate, checkedAt: null };
+  const [res, checks] = await Promise.all([
+    ebc().searchSync({ accommodation: pins.map((p) => p.ebcId), checkIn, checkOut, occupancy: { rooms: [{ adults, childrenAges }] } }),
+    db().latestPriceChecks(pins.map((p) => p.ebcId), checkIn, checkOut, adults),
+  ]);
+  // the cheapest refundable rate per hotel drives the parity guard
+  const nets = res.hotels.map((h) => {
+    const o = h.offers[0];
+    const cheapest = o ? Math.min(...o.packages.filter((p) => p.complete).map((p) => p.price.components?.supplier?.value ?? p.price.selling.value)) : Infinity;
+    return { ebcId: h.index, supplierNet: cheapest };
+  }).filter((n) => Number.isFinite(n.supplierNet));
+  const { rate, ceiling } = await effectiveRate(sf, nets, checks);
+  const offers: StayOffer[] = res.hotels.filter((h) => h.offers.length).map((h) => {
+    const o = h.offers[0]!;
+    const refs = checks.filter((c) => c.ebcId === h.index).map((c) => ({ source: SOURCE_LABEL[c.source], price: c.price, checkedAt: c.checkedAt }));
+    const rates = packagesToRates(o.packages, o.rooms, rate);
+    const low = lowestReference(refs);
+    const cheapestFlex = rates.find((r) => r.refundable) ?? rates[0];
+    return { ebcId: h.index, name: h.name, stars: h.stars, hotelIndex: h.index, offerIndex: o.id, srk: res.srk, resultsToken: res.tokens.results, rates, references: refs, lowestReference: low, saving: low && cheapestFlex ? r2(low.price - cheapestFlex.readerPrice) : null };
+  });
+  const checkedAt = checks.map((c) => c.checkedAt).sort().at(-1) ?? null;
+  return { offers, rate, ceiling, checkedAt };
+}
+
+/** Prebook one rate and persist the quote. The reader has 20 minutes to pay. */
+export async function holdQuote(sf: Storefront, offer: StayOffer, packageCode: string, checkIn: string, checkOut: string, occupancy: Array<{ adults: number; childrenAges: number[] }>): Promise<Quote> {
+  const rate = offer.rates.find((r) => r.packageCode === packageCode);
+  if (!rate) throw new BookingError("NOT_FOUND", "rate not in this offer");
+  let av;
+  try {
+    av = await ebc().availability(offer.srk, offer.hotelIndex, offer.offerIndex, offer.resultsToken, { packageToken: rate.packageToken, roomTokens: rate.roomTokens });
+  } catch (e) {
+    if (e instanceof EbcError && (e.code === "ROOM_UNAVAILABLE" || e.code === "OFFER_RECONFIGURED")) throw new BookingError("NO_AVAILABILITY", "This rate is no longer available. Pick another.", e.problem);
+    throw new BookingError("SUPPLIER", "The hotel system did not answer. Try again in a moment.", e instanceof EbcError ? e.problem : String(e));
+  }
+  const supplierNet = av.price.components?.supplier?.value ?? av.price.selling.value;
+  if (Math.abs(supplierNet - rate.supplierNet) > 0.01) {
+    // the supplier repriced between search and prebook: never silently book the new price
+    throw new BookingError("PRICE_CHANGED", "The price changed while you were looking. Refresh to see the new one.", { was: rate.supplierNet, now: supplierNet });
+  }
+  const l = stayLedger(supplierNet, rate.creatorRate);
+  const dl = cancellationDeadline(av.cancellationPolicy);
+  const now = Date.now();
+  return db().saveQuote({
+    storefrontId: sf.id, ebcId: offer.ebcId, checkIn, checkOut, occupancy, srk: offer.srk, resultsToken: offer.resultsToken, hotelIndex: offer.hotelIndex, offerIndex: offer.offerIndex,
+    packageCode, packageToken: rate.packageToken, roomTokens: rate.roomTokens, board: rate.board, refundable: rate.refundable && !(av.rooms[0]?.nonRefundable ?? false),
+    cancelDeadline: dl?.date ?? null, cancelCharge: dl?.charge ?? null,
+    supplierNet: l.supplierNet, currency: av.price.selling.currency, creatorRate: l.creatorRate, nomadlyNet: l.nomadlyNet, creatorShare: l.creatorShare, readerPrice: l.readerPrice,
+    lowestReference: offer.lowestReference?.price ?? null, lowestReferenceSource: offer.lowestReference?.source ?? null,
+    availabilityToken: av.availabilityToken, availabilityAt: new Date(now).toISOString(), autocancelAt: av.autocancelDate ?? null, expiresAt: new Date(now + 20 * 60_000).toISOString(),
+  });
+}
+
+export interface GuestInput { firstName: string; lastName: string; email: string; phone?: string; title?: "mr" | "mrs" | "ms"; country?: string }
+
+/** Create the booking row in "paying" and return the amount to charge. The caller creates the PaymentIntent. */
+export async function startPayment(sf: Storefront, quote: Quote, guest: GuestInput, promoCode?: string): Promise<{ booking: Booking; amount: number; currency: string }> {
+  if (Date.parse(quote.expiresAt) < Date.now()) throw new BookingError("QUOTE_EXPIRED", "This quote expired. Search again for a fresh price.");
+  let discount = 0;
+  if (promoCode) {
+    const p = await db().promo(sf.id, promoCode);
+    const live = p && p.active && (!p.maxUses || p.uses < p.maxUses) && (!p.startsAt || Date.parse(p.startsAt) <= Date.now()) && (!p.endsAt || Date.parse(p.endsAt) >= Date.now());
+    if (!live) throw new BookingError("INVALID", "That code is not valid.");
+    discount = Math.min(p.amountOff, quote.creatorShare); // a promo is paid out of the creator's share, never below Nomadly's net
+  }
+  const n = nights(quote.checkIn, quote.checkOut);
+  const seq = Date.now().toString(36);
+  const booking = await db().createBooking({
+    reference: "", clientRef: `nomadly-${seq}`.toLowerCase(), storefrontId: sf.id, creatorId: sf.creatorId, quoteId: quote.id, ebcId: quote.ebcId, ebcReservationId: null, hotelConfirmation: null,
+    status: "paying", checkIn: quote.checkIn, checkOut: quote.checkOut, nights: n,
+    guests: [{ firstName: guest.firstName.trim(), lastName: guest.lastName.trim(), type: "adult", lead: true }], leadEmail: guest.email.trim().toLowerCase(), leadPhone: guest.phone ?? null,
+    roomName: null, board: quote.board, refundable: quote.refundable, cancelDeadline: quote.cancelDeadline, cancelCharge: quote.cancelCharge, currency: quote.currency,
+    supplierNet: quote.supplierNet, nomadlyNet: quote.nomadlyNet, creatorRate: quote.creatorRate, creatorShare: quote.creatorShare, readerPrice: r2(quote.readerPrice - discount), cardFee: null,
+    extras: [], lowestReference: quote.lowestReference, lowestReferenceSource: quote.lowestReferenceSource, promoCode: promoCode ?? null, promoDiscount: discount,
+    stripePaymentIntent: null, paidAt: null, canceledAt: null, voucherToken: null,
+  });
+  await db().addEvent(booking.id, "payment_started", { amount: booking.readerPrice });
+  return { booking, amount: booking.readerPrice, currency: booking.currency };
+}
+
+/** Called from the Stripe webhook once the charge succeeded. Idempotent. */
+export async function confirmPaid(bookingId: string, paymentIntentId: string, webhookBase: string): Promise<Booking> {
+  const b = await db().booking(bookingId);
+  if (!b) throw new BookingError("NOT_FOUND", "booking");
+  if (b.status !== "paying") return b; // webhook replay
+  const q = b.quoteId ? await db().quote(b.quoteId) : null;
+  if (!q?.availabilityToken) throw new BookingError("QUOTE_EXPIRED", "quote lost");
+  await db().updateBooking(b.id, { stripePaymentIntent: paymentIntentId, paidAt: new Date().toISOString() });
+  const lead = b.guests.find((g) => g.lead)!;
+  const c = ebc();
+  try {
+    const dbl = await c.doubleBookingCheck(q.srk, q.hotelIndex, q.offerIndex, q.resultsToken, { availabilityToken: q.availabilityToken, rooms: [{ packageRoomToken: q.packageCode, travelers: [{ firstName: lead.firstName, lastName: lead.lastName }] }] });
+    if (dbl.hasDoubleBookings) await db().addEvent(b.id, "double_booking_warning", dbl);
+    const res = await c.book(q.srk, q.hotelIndex, q.offerIndex, q.resultsToken, {
+      availabilityToken: q.availabilityToken, clientRef: b.clientRef,
+      rooms: [{ packageRoomToken: q.packageCode, travelers: [{ reference: "t1", type: "adult", lead: true, title: "ms", firstName: lead.firstName, lastName: lead.lastName, email: b.leadEmail, phone: b.leadPhone ?? undefined }] }],
+      payment: { method: "credit" },
+    });
+    const r = await c.reservation(res.id);
+    let webhookId: number | undefined;
+    try { webhookId = (await c.subscribeWebhook(res.id, `${webhookBase}/api/webhooks/ebc/${b.id}`)).id; } catch (e) { await db().addEvent(b.id, "webhook_subscribe_failed", String(e)); }
+    let voucherToken: string | null = null;
+    try { const docs = await c.documents(res.id); voucherToken = docs.documents.find((d) => d.code === "voucher")?.documents[0]?.token ?? null; } catch { /* voucher may arrive later by webhook */ }
+    const status: Booking["status"] = res.status === "RQ" ? "on_request" : "confirmed";
+    await db().updateBooking(b.id, { status, ebcReservationId: res.id, hotelConfirmation: r.hotelConfirmationNumber ?? null, roomName: r.rooms[0]?.name ?? null, voucherToken });
+    await db().addEvent(b.id, "booked", { reservationId: res.id, status: res.status, webhookId });
+    return (await db().booking(b.id))!;
+  } catch (e) {
+    // money was taken and the hotel did not confirm: mark failed; the refund job reads this state
+    await db().updateBooking(b.id, { status: "failed" });
+    await db().addEvent(b.id, "book_failed", e instanceof EbcError ? e.problem : String(e));
+    throw new BookingError("SUPPLIER", "Payment succeeded but the hotel booking failed; refund scheduled.", e);
+  }
+}
+
+/** Penalty the reader would pay if canceling now, from the stored policy. */
+export function penaltyNow(b: Pick<Booking, "refundable" | "cancelDeadline" | "cancelCharge" | "readerPrice">, now = Date.now()): number {
+  if (!b.refundable) return b.readerPrice;
+  if (b.cancelDeadline && Date.parse(b.cancelDeadline) < now) return b.cancelCharge ?? b.readerPrice;
+  return 0;
+}
+
+export async function cancelBooking(bookingId: string): Promise<{ booking: Booking; penalty: number; refund: number }> {
+  const b = await db().booking(bookingId);
+  if (!b) throw new BookingError("NOT_FOUND", "booking");
+  if (!b.ebcReservationId) throw new BookingError("INVALID", "nothing to cancel at the hotel");
+  if (b.status === "canceled") return { booking: b, penalty: 0, refund: 0 };
+  const penalty = penaltyNow(b);
+  const r = await ebc().cancel(b.ebcReservationId);
+  if (r.service.status !== "XX" && r.service.status !== "XP") throw new BookingError("SUPPLIER", "The hotel did not accept the cancellation", r);
+  const refund = r2(b.readerPrice - penalty);
+  await db().updateBooking(b.id, { status: "canceled", canceledAt: new Date().toISOString() });
+  await db().addEvent(b.id, "canceled", { penalty, refund, supplierStatus: r.service.status });
+  return { booking: (await db().booking(b.id))!, penalty, refund };
+}

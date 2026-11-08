@@ -1,0 +1,35 @@
+{
+  "name": "nomadly",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "db:reset": "psql \"$DATABASE_URL\" -v ON_ERROR_STOP=1 -f supabase/migrations/0001_init.sql -f supabase/migrations/0002_rls.sql -f supabase/seed.sql"
+  },
+  "dependencies": {
+    "@stripe/react-stripe-js": "^7.0.1",
+    "@stripe/stripe-js": "^10.2.1",
+    "@supabase/ssr": "^0.8.0",
+    "@supabase/supabase-js": "^2.119.0",
+    "next": "16.4.5",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "stripe": "^23.1.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.5",
+    "typescript": "^5.9",
+    "vitest": "^5.1.0"
+  }
+}

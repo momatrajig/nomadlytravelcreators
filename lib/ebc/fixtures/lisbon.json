@@ -1,0 +1,262 @@
+[
+  {
+    "slug": "ic",
+    "ebcId": 515886,
+    "name": "InterContinental Lisbon",
+    "area": "Marqu\u00eas de Pombal",
+    "stars": 5,
+    "rating": 8.8,
+    "votes": 2340,
+    "supplierNet": 328.48,
+    "supplierNetNonRef": 289.07,
+    "penalty": 171.56,
+    "refs": [
+      {
+        "source": "Booking.com",
+        "price": 404
+      },
+      {
+        "source": "Expedia",
+        "price": 409
+      },
+      {
+        "source": "Agoda",
+        "price": 412
+      }
+    ],
+    "booked": 4,
+    "deposit": "Pre authorization of USD 100 by card at check in",
+    "onRequest": false,
+    "bookingSoldOut": false,
+    "tip": "Ask for a room above the 12th floor on the park side. The breakfast is good but Rua Castilho has two bakeries that are better and cheaper.",
+    "lat": 38.7266,
+    "lng": -9.1529
+  },
+  {
+    "slug": "sofitel",
+    "ebcId": 322829,
+    "name": "Sofitel Lisbon Liberdade",
+    "area": "Avenida da Liberdade",
+    "stars": 5,
+    "rating": 9,
+    "votes": 1810,
+    "supplierNet": 338.98,
+    "supplierNetNonRef": 305.08,
+    "penalty": 169.49,
+    "refs": [
+      {
+        "source": "Booking.com",
+        "price": 421
+      },
+      {
+        "source": "Expedia",
+        "price": 428
+      },
+      {
+        "source": "Agoda",
+        "price": 433
+      }
+    ],
+    "booked": 2,
+    "deposit": "None",
+    "onRequest": false,
+    "bookingSoldOut": false,
+    "tip": "Breakfast is included on this rate, which is rare on the Avenida. The bar does a quiet late lunch if you land at midday.",
+    "lat": 38.7196,
+    "lng": -9.1455
+  },
+  {
+    "slug": "tivoli",
+    "ebcId": 322826,
+    "name": "Tivoli Oriente",
+    "area": "Parque das Na\u00e7\u00f5es",
+    "stars": 4,
+    "rating": 8.5,
+    "votes": 3120,
+    "supplierNet": 267.38,
+    "supplierNetNonRef": 240.64,
+    "penalty": 133.69,
+    "refs": [
+      {
+        "source": "Booking.com",
+        "price": 316.9
+      },
+      {
+        "source": "Expedia",
+        "price": 322
+      },
+      {
+        "source": "Agoda",
+        "price": 319
+      }
+    ],
+    "booked": 3,
+    "deposit": "None",
+    "onRequest": false,
+    "bookingSoldOut": false,
+    "tip": "Right on top of Oriente station, so this is the one if you have an early train to Porto. Ask for a river view, there is no extra charge if they have one.",
+    "lat": 38.7676,
+    "lng": -9.0987
+  },
+  {
+    "slug": "iberostar",
+    "ebcId": 1003703,
+    "name": "Iberostar Selection Lisboa",
+    "area": "Saldanha",
+    "stars": 5,
+    "rating": 8.9,
+    "votes": 2650,
+    "supplierNet": 251.99,
+    "supplierNetNonRef": 226.79,
+    "penalty": 126,
+    "refs": [
+      {
+        "source": "Booking.com",
+        "price": 325
+      },
+      {
+        "source": "Expedia",
+        "price": 331
+      },
+      {
+        "source": "Agoda",
+        "price": 328
+      }
+    ],
+    "booked": 2,
+    "deposit": "None",
+    "onRequest": false,
+    "bookingSoldOut": false,
+    "tip": "The rooftop pool is heated and open in December. Adults only, so skip it for a family trip.",
+    "lat": 38.7352,
+    "lng": -9.1444
+  },
+  {
+    "slug": "aurea",
+    "ebcId": 1129920,
+    "name": "\u00c1urea Museum by Eurostars",
+    "area": "Baixa and Chiado",
+    "stars": 5,
+    "rating": 9.1,
+    "votes": 980,
+    "supplierNet": 267.05,
+    "supplierNetNonRef": 240.35,
+    "penalty": 133.53,
+    "refs": [
+      {
+        "source": "Booking.com",
+        "price": 366
+      },
+      {
+        "source": "Expedia",
+        "price": 372
+      },
+      {
+        "source": "Agoda",
+        "price": 369
+      }
+    ],
+    "booked": 2,
+    "deposit": "Pre authorization of USD 150 by card at check in",
+    "onRequest": false,
+    "bookingSoldOut": false,
+    "tip": "Built around Roman ruins you can see from the lobby. Rooms over Rua do Com\u00e9rcio hear the trams, ask for the courtyard side.",
+    "lat": 38.709,
+    "lng": -9.1368
+  },
+  {
+    "slug": "letras",
+    "ebcId": 323689,
+    "name": "Eurostars Das Letras",
+    "area": "Avenida da Liberdade",
+    "stars": 5,
+    "rating": 8.6,
+    "votes": 1420,
+    "supplierNet": 224.57,
+    "supplierNetNonRef": 202.11,
+    "penalty": 112.29,
+    "refs": [
+      {
+        "source": "Booking.com",
+        "price": 308
+      },
+      {
+        "source": "Expedia",
+        "price": 314
+      },
+      {
+        "source": "Agoda",
+        "price": 311
+      }
+    ],
+    "booked": 2,
+    "deposit": "None",
+    "onRequest": false,
+    "bookingSoldOut": false,
+    "tip": "Quiet for the location. The gym is small but real. Good value if you only need a base.",
+    "lat": 38.7228,
+    "lng": -9.1488
+  },
+  {
+    "slug": "universal",
+    "ebcId": 2218071,
+    "name": "Eurostars Universal Lisboa",
+    "area": "Saldanha",
+    "stars": 4,
+    "rating": 8.4,
+    "votes": 1760,
+    "supplierNet": 224.04,
+    "supplierNetNonRef": 201.64,
+    "penalty": 112.02,
+    "refs": [
+      {
+        "source": "Booking.com",
+        "price": 290
+      },
+      {
+        "source": "Expedia",
+        "price": 296
+      },
+      {
+        "source": "Agoda",
+        "price": 293
+      }
+    ],
+    "booked": 2,
+    "deposit": "None",
+    "onRequest": true,
+    "bookingSoldOut": false,
+    "tip": "On request only for these dates, so book early and expect a confirmation within a few hours. Metro at the door.",
+    "lat": 38.7366,
+    "lng": -9.1433
+  },
+  {
+    "slug": "corinthia",
+    "ebcId": 322364,
+    "name": "Corinthia Lisbon",
+    "area": "Lapa",
+    "stars": 5,
+    "rating": 9.2,
+    "votes": 4010,
+    "supplierNet": 383.8,
+    "supplierNetNonRef": 345.42,
+    "penalty": 191.9,
+    "refs": [
+      {
+        "source": "Expedia",
+        "price": 455
+      },
+      {
+        "source": "Agoda",
+        "price": 461
+      }
+    ],
+    "booked": 4,
+    "deposit": "Pre authorization of USD 200 by card at check in",
+    "onRequest": false,
+    "bookingSoldOut": true,
+    "tip": "The spa is the reason to stay. It is away from the center, so budget taxis, but the readers who went loved it.",
+    "lat": 38.7322,
+    "lng": -9.168
+  }
+]
