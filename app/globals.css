@@ -1,33 +1,28 @@
 /* Nomadly storefront design tokens. The brand color is injected per storefront on <html style>. */
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
   --brand: #2458d6;
   --brand-ink: #ffffff;
-  --brand-text: color-mix(in srgb, var(--brand) 55%, #ffffff);
-  --brand-soft: color-mix(in srgb, var(--brand) 18%, transparent);
-  --brand-line: color-mix(in srgb, var(--brand) 50%, transparent);
+  --brand-text: color-mix(in srgb, var(--brand) 85%, #000000);
+  --brand-soft: color-mix(in srgb, var(--brand) 10%, #ffffff);
+  --brand-line: color-mix(in srgb, var(--brand) 45%, transparent);
   --gold: #e3b04b;
-  --bg: #101216; --bg-2: #15181d; --surface: #1b1f25; --surface-2: #232830; --surface-3: #2b313a;
-  --line: #2b313a; --line-2: #3a414c;
-  --fg: #efeae0; --fg-2: #cfc9bd; --mute: #929aa5;
-  --ok: #5cc187; --ok-bg: rgba(92,193,135,.14); --warn: #e5b24a; --warn-bg: rgba(229,178,74,.14); --bad: #ef6b6b; --bad-bg: rgba(239,107,107,.14);
-  --shadow: 0 18px 50px rgba(0,0,0,.5); --shadow-sm: 0 6px 18px rgba(0,0,0,.35);
+  --navy: #0b1f3a;
+  --bg: #ffffff; --bg-2: #f7f8fa; --surface: #ffffff; --surface-2: #f4f5f7; --surface-3: #e9ebef;
+  --line: #e6e8ec; --line-2: #d5d9e0;
+  --fg: #0f172a; --fg-2: #334155; --mute: #64748b;
+  --ok: #1f8f5f; --ok-bg: #e6f4ec; --warn: #b4740a; --warn-bg: #fdf3dc; --bad: #c0392b; --bad-bg: #fbe9e7;
+  --shadow: 0 18px 50px rgba(11,31,58,.12); --shadow-sm: 0 6px 18px rgba(11,31,58,.08);
   --font-display: "Fraunces", "Lora", Georgia, serif;
-  --font-body: "Inter", "Albert Sans", system-ui, -apple-system, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, sans-serif;
   --r: 14px; --r-lg: 22px;
 }
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) {
-    --bg: #f6f3ee; --bg-2: #efeae1; --surface: #ffffff; --surface-2: #f3eee5; --surface-3: #e9e2d6;
-    --line: #e3dccf; --line-2: #d3cabb; --fg: #1a1a1f; --fg-2: #3c3a44; --mute: #6b6f7a;
-    --brand-text: color-mix(in srgb, var(--brand) 85%, #000000);
-    --shadow: 0 18px 50px rgba(30,20,10,.14); --shadow-sm: 0 6px 18px rgba(30,20,10,.1);
-  }
-}
-:root[data-theme="light"] {
-  --bg: #f6f3ee; --bg-2: #efeae1; --surface: #ffffff; --surface-2: #f3eee5; --surface-3: #e9e2d6;
-  --line: #e3dccf; --line-2: #d3cabb; --fg: #1a1a1f; --fg-2: #3c3a44; --mute: #6b6f7a;
-  --brand-text: color-mix(in srgb, var(--brand) 85%, #000000);
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --brand-text: color-mix(in srgb, var(--brand) 55%, #ffffff);
+  --bg: #0b1020; --bg-2: #0f1628; --surface: #141b2e; --surface-2: #1b2340; --surface-3: #232c4d;
+  --line: #243052; --line-2: #2f3b63; --fg: #eef2ff; --fg-2: #c7cfe6; --mute: #8b96b8;
+  --shadow: 0 18px 50px rgba(0,0,0,.5); --shadow-sm: 0 6px 18px rgba(0,0,0,.35);
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
@@ -35,12 +30,13 @@ body { background: var(--bg); color: var(--fg); font: 15px/1.5 var(--font-body);
 a { color: inherit; }
 button { font: inherit; }
 img { max-width: 100%; display: block; }
-h1, h2, h3 { font-family: var(--font-display); font-weight: 500; letter-spacing: -0.01em; margin: 0; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 500; letter-spacing: -0.015em; margin: 0; color: var(--navy); }
+:root[data-theme="dark"] h1, :root[data-theme="dark"] h2, :root[data-theme="dark"] h3 { color: var(--fg); }
 .wrap { width: min(1180px, 100% - 32px); margin-inline: auto; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 
 /* header */
-.hdr { position: sticky; top: 0; z-index: 40; backdrop-filter: blur(14px); background: color-mix(in srgb, var(--bg) 82%, transparent); border-bottom: 1px solid var(--line); }
+.hdr { position: sticky; top: 0; z-index: 40; backdrop-filter: blur(14px); background: color-mix(in srgb, var(--bg) 88%, transparent); border-bottom: 1px solid var(--line); }
 .hdr .wrap { display: flex; align-items: center; justify-content: space-between; gap: 14px; height: 60px; }
 .logo { display: flex; align-items: center; gap: 9px; text-decoration: none; font-family: var(--font-display); font-size: 19px; }
 .logo .mark { width: 30px; height: 30px; border-radius: 9px; background: var(--brand); color: var(--brand-ink); display: grid; place-items: center; font: 700 13px var(--font-body); }
@@ -52,14 +48,14 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 500; letter-spacing:
 /* buttons */
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 11px 16px; border-radius: 12px; border: 1px solid var(--line-2); background: var(--surface); color: var(--fg); text-decoration: none; cursor: pointer; font-weight: 600; font-size: 14px; min-height: 44px; }
 .btn:hover { background: var(--surface-2); }
-.btn-brand { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); }
-.btn-brand:hover { filter: brightness(1.08); background: var(--brand); }
+.btn-brand { background: linear-gradient(135deg, var(--navy), var(--brand)); border-color: transparent; color: var(--brand-ink); box-shadow: 0 8px 18px -8px rgba(36,88,214,.6); }
+.btn-brand:hover { filter: brightness(1.06); }
 .btn-lg { padding: 14px 20px; font-size: 16px; }
 .btn[aria-disabled="true"] { opacity: .55; cursor: not-allowed; }
 .btn-link { background: none; border: 0; color: var(--brand-text); text-decoration: underline; cursor: pointer; padding: 6px 0; }
 
 /* cards and text */
-.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 20px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 20px; box-shadow: 0 1px 2px rgba(11,31,58,.04); }
 .mute { color: var(--mute); } .small { font-size: 13px; }
 .chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; background: var(--surface-2); color: var(--fg-2); }
 .chip-ok { background: var(--ok-bg); color: var(--ok); } .chip-warn { background: var(--warn-bg); color: var(--warn); } .chip-bad { background: var(--bad-bg); color: var(--bad); }

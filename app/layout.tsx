@@ -30,6 +30,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <main className="wrap">{children}</main>
             <footer className="wrap">
               <p>{sf.brandName} is powered by Nomadly, a Veny Inc. company, New York. Bookings are made and charged by Nomadly; the hotel is paid by Nomadly. Prices on the big sites are checked every hour. Support 7 days a week, 08:00 to 22:00 Lisbon time.</p>
+              <p style={{ marginTop: 8 }}><Link href="/dashboard" style={{ color: "var(--mute)" }}>Creator dashboard</Link></p>
             </footer>
             <BottomNav />
           </>
