@@ -80,6 +80,26 @@ describe("ebc client against the mock transport (full booking path)", () => {
   });
 });
 
+describe("token scopes", () => {
+  it("drops a scope the account is not granted and carries on", async () => {
+    const asked: string[] = [];
+    const f: typeof fetch = async (input, init) => {
+      const u = String(input instanceof Request ? input.url : input);
+      if (u.endsWith("/oauth2/token")) {
+        const sc = new URLSearchParams(String(init?.body)).get("scope")!; asked.push(sc);
+        return sc.includes("read:reservations-documents")
+          ? new Response(JSON.stringify({ error: "invalid_scope", hint: "Check the `read:reservations-documents` scope" }), { status: 400 })
+          : new Response(JSON.stringify({ access_token: "t", expires_in: 3600 }));
+      }
+      return new Response(JSON.stringify({ resellerId: 1, enabled: true, active: true, unlimited: false, available: { value: 1, currency: "USD" } }));
+    };
+    const c = new EbcClient({ ...cfg, mode: "live", scopes: "read:hotels-search read:reservations-documents read:resellerCredit", fetch: f });
+    expect((await c.credit()).enabled).toBe(true);
+    expect(c.droppedScopes).toEqual(["read:reservations-documents"]);
+    expect(asked.at(-1)).toBe("read:hotels-search read:resellerCredit");
+  });
+});
+
 describe("leader nationality in live mode", () => {
   it("resolves the ID from the mapping API by ISO and caches it", async () => {
     let natCalls = 0; let sent: unknown = null;

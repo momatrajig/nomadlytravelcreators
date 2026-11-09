@@ -19,5 +19,6 @@ export async function GET() {
       const r = await c.searchSync({ accommodation: [483658, 303974, 421077], checkIn: "2026-12-03", checkOut: "2026-12-05", occupancy: { rooms: [{ adults: 1, childrenAges: [] }] } });
       return { hotels: r.hotels.length, offers: r.hotels.reduce((a, h) => a + h.offers.length, 0) };
     });
+  out.scopesNotGranted = c.droppedScopes;
   return NextResponse.json(out, { headers: { "cache-control": "no-store" } });
 }

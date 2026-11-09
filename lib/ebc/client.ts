@@ -51,7 +51,7 @@ export function configFromEnv(env: NodeJS.ProcessEnv = process.env): EbcConfig {
     baseUrl: (env.EBC_BASE_URL ?? "https://www.ebookingcenter.com/tbs/reseller").replace(/\/$/, ""),
     clientId: env.EBC_CLIENT_ID ?? "",
     clientSecret: env.EBC_CLIENT_SECRET ?? "",
-    scopes: env.EBC_SCOPES ?? "read:hotels-search write:hotels-book read:mapping read:reservations write:reservations read:reservations-documents read:resellerCredit",
+    scopes: env.EBC_SCOPES ?? "read:hotels-search write:hotels-book read:mapping read:reservations write:reservations read:reservations-documents write:reservations-webhooks read:resellerCredit",
     // 0 means: resolve from the mapping API by ISO code (EBC_DEFAULT_NATIONALITY_ISO, default US) on first use
     leaderNationalityId: Number(env.EBC_LEADER_NATIONALITY_ID ?? 0),
     defaultNationalityIso: (env.EBC_DEFAULT_NATIONALITY_ISO ?? "US").toUpperCase(),
@@ -67,6 +67,9 @@ export class EbcClient {
   private token: Token | null = null;
   private tokenPromise: Promise<Token> | null = null;
   public lastRateLimit: RateLimitInfo = {};
+  /** scopes the account refused at token time (for the health check and the ops log) */
+  public droppedScopes: string[] = [];
+  private grantedScopes: string | null = null;
   private readonly f: typeof fetch;
   private readonly now: () => number;
   private readonly sleep: (ms: number) => Promise<void>;
@@ -83,9 +86,21 @@ export class EbcClient {
     if (!force && this.token && this.token.expiresAt - skew > this.now()) return this.token.access;
     if (!this.tokenPromise) {
       this.tokenPromise = (async () => {
-        const body = new URLSearchParams({ grant_type: "client_credentials", client_id: this.cfg.clientId, client_secret: this.cfg.clientSecret, scope: this.cfg.scopes });
-        const res = await this.f(`${this.cfg.baseUrl}/oauth2/token`, { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" }, body });
-        if (!res.ok) throw new EbcError({ title: "token request failed", status: res.status, detail: await res.text() });
+        // Ask for every scope the product uses; when the account is not granted one, the server names it
+        // ("Check the `x` scope"), so drop it and ask again rather than fail every call. Dropped scopes are reported.
+        let scopes = (this.grantedScopes ?? this.cfg.scopes).split(/\s+/).filter(Boolean);
+        let res: Response;
+        for (let i = 0; ; i++) {
+          const body = new URLSearchParams({ grant_type: "client_credentials", client_id: this.cfg.clientId, client_secret: this.cfg.clientSecret, scope: scopes.join(" ") });
+          res = await this.f(`${this.cfg.baseUrl}/oauth2/token`, { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" }, body });
+          if (res.ok) break;
+          const text = await res.text();
+          const bad = /invalid_scope/.test(text) ? /`([a-z]+:[A-Za-z_-]+)`/.exec(text)?.[1] : undefined;
+          if (!bad || !scopes.includes(bad) || i > 12) throw new EbcError({ title: "token request failed", status: res.status, detail: text });
+          scopes = scopes.filter((x) => x !== bad);
+          this.droppedScopes = [...new Set([...this.droppedScopes, bad])];
+        }
+        this.grantedScopes = scopes.join(" ");
         const j = (await res.json()) as { access_token: string; expires_in: number };
         const t = { access: j.access_token, expiresAt: this.now() + Math.max(60, j.expires_in) * 1000 };
         this.token = t;
