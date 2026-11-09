@@ -21,8 +21,9 @@ export async function sendBookingEmail(b: Booking, base: string): Promise<boolea
   const brand = sf?.brandName ?? "Nomadly";
   const link = `${base}/booking/${encodeURIComponent(b.reference)}?email=${encodeURIComponent(b.leadEmail)}`;
   const onReq = b.status === "on_request";
-  const subject = onReq ? `${hotel?.name ?? "Your stay"}: booking received, ${b.reference}` : `${hotel?.name ?? "Your stay"} is confirmed, ${b.reference}`;
+  const subject = `${b.demo ? "[Demo] " : ""}${onReq ? `${hotel?.name ?? "Your stay"}: booking received, ${b.reference}` : `${hotel?.name ?? "Your stay"} is confirmed, ${b.reference}`}`;
   const lines = [
+    ...(b.demo ? ["This is a demo booking. It was paid with a Stripe test card; no room is reserved at the hotel and no money was taken."] : []),
     onReq ? "We have your booking and the hotel is confirming it now, usually within a few hours. You will get a second email the moment it does." : "Your room is booked. Show this reference at check in if the hotel asks.",
     `Reference: ${b.reference}${b.hotelConfirmation ? `   Hotel confirmation: ${b.hotelConfirmation}` : ""}`,
     `${hotel?.name ?? ""}, ${fmtDate(b.checkIn)} to ${fmtDate(b.checkOut)}, ${b.nights} ${b.nights === 1 ? "night" : "nights"}. ${b.roomName ?? "Room"}, ${(BOARD[b.board ?? "RO"] ?? "").toLowerCase()}.`,
@@ -30,7 +31,7 @@ export async function sendBookingEmail(b: Booking, base: string): Promise<boolea
     b.refundable ? `Free cancellation until ${b.cancelDeadline ? fmtDate(b.cancelDeadline) : "check in"}${b.cancelCharge ? `, then ${usd(b.cancelCharge)}` : ""}.` : "This rate has no refunds.",
     ...b.extras.map((x) => `Also booked: ${x.name}, ${usd(x.price)}.`),
     `Manage or cancel: ${link}`,
-    "If the hotel cannot find your booking, show them this email. Nomadly support answers 7 days a week, 08:00 to 22:00 Lisbon time.",
+    "If the hotel cannot find your booking, show them this email. Nomadly support answers every day, 08:00 to 22:00 UTC.",
   ];
   const html = `<div style="font-family:Inter,Arial,sans-serif;max-width:560px;margin:auto;color:#0f172a"><h2 style="font-family:Georgia,serif;font-weight:500">${subject}</h2>${lines.map((l) => `<p style="line-height:1.5">${l.replace(link, `<a href="${link}">${link}</a>`)}</p>`).join("")}<p style="color:#64748b;font-size:13px">${brand} is powered by Nomadly, a Veny Inc. company, New York.</p></div>`;
   return sendEmail(b.leadEmail, subject, html, lines.join("\n\n"));

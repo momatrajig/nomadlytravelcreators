@@ -16,7 +16,7 @@ import type { Booking, PriceCheck, Quote, Storefront } from "@/lib/db/types";
 import { extraLedger, lowestReference, parityCeiling, r2, stayLedger, type ReferenceQuote } from "@/lib/pricing/engine";
 import { extraByKind } from "@/lib/extras/catalog";
 import { sendBookingEmail } from "@/lib/email/send";
-import { bookingClosedReason } from "./guard";
+import { bookingMode } from "./guard";
 
 export class BookingError extends Error {
   constructor(public readonly code: "NO_AVAILABILITY" | "QUOTE_EXPIRED" | "PRICE_CHANGED" | "ALREADY_BOOKED" | "NOT_FOUND" | "SUPPLIER" | "INVALID", message: string, public readonly detail?: unknown) {
@@ -170,8 +170,6 @@ export interface GuestInput { firstName: string; lastName: string; email: string
 
 /** Create the booking row in "paying" and return the amount to charge. The caller creates the PaymentIntent. */
 export async function startPayment(sf: Storefront, quote: Quote, guest: GuestInput, promoCode?: string, extraKinds: string[] = []): Promise<{ booking: Booking; amount: number; currency: string }> {
-  const closed = bookingClosedReason();
-  if (closed) throw new BookingError("INVALID", closed);
   if (Date.parse(quote.expiresAt) < Date.now()) throw new BookingError("QUOTE_EXPIRED", "This quote expired. Search again for a fresh price.");
   let discount = 0;
   if (promoCode) {
@@ -202,12 +200,17 @@ export async function confirmPaid(bookingId: string, paymentIntentId: string, we
   const b = await db().booking(bookingId);
   if (!b) throw new BookingError("NOT_FOUND", "booking");
   if (b.status !== "paying") return b; // webhook replay
-  // second lock: never reserve a real room on Veny's credit against a test payment
-  const closed = bookingClosedReason();
-  if (closed) { await db().updateBooking(b.id, { status: "failed" }); await db().addEvent(b.id, "booking_closed", { reason: closed, paymentIntentId }); throw new BookingError("INVALID", closed); }
   const q = b.quoteId ? await db().quote(b.quoteId) : null;
   if (!q?.availabilityToken) throw new BookingError("QUOTE_EXPIRED", "quote lost");
   await db().updateBooking(b.id, { stripePaymentIntent: paymentIntentId, paidAt: new Date().toISOString() });
+  // live hotel prices with test card payments: never reserve a real room on Veny's credit; finish as a demo
+  if (bookingMode() === "demo") {
+    await db().updateBooking(b.id, { status: "confirmed", demo: true, roomName: b.roomName ?? null });
+    await db().addEvent(b.id, "demo_confirmed", { paymentIntentId, note: "no reservation made with the supplier" });
+    const done = (await db().booking(b.id))!;
+    try { const sent = await sendBookingEmail(done, webhookBase); await db().addEvent(b.id, sent ? "email_sent" : "email_skipped", { to: b.leadEmail }); } catch (e) { await db().addEvent(b.id, "email_failed", String(e)); }
+    return done;
+  }
   const lead = b.guests.find((g) => g.lead)!;
   const c = ebc();
   try {
@@ -250,9 +253,15 @@ export function penaltyNow(b: Pick<Booking, "refundable" | "cancelDeadline" | "c
 export async function cancelBooking(bookingId: string): Promise<{ booking: Booking; penalty: number; refund: number }> {
   const b = await db().booking(bookingId);
   if (!b) throw new BookingError("NOT_FOUND", "booking");
-  if (!b.ebcReservationId) throw new BookingError("INVALID", "nothing to cancel at the hotel");
   if (b.status === "canceled") return { booking: b, penalty: 0, refund: 0 };
   const penalty = penaltyNow(b);
+  if (b.demo) { // nothing was reserved; the test payment is refunded by the caller like any other
+    const refund = r2(chargedTotal(b) - penalty);
+    await db().updateBooking(b.id, { status: "canceled", canceledAt: new Date().toISOString() });
+    await db().addEvent(b.id, "canceled", { penalty, refund, demo: true });
+    return { booking: (await db().booking(b.id))!, penalty, refund };
+  }
+  if (!b.ebcReservationId) throw new BookingError("INVALID", "nothing to cancel at the hotel");
   const r = await ebc().cancel(b.ebcReservationId);
   if (r.service.status !== "XX" && r.service.status !== "XP") throw new BookingError("SUPPLIER", "The hotel did not accept the cancellation", r);
   const refund = r2(chargedTotal(b) - penalty); // extras are refunded in full with the stay

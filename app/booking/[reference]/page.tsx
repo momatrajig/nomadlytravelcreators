@@ -49,11 +49,12 @@ export default async function BookingPage({ params, searchParams }: { params: Pr
   const hotel = await db().hotel(b.ebcId);
   const st = STATUS[b.status] ?? STATUS.confirmed!;
   const penalty = penaltyNow(b);
-  const canCancel = (b.status === "confirmed" || b.status === "on_request") && !!b.ebcReservationId;
+  const canCancel = (b.status === "confirmed" || b.status === "on_request") && (!!b.ebcReservationId || !!b.demo);
   return (
     <>
       <div style={{ marginTop: 18 }} className="panel">
-        <span className={`chip ${st.cls}`}>{st.label}</span>
+        {b.demo && <div className="notice warn" role="note" style={{ marginBottom: 12 }}>Demo booking: paid with a Stripe test card while hotel prices are live. No room is reserved at the hotel and no money was taken.</div>}
+        <span className={`chip ${st.cls}`}>{st.label}{b.demo ? ", demo" : ""}</span>
         <h1 style={{ fontSize: 28, marginTop: 10 }}>{hotel?.name}</h1>
         <p className="mute" style={{ margin: "4px 0 0" }}>{fmtDate(b.checkIn)} to {fmtDate(b.checkOut)}, {b.nights} {b.nights === 1 ? "night" : "nights"}. {b.roomName ?? "Room"}, {BOARD[b.board ?? "RO"]?.toLowerCase()}.</p>
         <p style={{ margin: "12px 0 0" }}>{st.text}</p>

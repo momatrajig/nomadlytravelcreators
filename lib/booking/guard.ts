@@ -1,13 +1,20 @@
 import { env } from "@/lib/env";
 
+type E = { EBC_MODE: string; STRIPE_SECRET_KEY?: string };
+
 /**
- * A real hotel reservation is charged to Veny's eBooking credit line the moment it is made.
- * So when the supplier is live, a booking may only be made against a real card payment
- * (a Stripe live key). Live supplier plus test payments would create real reservations
- * that nobody paid for. Returns the reason booking is closed, or null when it is open.
+ * How a paid checkout ends.
+ *  real: the room is reserved with the supplier (simulator, or live supplier with live card payments).
+ *  demo: live hotel prices but test card payments. A real reservation would be charged to Veny's
+ *        eBooking credit with no money collected, so the whole flow runs (quote, pay with a test card,
+ *        confirmation, email) and the reservation step is skipped. The booking is marked demo everywhere.
  */
-export function bookingClosedReason(e: { EBC_MODE: string; STRIPE_SECRET_KEY?: string } = env()): string | null {
-  if (e.EBC_MODE !== "live") return null; // simulator: nothing real is reserved
-  if (!e.STRIPE_SECRET_KEY?.startsWith("sk_live_")) return "Live hotel prices are on, but card payments are still in test mode, so booking is not open yet. Nothing was charged.";
-  return null;
+export function bookingMode(e: E = env()): "real" | "demo" {
+  if (e.EBC_MODE !== "live") return "real";
+  return e.STRIPE_SECRET_KEY?.startsWith("sk_live_") ? "real" : "demo";
+}
+
+/** Kept for callers that only need to know whether real reservations are open. */
+export function bookingClosedReason(e: E = env()): string | null {
+  return bookingMode(e) === "demo" ? "Live hotel prices, test card payments: bookings run as demos and no room is reserved." : null;
 }

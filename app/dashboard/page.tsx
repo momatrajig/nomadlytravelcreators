@@ -5,7 +5,8 @@ import { stayLedger, NOMADLY_MARKUP } from "@/lib/pricing/engine";
 
 export const dynamic = "force-dynamic";
 const AVG_STAY = 640;
-const lastThirtyDays = <T extends { createdAt: string; status: string }>(rows: T[]) => { const since = Date.now() - 30 * 86_400_000; return rows.filter((b) => Date.parse(b.createdAt) > since && b.status !== "failed" && b.status !== "paying"); };
+// demo bookings (test card while hotel prices are live) are listed but never counted as earnings
+const lastThirtyDays = <T extends { createdAt: string; status: string; demo?: boolean }>(rows: T[]) => { const since = Date.now() - 30 * 86_400_000; return rows.filter((b) => Date.parse(b.createdAt) > since && b.status !== "failed" && b.status !== "paying" && !b.demo); };
 
 export default async function Overview() {
   const c = (await currentCreator())!;
@@ -32,7 +33,7 @@ export default async function Overview() {
             {bookings.slice(0, 25).map((b) => <tr key={b.id}>
               <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}><b>{b.reference}</b><div className="small mute">{fmtDate(b.createdAt)}</div></td>
               <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}>{fmtDate(b.checkIn)}, {b.nights} {b.nights === 1 ? "night" : "nights"}</td>
-              <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}><span className={`chip ${b.status === "confirmed" || b.status === "completed" ? "chip-ok" : b.status === "canceled" || b.status === "failed" ? "chip-bad" : "chip-warn"}`}>{b.status.replace("_", " ")}</span></td>
+              <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}><span className={`chip ${b.status === "confirmed" || b.status === "completed" ? "chip-ok" : b.status === "canceled" || b.status === "failed" ? "chip-bad" : "chip-warn"}`}>{b.status.replace("_", " ")}</span>{b.demo ? <span className="chip" style={{ marginLeft: 6 }}>demo</span> : null}</td>
               <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}>{usd(b.readerPrice + b.extras.reduce((a, x) => a + x.price, 0))}{b.extras.length ? <div className="small mute">{b.extras.length} {b.extras.length === 1 ? "extra" : "extras"}</div> : null}</td>
               <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}>{usd(b.supplierNet)}</td>
               <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}>{usd(b.nomadlyNet - b.supplierNet)}</td>

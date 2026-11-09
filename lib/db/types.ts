@@ -25,7 +25,9 @@ export interface Quote {
 export type BookingStatus = "quoted" | "paying" | "booked" | "on_request" | "confirmed" | "completed" | "canceled" | "failed";
 export interface Booking {
   id: string; reference: string; clientRef: string; storefrontId: string; creatorId: string; quoteId: string | null; ebcId: number;
-  ebcReservationId: number | null; hotelConfirmation: string | null; status: BookingStatus; checkIn: string; checkOut: string; nights: number;
+  ebcReservationId: number | null; hotelConfirmation: string | null; status: BookingStatus;
+  /** paid with a test card while hotel prices were live: the flow ran, no room was reserved, never paid out */
+  demo?: boolean; checkIn: string; checkOut: string; nights: number;
   guests: Array<{ firstName: string; lastName: string; type: "adult" | "child"; lead: boolean }>; leadEmail: string; leadPhone: string | null;
   roomName: string | null; board: string | null; refundable: boolean; cancelDeadline: string | null; cancelCharge: number | null; currency: string;
   supplierNet: number; nomadlyNet: number; creatorRate: number; creatorShare: number; readerPrice: number; cardFee: number | null;

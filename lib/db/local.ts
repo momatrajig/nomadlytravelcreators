@@ -60,7 +60,7 @@ export function localDb(): Db {
     async updateStorefront(id, patch) { if (id === sf.id) sf = { ...sf, ...patch }; },
     async updatePin(storefrontId, ebcId, patch) { const p = pins.find((x) => x.ebcId === ebcId); if (storefrontId === sf.id && p) Object.assign(p, patch); },
     async payoutsForCreator(creatorId) { return payouts.filter((p) => p.creatorId === creatorId); },
-    async payableBookings(creatorId, before) { const paid = new Set(payouts.flatMap((p) => p.items.map((i) => i.bookingId))); return [...bookings.values()].filter((b) => b.creatorId === creatorId && (b.status === "confirmed" || b.status === "completed") && b.checkOut <= before && !paid.has(b.id)); },
+    async payableBookings(creatorId, before) { const paid = new Set(payouts.flatMap((p) => p.items.map((i) => i.bookingId))); return [...bookings.values()].filter((b) => b.creatorId === creatorId && (b.status === "confirmed" || b.status === "completed") && !b.demo && b.checkOut <= before && !paid.has(b.id)); },
     async createPayout(p) { const full: Payout = { ...p, id: randomUUID() }; payouts.push(full); return full; },
     async cacheGet<T>(key: string) { const c = cache.get(key); return c && c.exp > Date.now() ? (c.v as T) : null; },
     async cacheSet(key, value, ttl) { cache.set(key, { v: value, exp: Date.now() + ttl * 1000 }); },
@@ -83,7 +83,7 @@ export function localDb(): Db {
     async bookingByPaymentIntent(pi) { return [...bookings.values()].find((b) => b.stripePaymentIntent === pi) ?? null; },
     async updateBooking(id, patch) { const b = bookings.get(id); if (b) bookings.set(id, { ...b, ...patch }); },
     async addEvent(bookingId, kind, payload) { events.push({ bookingId, kind, payload, at: new Date().toISOString() }); },
-    async bookedCountsByHotel(storefrontId, sinceIso) { const m = new Map<number, number>(); for (const b of bookings.values()) if (b.storefrontId === storefrontId && (b.status === 'confirmed' || b.status === 'completed') && b.createdAt >= sinceIso) m.set(b.ebcId, (m.get(b.ebcId) ?? 0) + 1); return m; },
+    async bookedCountsByHotel(storefrontId, sinceIso) { const m = new Map<number, number>(); for (const b of bookings.values()) if (b.storefrontId === storefrontId && (b.status === 'confirmed' || b.status === 'completed') && !b.demo && b.createdAt >= sinceIso) m.set(b.ebcId, (m.get(b.ebcId) ?? 0) + 1); return m; },
     async bookingsForCreator(creatorId, limit = 50) { return [...bookings.values()].filter((b) => b.creatorId === creatorId).slice(-limit).reverse(); },
   };
 }

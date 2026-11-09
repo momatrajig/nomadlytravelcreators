@@ -33,7 +33,7 @@ export function supabaseDb(): Db {
     },
     async payableBookings(creatorId, before) {
       const paid = must(await sb.from("payout_items").select("booking_id")) as Array<{ booking_id: string }>;
-      const rows = must(await sb.from("bookings").select("*").eq("creator_id", creatorId).in("status", ["confirmed", "completed"]).lte("check_out", before)) as Array<Record<string, unknown>>;
+      const rows = must(await sb.from("bookings").select("*").eq("creator_id", creatorId).in("status", ["confirmed", "completed"]).eq("demo", false).lte("check_out", before)) as Array<Record<string, unknown>>;
       const set = new Set(paid.map((p) => p.booking_id));
       return rows.map((r) => fromRow<Booking>(r)).filter((b) => !set.has(b.id));
     },
@@ -93,7 +93,7 @@ export function supabaseDb(): Db {
     async bookingByPaymentIntent(pi) { const r = await sb.from("bookings").select("*").eq("stripe_payment_intent", pi).maybeSingle(); return r.data ? fromRow<Booking>(r.data) : null; },
     async updateBooking(id, patch) { must(await sb.from("bookings").update(toRow(patch)).eq("id", id)); },
     async addEvent(bookingId, kind, payload) { must(await sb.from("booking_events").insert({ booking_id: bookingId, kind, payload })); },
-    async bookedCountsByHotel(storefrontId, sinceIso) { const rows = must(await sb.from('bookings').select('ebc_id').eq('storefront_id', storefrontId).in('status', ['confirmed', 'completed']).gte('created_at', sinceIso)) as Array<{ ebc_id: number }>; const m = new Map<number, number>(); for (const r of rows) m.set(r.ebc_id, (m.get(r.ebc_id) ?? 0) + 1); return m; },
+    async bookedCountsByHotel(storefrontId, sinceIso) { const rows = must(await sb.from('bookings').select('ebc_id').eq('storefront_id', storefrontId).in('status', ['confirmed', 'completed']).eq('demo', false).gte('created_at', sinceIso)) as Array<{ ebc_id: number }>; const m = new Map<number, number>(); for (const r of rows) m.set(r.ebc_id, (m.get(r.ebc_id) ?? 0) + 1); return m; },
     async bookingsForCreator(creatorId, limit = 50) { const rows = must(await sb.from("bookings").select("*").eq("creator_id", creatorId).order("created_at", { ascending: false }).limit(limit)) as Array<Record<string, unknown>>; return rows.map((r) => fromRow<Booking>(r)); },
   };
 }
