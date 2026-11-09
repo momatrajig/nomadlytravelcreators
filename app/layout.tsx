@@ -11,7 +11,7 @@ import { bookingClosedReason } from "@/lib/booking/guard";
 
 export async function generateMetadata(): Promise<Metadata> {
   const sf = await currentStorefront();
-  return { title: sf ? `${sf.brandName}: stays below the big sites` : "Nomadly", description: sf ? `${sf.brandName} books the hotels she actually stayed in, priced below Booking.com, Expedia and Agoda.` : "Nomadly Ambassadors" };
+  return { title: sf ? `${sf.brandName}: hotels I stayed in` : "Nomadly", description: sf ? `${sf.brandName}: the hotels she stayed in, from Paris to Rio, with live rates.` : "Nomadly Ambassadors" };
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

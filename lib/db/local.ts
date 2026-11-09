@@ -14,7 +14,7 @@ const ALL: Fx[] = [...lisbonFx, ...portugalFx, ...worldFx] as Fx[];
 const STOREFRONT: Storefront = {
   id: "20000000-0000-0000-0000-000000000001", creatorId: "10000000-0000-0000-0000-000000000001", slug: "lina", customDomain: "stays.wanderwithlina.com",
   brandName: "Wander with Lina", brandColor: "#2458d6", logoPath: null, template: "postcard",
-  headline: "Hotels I slept in, from Paris to Rio, priced below the big sites.", cityId: null, cityName: null, currency: "USD", creatorRate: 0.08, flightFee: 5, live: true,
+  headline: "Hotels I slept in, from Paris to Rio.", cityId: null, cityName: null, currency: "USD", creatorRate: 0.08, flightFee: 5, live: true,
 };
 const SRC: Record<string, PriceCheck["source"]> = { "Booking.com": "booking", Expedia: "expedia", Agoda: "agoda" };
 const COLLECTIONS: Collection[] = plan.collections.map((c, i) => {
@@ -38,6 +38,7 @@ export function localDb(): Db {
   const payouts: Payout[] = [];
   const CREATOR: Creator = { id: STOREFRONT.creatorId, userId: "00000000-0000-0000-0000-000000000001", displayName: "Lina", email: "lina@example.com" };
   let sf: Storefront = { ...STOREFRONT };
+  const cache = new Map<string, { v: unknown; exp: number }>();
 
   for (const h of ALL) {
     hotels.set(h.ebcId, { ebcId: h.ebcId, name: h.name, stars: h.stars, address: h.area, cityName: h.city, lat: h.lat, lng: h.lng, images: h.images ?? [], rating: h.rating, ratingCount: h.votes, destination: h.destination ?? destinationForCity(h.city)?.slug ?? null });
@@ -61,6 +62,8 @@ export function localDb(): Db {
     async payoutsForCreator(creatorId) { return payouts.filter((p) => p.creatorId === creatorId); },
     async payableBookings(creatorId, before) { const paid = new Set(payouts.flatMap((p) => p.items.map((i) => i.bookingId))); return [...bookings.values()].filter((b) => b.creatorId === creatorId && (b.status === "confirmed" || b.status === "completed") && b.checkOut <= before && !paid.has(b.id)); },
     async createPayout(p) { const full: Payout = { ...p, id: randomUUID() }; payouts.push(full); return full; },
+    async cacheGet<T>(key: string) { const c = cache.get(key); return c && c.exp > Date.now() ? (c.v as T) : null; },
+    async cacheSet(key, value, ttl) { cache.set(key, { v: value, exp: Date.now() + ttl * 1000 }); },
     async storefrontByHost() {
       // local mode is the demo: one storefront answers on every host (localhost, a Vercel preview URL, anything)
       return sf;

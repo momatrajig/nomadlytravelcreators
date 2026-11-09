@@ -18,7 +18,7 @@ export default async function Pricing({ searchParams }: { searchParams: Promise<
   let ceiling = CREATOR_RATE_MAX, offersCount = 0, aboveNames: string[] = [], best: Array<[string, number]> = [];
   try {
     const r = await searchStays(sf, d.checkIn, d.checkOut, 1);
-    offersCount = r.offers.length; ceiling = r.ceiling;
+    offersCount = r.offers.filter((o) => o.saving !== null).length; ceiling = r.ceiling; // only hotels with a recorded big site price count
     aboveNames = r.offers.filter((o) => o.saving !== null && o.saving < 0).map((o) => o.name);
     best = r.offers.filter((o) => o.saving !== null).map((o) => [o.name, o.saving!] as [string, number]).sort((a, b) => b[1] - a[1]);
   } catch { /* supplier down: show the dial without live parity */ }
@@ -61,7 +61,7 @@ export default async function Pricing({ searchParams }: { searchParams: Promise<
           <h2 style={{ fontSize: 20 }}>Are my prices ever above Booking.com?</h2>
           {offersCount ? (aboveNames.length ? <p><b>{aboveNames.length} of {offersCount} hotels would show above the big sites right now</b> ({aboveNames.join(", ")}). The dial has stopped so that does not happen.</p>
             : <p><b>All {offersCount} hotels are cheaper than the big sites at {(rate * 100).toFixed(1)} percent.</b> {best[0] ? `${best[0][0]} by ${usd(best[0][1], true)}` : ""}{best.length > 1 ? `, ${best[best.length - 1]![0]} by ${usd(best[best.length - 1]![1], true)}` : ""}.</p>)
-            : <p className="mute">The hotel system did not answer, so the live check is not available right now.</p>}
+            : <p className="mute">No Booking.com or Expedia prices are recorded for these dates yet, so there is nothing to compare. The dial is not limited until there are.</p>}
           <details><summary className="btn-link small">Show every hotel</summary><ul className="small" style={{ margin: "8px 0 0", paddingLeft: 18 }}>{best.map(([n, s]) => <li key={n}>{n}: {s >= 0 ? `${usd(s, true)} below` : `${usd(-s, true)} above`}</li>)}</ul></details>
         </div>
       </div>

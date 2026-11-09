@@ -184,7 +184,7 @@ export class EbcClient {
     if (!leader) leader = this.cfg.leaderNationalityId || 158; // simulator ignores it
     const { occupancy, ...rest } = req;
     const body: SearchRequest = {
-      language: "en_GB", timeout: 20, availableOnly: true, cancellationDeadline: true,
+      language: "en_GB", timeout: 12, availableOnly: true, cancellationDeadline: true,
       ...rest,
       occupancy: { leaderNationality: leader, rooms: occupancy.rooms },
       sellingChannel: this.cfg.sellingChannel,

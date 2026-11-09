@@ -11,7 +11,9 @@ export async function POST(req: Request) {
   try {
     const sf = await requireStorefront();
     const b = await parseBody(req, B);
-    const r = await searchStays(sf, b.checkIn, b.checkOut, b.adults, b.childrenAges);
+    // the same search the hotel page ran (one hotel, the reader's country), so the price and the cached tokens match
+    const country = req.headers.get("x-vercel-ip-country") ?? undefined;
+    const r = await searchStays(sf, b.checkIn, b.checkOut, b.adults, b.childrenAges, [b.ebcId], country);
     const offer = r.offers.find((o) => o.ebcId === b.ebcId);
     if (!offer) return NextResponse.json({ error: "NO_AVAILABILITY", message: "This hotel has no rooms for those dates." }, { status: 409 });
     const q = await holdQuote(sf, offer, b.packageCode, b.checkIn, b.checkOut, [{ adults: b.adults, childrenAges: b.childrenAges }]);

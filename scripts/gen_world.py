@@ -160,6 +160,6 @@ plan = {"pins": [{"ebcId": h["ebcId"], "tip": h["tip"]} for h in pins],
         + [{"slug": d, "kind": "destination", "ebcIds": xs} for d, xs in by_dest.items()],
         "priceDates": [{"checkIn": ci, "checkOut": co, "adults": ad, "factor": f} for (ci, co, ad, f) in DATES]}
 (ROOT / "lib/content/lina.json").write_text(json.dumps(plan, ensure_ascii=False, indent=1) + "\n")
-sql.append("update storefronts set city_name = null, headline = 'Hotels I slept in, from Paris to Rio, priced below the big sites.' where slug = 'lina';")
+sql.append("update storefronts set city_name = null, headline = 'Hotels I slept in, from Paris to Rio.' where slug = 'lina';")
 (ROOT / "supabase/migrations/0006_world.sql").write_text("\n".join(sql) + "\n")
 print(len(world), "world hotels;", sum(len(v) for v in photos.values()), "photos;", len(by_dest), "destinations;", len(PT_KEEP), "Portugal kept")

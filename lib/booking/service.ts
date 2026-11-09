@@ -69,8 +69,30 @@ export async function effectiveRate(sf: Storefront, hotelsNet: Array<{ ebcId: nu
   return { rate: Math.min(sf.creatorRate, ceiling), ceiling };
 }
 
-export async function searchStays(sf: Storefront, checkIn: string, checkOut: string, adults: number, childrenAges: number[] = [], only?: number[], leaderIso?: string): Promise<{ offers: StayOffer[]; rate: number; ceiling: number; checkedAt: string | null }> {
+type StaysResult = { offers: StayOffer[]; rate: number; ceiling: number; checkedAt: string | null };
+const inflight = new Map<string, Promise<StaysResult>>();
+const SEARCH_TTL = 10 * 60; // seconds; supplier result tokens live for hours, prices move slower than this
+
+/**
+ * Supplier search, priced and parity checked. A live search of twenty hotels takes 10 to 25 seconds,
+ * so results are shared for ten minutes across every page and server (database cache), and
+ * identical searches running at the same time wait for one call instead of repeating it.
+ */
+export async function searchStays(sf: Storefront, checkIn: string, checkOut: string, adults: number, childrenAges: number[] = [], only?: number[], leaderIso?: string): Promise<StaysResult> {
   nights(checkIn, checkOut);
+  const key = `stays:${sf.id}:${checkIn}:${checkOut}:${adults}:${childrenAges.join(".")}:${(leaderIso ?? "").toUpperCase()}:${only ? [...only].sort((a, b) => a - b).join(".") : "all"}:${sf.creatorRate}`;
+  const hit = await db().cacheGet<StaysResult>(key).catch(() => null);
+  if (hit) return hit;
+  const running = inflight.get(key);
+  if (running) return running;
+  const p = searchStaysUncached(sf, checkIn, checkOut, adults, childrenAges, only, leaderIso)
+    .then(async (r) => { if (r.offers.length) await db().cacheSet(key, r, SEARCH_TTL).catch(() => undefined); return r; })
+    .finally(() => inflight.delete(key));
+  inflight.set(key, p);
+  return p;
+}
+
+async function searchStaysUncached(sf: Storefront, checkIn: string, checkOut: string, adults: number, childrenAges: number[], only?: number[], leaderIso?: string): Promise<StaysResult> {
   const all = await db().pinnedHotels(sf.id);
   const pins = only ? all.filter((p) => only.includes(p.ebcId)) : all;
   if (!pins.length) return { offers: [], rate: sf.creatorRate, ceiling: sf.creatorRate, checkedAt: null };
@@ -88,10 +110,15 @@ export async function searchStays(sf: Storefront, checkIn: string, checkOut: str
   const offers: StayOffer[] = res.hotels.filter((h) => h.offers.length).map((h) => {
     const o = h.offers[0]!;
     const refs = checks.filter((c) => c.ebcId === h.index).map((c) => ({ source: SOURCE_LABEL[c.source], price: c.price, checkedAt: c.checkedAt }));
-    const rates = packagesToRates(o.packages, o.rooms, rate);
+    // a five star hotel can return two hundred packages; the reader compares a handful: keep the cheapest
+    // eight, making sure the cheapest refundable and cheapest with breakfast are among them
+    const all = packagesToRates(o.packages, o.rooms, rate).sort((a, b) => a.readerPrice - b.readerPrice);
+    const must = [all.find((x) => x.refundable), all.find((x) => x.board !== "RO")].filter((x): x is NonNullable<typeof x> => !!x);
+    const rates = [...new Set([...all.slice(0, 8), ...must])].sort((a, b) => a.readerPrice - b.readerPrice);
     const low = lowestReference(refs);
     const cheapestFlex = rates.find((r) => r.refundable) ?? rates[0];
-    return { ebcId: h.index, name: h.name, stars: h.stars, hotelIndex: h.index, offerIndex: o.id, srk: res.srk, resultsToken: res.tokens.results, rates, references: refs, lowestReference: low, saving: low && cheapestFlex ? r2(low.price - cheapestFlex.readerPrice) : null };
+    const pin = pins.find((x) => x.ebcId === h.index);
+    return { ebcId: h.index, name: pin?.name ?? h.name, stars: pin?.stars ?? h.stars, hotelIndex: h.index, offerIndex: o.id, srk: res.srk, resultsToken: res.tokens.results, rates, references: refs, lowestReference: low, saving: low && cheapestFlex ? r2(low.price - cheapestFlex.readerPrice) : null };
   });
   const checkedAt = checks.map((c) => c.checkedAt).sort().at(-1) ?? null;
   return { offers, rate, ceiling, checkedAt };

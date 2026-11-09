@@ -43,6 +43,14 @@ export function supabaseDb(): Db {
       if (items.length) must(await sb.from("payout_items").insert(items.map((i) => ({ payout_id: row.id, booking_id: i.bookingId, amount: i.amount }))));
       return { ...fromRow<Omit<Payout, "items">>(row), items };
     },
+    async cacheGet<T>(key: string) {
+      const r = await sb.from("search_cache").select("payload, expires_at").eq("key", key).maybeSingle();
+      return r.data && Date.parse(r.data.expires_at as string) > Date.now() ? (r.data.payload as T) : null;
+    },
+    async cacheSet(key, value, ttl) {
+      const { error } = await sb.from("search_cache").upsert({ key, payload: value, expires_at: new Date(Date.now() + ttl * 1000).toISOString() });
+      if (error) console.error("cacheSet", error.message);
+    },
     async storefrontByHost(host, platformHost) {
       const h = host.toLowerCase().split(":")[0]!;
       let q = sb.from("storefronts").select("*").eq("live", true);

@@ -51,6 +51,9 @@ export interface Db {
   payableBookings(creatorId: string, before: string): Promise<Booking[]>;
   createPayout(p: Omit<Payout, "id">): Promise<Payout>;
   storefrontByHost(host: string, platformHost: string): Promise<Storefront | null>;
+  /** short lived shared cache (supplier search results); null when missing or expired */
+  cacheGet<T>(key: string): Promise<T | null>;
+  cacheSet(key: string, value: unknown, ttlSeconds: number): Promise<void>;
   storefrontBySlug(slug: string): Promise<Storefront | null>;
   pinnedHotels(storefrontId: string): Promise<PinnedHotel[]>;
   collections(storefrontId: string): Promise<Collection[]>;
