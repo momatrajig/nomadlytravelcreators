@@ -28,6 +28,7 @@ img { max-width: 100%; display: block; }
 h1, h2, h3 { font-family: var(--font-display); font-weight: 500; letter-spacing: -0.01em; margin: 0; color: var(--ink); line-height: 1.12; }
 p { margin: 0; }
 .wrap { width: min(1240px, 100% - 32px); margin-inline: auto; }
+.show-sm { display: none; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 :focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
 .mute { color: var(--mute); } .small { font-size: 14px; }
@@ -44,7 +45,7 @@ p { margin: 0; }
 .nav { display: flex; gap: 2px; }
 .nav a { padding: 8px 12px; border-radius: 8px; text-decoration: none; color: var(--ink-2); font-size: 15px; font-weight: 500; }
 .nav a:hover { color: var(--ink); background: var(--mist); }
-@media (max-width: 720px) { .nav { display: none; } .hide-sm { display: none; } .logo { font-size: 18px; white-space: nowrap; } .btn-quiet { min-height: 36px; padding: 6px 11px; } }
+@media (max-width: 720px) { .nav { display: none; } .hide-sm { display: none; } .show-sm { display: inline; } .logo { font-size: 18px; white-space: nowrap; } .btn-quiet { min-height: 36px; padding: 6px 11px; } }
 
 /* buttons */
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 11px 18px; border-radius: 10px; border: 1px solid var(--line-2); background: var(--paper); color: var(--ink); text-decoration: none; cursor: pointer; font-weight: 600; font-size: 15px; min-height: 46px; transition: background .15s, border-color .15s; }
