@@ -16,11 +16,11 @@ interface Props { items: StayCardData[]; nights: number; checkedAt: string | nul
 function card(h: StayCardData, i: number, nights: number, checkedAt: string | null, qs: string) {
   const p = h.photos[0];
   const badge = h.saving === null ? "" : h.saving > 0
-    ? `<span class="nf-badge save">${usd(h.saving, true)} less than ${esc(h.lowestReference!.source)}</span>`
+    ? `<span class="nf-badge save">${usd(h.saving, true)} below ${esc(h.lowestReference!.source)}</span>`
     : `<span class="nf-badge soft">${usd(-h.saving, true)} above ${esc(h.lowestReference!.source)}</span>`;
   const set = p ? photoSet(p.url, p.w) : undefined;
   const img = p ? `<img class="nf-img" ${i < 3 ? `src="${photoSrc(p.url, 960, p.w)}"${set ? ` srcset="${set}"` : ""}` : `data-src="${photoSrc(p.url, 960, p.w)}"`} sizes="(max-width: 600px) 80vw, 340px" alt="${esc(h.name)}">` : "";
-  const count = h.photos.length > 1 ? `<span class="nf-badge soft">${h.photos.length} photos</span>` : "";
+  const count = h.photos.length > 1 ? `<span class="nf-badge soft nf-count">${h.photos.length} photos</span>` : "";
   return `<div class="nf-pic">${img}<div class="nf-shade"></div></div>
   <div class="nf-top">${badge}${count}</div>
   <div class="nf-body"><div class="nf-kicker">${esc([h.area, h.city].filter(Boolean).join(", "))}</div><div class="nf-title">${esc(h.name)}</div>

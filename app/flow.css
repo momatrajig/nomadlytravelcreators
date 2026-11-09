@@ -116,3 +116,5 @@
 .nf-flat .nf-gloss{display:none}
 a.nf-primary{text-decoration:none}
 @media (max-width:640px){.nf-head{flex-direction:column;align-items:flex-start;gap:8px}.nf-head p{font-size:14px}}
+
+@media (max-width:420px){.nf-count{display:none}.nf-badge{font-size:11.5px}}

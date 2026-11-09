@@ -32,7 +32,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             {env().EBC_MODE === "mock" && <div className="demo" role="note">Preview. Hotel prices and big site prices are simulated until the live hotel connection is on, and cards are charged in Stripe test mode, so nothing here is a real booking.</div>}
             <header className="hdr"><div className="wrap">
               <Link href="/" className="logo"><span className="mark">{sf.brandName.slice(0, 1).toUpperCase()}</span><span>{sf.brandName}</span></Link>
-              <div className="hdr-right"><nav className="nav" aria-label="Main"><Link href="/stays">Hotels</Link><Link href="/booking">Your booking</Link></nav>{showCreator && <Link href="/dashboard" className="btn btn-quiet">Creator dashboard</Link>}</div>
+              <div className="hdr-right"><nav className="nav" aria-label="Main"><Link href="/stays">Hotels</Link><Link href="/booking">Your booking</Link></nav>{showCreator && <Link href="/dashboard" className="btn btn-quiet"><span className="hide-sm">Creator </span>dashboard</Link>}</div>
             </div></header>
             <main className="wrap">{children}</main>
             <footer className="wrap site-foot">

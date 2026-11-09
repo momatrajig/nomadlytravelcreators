@@ -7,7 +7,7 @@ export function BottomNav() {
   return (
     <nav className="bottomnav" aria-label="Sections">
       <Link href="/" aria-current={cur("/")}>Home</Link>
-      <Link href="/stays" aria-current={cur("/stays")}>Stays</Link>
+      <Link href="/stays" aria-current={cur("/stays")}>Hotels</Link>
       <Link href="/booking" aria-current={cur("/booking")}>Your booking</Link>
     </nav>
   );
