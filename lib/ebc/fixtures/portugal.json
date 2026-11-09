@@ -94,8 +94,8 @@
   },
   {
     "slug": "reids",
-    "ebcId": 900004,
-    "ebcIdVerified": false,
+    "ebcId": 1700418,
+    "ebcIdVerified": true,
     "name": "Reid's Palace, a Belmond Hotel",
     "area": "Funchal",
     "city": "Madeira",
@@ -193,8 +193,8 @@
   },
   {
     "slug": "pestana",
-    "ebcId": 900006,
-    "ebcIdVerified": false,
+    "ebcId": 322834,
+    "ebcIdVerified": true,
     "name": "Pestana Palace",
     "area": "Alcântara",
     "city": "Lisbon",

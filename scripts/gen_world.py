@@ -31,30 +31,30 @@ for line in (ROOT / "scripts/photos.src.txt").read_text().splitlines():
         "credit": by, "license": lic, "source": "https://commons.wikimedia.org/wiki/File:" + urllib.parse.quote(name, safe="(),'!*"),
     })
 
-# slug, ebcId (simulator placeholder until mapped in eBooking), name, area, destination slug, city, country iso, stars, lat, lng,
+# slug, eBooking hotel ID (mapped in the eBooking portal), name, area, destination slug, city, country iso, stars, lat, lng,
 # two night net for one adult, Booking.com and Expedia public prices for the same two nights, rating, votes, tip
 H = [
- ("peninsula-paris", 910001, "The Peninsula Paris", "Avenue Kléber", "paris", "Paris", "FR", 5, 48.8705, 2.2933, 2380, 2795, 2820, 9.4, 1210, "Ask for a sixth floor room on the Kléber side. The rooftop bar has the Eiffel Tower straight ahead and is open to hotel guests first."),
- ("meurice", 910002, "Le Meurice", "Rue de Rivoli", "paris", "Paris", "FR", 5, 48.8651, 2.3281, 2150, 2520, 2560, 9.3, 980, "Rooms facing the Tuileries are worth the difference. Have the pastries at Le Dalí once, even if you skip breakfast."),
- ("crillon", 910003, "Hôtel de Crillon", "Place de la Concorde", "paris", "Paris", "FR", 5, 48.8676, 2.3214, 2290, 2690, 2715, 9.4, 760, "The Concorde facing rooms are the reason to stay here. The pool in the basement is quiet before ten."),
- ("athenee", 910004, "Hôtel Plaza Athénée", "Avenue Montaigne", "paris", "Paris", "FR", 5, 48.8661, 2.3043, 2240, 2625, 2650, 9.3, 1040, "Courtyard rooms are quieter than the avenue side. The bar turns into the best people watching in Paris after nine."),
- ("ritz-london", 910005, "The Ritz London", "Piccadilly", "london", "London", "GB", 5, 51.5070, -0.1416, 1640, 1925, 1950, 9.3, 1890, "Book afternoon tea when you book the room; it fills weeks ahead. Green Park side rooms get the morning light."),
- ("langham", 910006, "The Langham, London", "Marylebone", "london", "London", "GB", 5, 51.5179, -0.1440, 980, 1150, 1168, 9.1, 2420, "Ten minutes on foot to Oxford Circus and still quiet at night. Tea in the Palm Court is the one to book."),
- ("savoy", 910007, "The Savoy", "Strand", "london", "London", "GB", 5, 51.5104, -0.1203, 1380, 1620, 1645, 9.2, 2210, "River view rooms are worth it at Christmas. The American Bar opens at noon and you will not need a reservation then."),
- ("burj", 910008, "Burj Al Arab", "Jumeirah", "dubai", "Dubai", "AE", 5, 25.1412, 55.1853, 3100, 3640, 3690, 9.4, 1580, "Every room is a duplex suite. Book the beach cabana early in December; the terrace pool is calmer than the main one."),
- ("atlantis", 910009, "Atlantis The Palm", "Palm Jumeirah", "dubai", "Dubai", "AE", 5, 25.1304, 55.1171, 1180, 1385, 1402, 8.9, 6120, "Water park entry is included with the room; go in the first hour. Ask for the Palm side for the skyline at night."),
- ("plaza-ny", 910010, "The Plaza", "Fifth Avenue", "new-york", "New York", "US", 5, 40.7646, -73.9744, 1720, 2020, 2045, 9.0, 1730, "Park view rooms on a high floor, or do not bother upgrading. The food hall downstairs is open until late."),
- ("mbs", 910011, "Marina Bay Sands", "Marina Bay", "singapore", "Singapore", "SG", 5, 1.2834, 103.8607, 1260, 1480, 1497, 8.9, 9840, "The infinity pool is for hotel guests only; go at seven in the morning. City view rooms beat the harbor side at night."),
- ("raffles", 910012, "Raffles Singapore", "Beach Road", "singapore", "Singapore", "SG", 5, 1.2949, 103.8545, 1940, 2280, 2305, 9.5, 870, "Every room is a suite with a butler. Skip the queue at the Long Bar by going before five."),
- ("ciragan", 910013, "Çırağan Palace Kempinski", "Beşiktaş", "istanbul", "Istanbul", "TR", 5, 41.0435, 29.0153, 1290, 1515, 1532, 9.2, 2650, "Pay for the Bosphorus view; the garden side looks at a wall. The heated infinity pool is open all winter."),
- ("pera", 910014, "Pera Palace Hotel", "Beyoğlu", "istanbul", "Istanbul", "TR", 5, 41.0315, 28.9746, 520, 610, 619, 9.0, 3320, "Room 411 is the Agatha Christie room if you ask early. Five minutes on foot to İstiklal, and the bar is from 1892."),
- ("mamounia", 910015, "La Mamounia", "Medina", "marrakech", "Marrakech", "MA", 5, 31.6215, -7.9988, 1480, 1740, 1762, 9.5, 1410, "Garden view rooms face the Atlas on a clear morning. The gardens are the reason to stay; breakfast out there in winter sun."),
- ("amstel", 910016, "InterContinental Amstel Amsterdam", "Amstel river", "amsterdam", "Amsterdam", "NL", 5, 52.3592, 4.9046, 1120, 1315, 1331, 9.2, 1980, "River view rooms only. The hotel boat goes to the Rijksmuseum, which is the best way into the city in winter."),
- ("majestic", 910017, "Majestic Hotel and Spa Barcelona", "Passeig de Gràcia", "barcelona", "Barcelona", "ES", 5, 41.3946, 2.1624, 760, 892, 905, 9.2, 4100, "The rooftop pool looks at Sagrada Família. Casa Batlló is a three minute walk; book the first slot of the day."),
- ("arts", 910018, "Hotel Arts Barcelona", "Port Olímpic", "barcelona", "Barcelona", "ES", 5, 41.3864, 2.1967, 940, 1105, 1121, 9.0, 3550, "Sea view above the 20th floor. The beach is across the road, the old town a ten minute taxi."),
- ("wbcn", 910019, "W Barcelona", "Barceloneta", "barcelona", "Barcelona", "ES", 5, 41.3684, 2.1901, 820, 965, 978, 8.8, 5280, "The sail is on the beach, so every room sees the sea. Eclipse bar on the 26th floor for sunset."),
- ("excelsior-rome", 910020, "The Westin Excelsior, Rome", "Via Veneto", "rome", "Rome", "IT", 5, 41.9087, 12.4893, 780, 915, 929, 8.9, 2240, "Via Veneto is quiet at night and Villa Borghese is at the end of the street. Corner rooms under the dome have the view."),
- ("cip", 910021, "Copacabana Palace, A Belmond Hotel", "Copacabana", "rio", "Rio de Janeiro", "BR", 5, -22.9670, -43.1786, 1260, 1480, 1500, 9.2, 2890, "The New Year fireworks are right in front of the hotel. Book the beach side; the pool deck is the best seat in Rio."),
+ ("peninsula-paris", 483658, "The Peninsula Paris", "Avenue Kléber", "paris", "Paris", "FR", 5, 48.8705, 2.2933, 2380, 2795, 2820, 9.4, 1210, "Ask for a sixth floor room on the Kléber side. The rooftop bar has the Eiffel Tower straight ahead and is open to hotel guests first."),
+ ("meurice", 284785, "Le Meurice", "Rue de Rivoli", "paris", "Paris", "FR", 5, 48.8651, 2.3281, 2150, 2520, 2560, 9.3, 980, "Rooms facing the Tuileries are worth the difference. Have the pastries at Le Dalí once, even if you skip breakfast."),
+ ("crillon", 284440, "Hôtel de Crillon", "Place de la Concorde", "paris", "Paris", "FR", 5, 48.8676, 2.3214, 2290, 2690, 2715, 9.4, 760, "The Concorde facing rooms are the reason to stay here. The pool in the basement is quiet before ten."),
+ ("athenee", 285550, "Hôtel Plaza Athénée", "Avenue Montaigne", "paris", "Paris", "FR", 5, 48.8661, 2.3043, 2240, 2625, 2650, 9.3, 1040, "Courtyard rooms are quieter than the avenue side. The bar turns into the best people watching in Paris after nine."),
+ ("ritz-london", 303974, "The Ritz London", "Piccadilly", "london", "London", "GB", 5, 51.5070, -0.1416, 1640, 1925, 1950, 9.3, 1890, "Book afternoon tea when you book the room; it fills weeks ahead. Green Park side rooms get the morning light."),
+ ("langham", 287987, "The Langham, London", "Marylebone", "london", "London", "GB", 5, 51.5179, -0.1440, 980, 1150, 1168, 9.1, 2420, "Ten minutes on foot to Oxford Circus and still quiet at night. Tea in the Palm Court is the one to book."),
+ ("savoy", 1919916, "The Savoy", "Strand", "london", "London", "GB", 5, 51.5104, -0.1203, 1380, 1620, 1645, 9.2, 2210, "River view rooms are worth it at Christmas. The American Bar opens at noon and you will not need a reservation then."),
+ ("burj", 288903, "Burj Al Arab", "Jumeirah", "dubai", "Dubai", "AE", 5, 25.1412, 55.1853, 3100, 3640, 3690, 9.4, 1580, "Every room is a duplex suite. Book the beach cabana early in December; the terrace pool is calmer than the main one."),
+ ("atlantis", 210858, "Atlantis The Palm", "Palm Jumeirah", "dubai", "Dubai", "AE", 5, 25.1304, 55.1171, 1180, 1385, 1402, 8.9, 6120, "Water park entry is included with the room; go in the first hour. Ask for the Palm side for the skyline at night."),
+ ("plaza-ny", 805571, "The Plaza", "Fifth Avenue", "new-york", "New York", "US", 5, 40.7646, -73.9744, 1720, 2020, 2045, 9.0, 1730, "Park view rooms on a high floor, or do not bother upgrading. The food hall downstairs is open until late."),
+ ("mbs", 421077, "Marina Bay Sands", "Marina Bay", "singapore", "Singapore", "SG", 5, 1.2834, 103.8607, 1260, 1480, 1497, 8.9, 9840, "The infinity pool is for hotel guests only; go at seven in the morning. City view rooms beat the harbor side at night."),
+ ("raffles", 421119, "Raffles Singapore", "Beach Road", "singapore", "Singapore", "SG", 5, 1.2949, 103.8545, 1940, 2280, 2305, 9.5, 870, "Every room is a suite with a butler. Skip the queue at the Long Bar by going before five."),
+ ("ciragan", 4865, "Çırağan Palace Kempinski", "Beşiktaş", "istanbul", "Istanbul", "TR", 5, 41.0435, 29.0153, 1290, 1515, 1532, 9.2, 2650, "Pay for the Bosphorus view; the garden side looks at a wall. The heated infinity pool is open all winter."),
+ ("pera", 283296, "Pera Palace Hotel", "Beyoğlu", "istanbul", "Istanbul", "TR", 5, 41.0315, 28.9746, 520, 610, 619, 9.0, 3320, "Room 411 is the Agatha Christie room if you ask early. Five minutes on foot to İstiklal, and the bar is from 1892."),
+ ("mamounia", 308854, "La Mamounia", "Medina", "marrakech", "Marrakech", "MA", 5, 31.6215, -7.9988, 1480, 1740, 1762, 9.5, 1410, "Garden view rooms face the Atlas on a clear morning. The gardens are the reason to stay; breakfast out there in winter sun."),
+ ("amstel", 324773, "InterContinental Amstel Amsterdam", "Amstel river", "amsterdam", "Amsterdam", "NL", 5, 52.3592, 4.9046, 1120, 1315, 1331, 9.2, 1980, "River view rooms only. The hotel boat goes to the Rijksmuseum, which is the best way into the city in winter."),
+ ("majestic", 309521, "Majestic Hotel and Spa Barcelona", "Passeig de Gràcia", "barcelona", "Barcelona", "ES", 5, 41.3946, 2.1624, 760, 892, 905, 9.2, 4100, "The rooftop pool looks at Sagrada Família. Casa Batlló is a three minute walk; book the first slot of the day."),
+ ("arts", 309165, "Hotel Arts Barcelona", "Port Olímpic", "barcelona", "Barcelona", "ES", 5, 41.3864, 2.1967, 940, 1105, 1121, 9.0, 3550, "Sea view above the 20th floor. The beach is across the road, the old town a ten minute taxi."),
+ ("wbcn", 72202, "W Barcelona", "Barceloneta", "barcelona", "Barcelona", "ES", 5, 41.3684, 2.1901, 820, 965, 978, 8.8, 5280, "The sail is on the beach, so every room sees the sea. Eclipse bar on the 26th floor for sunset."),
+ ("excelsior-rome", 356072, "The Westin Excelsior, Rome", "Via Veneto", "rome", "Rome", "IT", 5, 41.9087, 12.4893, 780, 915, 929, 8.9, 2240, "Via Veneto is quiet at night and Villa Borghese is at the end of the street. Corner rooms under the dome have the view."),
+ ("cip", 393287, "Copacabana Palace, A Belmond Hotel", "Copacabana", "rio", "Rio de Janeiro", "BR", 5, -22.9670, -43.1786, 1260, 1480, 1500, 9.2, 2890, "The New Year fireworks are right in front of the hotel. Book the beach side; the pool deck is the best seat in Rio."),
 ]
 
 DEST_EXTRA = [
@@ -72,7 +72,7 @@ SEASON_HERO = {"christmas": "photo-1514729797186-944d57303199", "new-year": "pho
 world = []
 for (slug, eid, name, area, dest, city, iso, stars, lat, lng, net, b, e, rating, votes, tip) in H:
     assert slug in photos, slug
-    world.append({"slug": slug, "ebcId": eid, "ebcIdVerified": False, "name": name, "area": area, "city": city, "destination": dest, "countryIso": iso,
+    world.append({"slug": slug, "ebcId": eid, "ebcIdVerified": True, "name": name, "area": area, "city": city, "destination": dest, "countryIso": iso,
                   "stars": stars, "rating": rating, "votes": votes, "supplierNet": float(net), "supplierNetNonRef": round(net * 0.9, 2), "penalty": round(net / 2, 2),
                   "refs": [{"source": "Booking.com", "price": b}, {"source": "Expedia", "price": e}], "booked": 0, "lat": lat, "lng": lng,
                   "deposit": "Pre authorization by card at check in", "onRequest": False, "bookingSoldOut": False, "tip": tip, "images": photos[slug]})
@@ -80,6 +80,11 @@ for (slug, eid, name, area, dest, city, iso, stars, lat, lng, net, b, e, rating,
 
 # Portugal hotels that have licensed high resolution photos keep them; the rest leave the storefront.
 pt = json.loads((ROOT / "lib/ebc/fixtures/portugal.json").read_text())
+# mapped in the eBooking portal on 9 Nov 2026 (hotel autocomplete, exact name and city)
+PT_REAL = {"reids": 1700418, "pestana": 322834}
+for h in pt:
+    if h["slug"] in PT_REAL:
+        h["ebcId"], h["ebcIdVerified"] = PT_REAL[h["slug"]], True
 for h in pt:
     if h["slug"] in photos:
         h["images"] = photos[h["slug"]]
@@ -92,7 +97,7 @@ media = {"destinations": {k: U(v) for k, v in HERO.items()}, "seasons": {k: U(v)
 
 q = lambda s: "null" if s is None else "'" + str(s).replace("'", "''") + "'"
 sql = ["-- World inventory: 21 hotels in 12 destinations, licensed high resolution photos, seasonal collections.",
-       "-- Supplier prices come from the simulator until the eBooking IDs are mapped (ebc_id_verified = false).", ""]
+       "-- eBooking IDs mapped in the portal (hotel autocomplete); prices come from the simulator until the live connection is on.", ""]
 for (slug, name, country, iso, tz, lat, lng, blurb, pos) in DEST_EXTRA:
     sql.append(f"insert into destinations (slug, name, country, country_iso, tz, lat, lng, blurb, position) values ({q(slug)}, {q(name)}, {q(country)}, {q(iso)}, {q(tz)}, {lat}, {lng}, {q(blurb)}, {pos}) on conflict (slug) do nothing;")
 for k, v in HERO.items():
@@ -105,7 +110,7 @@ for h in world + PT_KEEP:
         photo_rows.append(f"({h['ebcId']},{k},{q(tail)},{p['w']},{q(p['credit'])},{q(p['license'])})")
 PT_DEST = {"Madeira": "madeira", "Lisbon": "lisbon"}
 hotel_rows = [f"({h['ebcId']},{q(h['name'])},{h['stars']},{q(h['area'])},{q(h['city'])},{q(h.get('countryIso', 'PT'))},{h['lat']},{h['lng']},{h['rating']},{h['votes']},{q(h.get('destination') or PT_DEST[h['city']])},{q(h['slug'])},{round(h['supplierNet']/2, 2)})" for h in world + PT_KEEP]
-sql.append("insert into hotels (ebc_id, name, stars, address, city_name, country_iso, lat, lng, rating, rating_count, destination_slug, slug, nightly_net_sample, ebc_id_verified) select v.*, false from (values " + ",".join(hotel_rows) + ") as v "
+sql.append("insert into hotels (ebc_id, name, stars, address, city_name, country_iso, lat, lng, rating, rating_count, destination_slug, slug, nightly_net_sample, ebc_id_verified) select v.*, true from (values " + ",".join(hotel_rows) + ") as v "
            "on conflict (ebc_id) do update set name = excluded.name, address = excluded.address, city_name = excluded.city_name, destination_slug = excluded.destination_slug, lat = excluded.lat, lng = excluded.lng, rating = excluded.rating, rating_count = excluded.rating_count;")
 sql.append("with p(e, k, f, w, c, l) as (values " + ",".join(photo_rows) + ") "
            "update hotels h set images = x.j from (select e, jsonb_agg(jsonb_build_object('url', 'https://upload.wikimedia.org/wikipedia/commons/' || f, 'w', w, 'credit', c, 'license', l, 'source', 'https://commons.wikimedia.org/wiki/File:' || split_part(f, '/', 3)) order by k) j from p group by e) x where h.ebc_id = x.e;")

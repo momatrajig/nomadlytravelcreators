@@ -1,95 +1,95 @@
 {
  "pins": [
   {
-   "ebcId": 910001,
+   "ebcId": 483658,
    "tip": "Ask for a sixth floor room on the Kléber side. The rooftop bar has the Eiffel Tower straight ahead and is open to hotel guests first."
   },
   {
-   "ebcId": 910002,
+   "ebcId": 284785,
    "tip": "Rooms facing the Tuileries are worth the difference. Have the pastries at Le Dalí once, even if you skip breakfast."
   },
   {
-   "ebcId": 910003,
+   "ebcId": 284440,
    "tip": "The Concorde facing rooms are the reason to stay here. The pool in the basement is quiet before ten."
   },
   {
-   "ebcId": 910004,
+   "ebcId": 285550,
    "tip": "Courtyard rooms are quieter than the avenue side. The bar turns into the best people watching in Paris after nine."
   },
   {
-   "ebcId": 910005,
+   "ebcId": 303974,
    "tip": "Book afternoon tea when you book the room; it fills weeks ahead. Green Park side rooms get the morning light."
   },
   {
-   "ebcId": 910006,
+   "ebcId": 287987,
    "tip": "Ten minutes on foot to Oxford Circus and still quiet at night. Tea in the Palm Court is the one to book."
   },
   {
-   "ebcId": 910007,
+   "ebcId": 1919916,
    "tip": "River view rooms are worth it at Christmas. The American Bar opens at noon and you will not need a reservation then."
   },
   {
-   "ebcId": 910008,
+   "ebcId": 288903,
    "tip": "Every room is a duplex suite. Book the beach cabana early in December; the terrace pool is calmer than the main one."
   },
   {
-   "ebcId": 910009,
+   "ebcId": 210858,
    "tip": "Water park entry is included with the room; go in the first hour. Ask for the Palm side for the skyline at night."
   },
   {
-   "ebcId": 910010,
+   "ebcId": 805571,
    "tip": "Park view rooms on a high floor, or do not bother upgrading. The food hall downstairs is open until late."
   },
   {
-   "ebcId": 910011,
+   "ebcId": 421077,
    "tip": "The infinity pool is for hotel guests only; go at seven in the morning. City view rooms beat the harbor side at night."
   },
   {
-   "ebcId": 910012,
+   "ebcId": 421119,
    "tip": "Every room is a suite with a butler. Skip the queue at the Long Bar by going before five."
   },
   {
-   "ebcId": 910013,
+   "ebcId": 4865,
    "tip": "Pay for the Bosphorus view; the garden side looks at a wall. The heated infinity pool is open all winter."
   },
   {
-   "ebcId": 910014,
+   "ebcId": 283296,
    "tip": "Room 411 is the Agatha Christie room if you ask early. Five minutes on foot to İstiklal, and the bar is from 1892."
   },
   {
-   "ebcId": 910015,
+   "ebcId": 308854,
    "tip": "Garden view rooms face the Atlas on a clear morning. The gardens are the reason to stay; breakfast out there in winter sun."
   },
   {
-   "ebcId": 910016,
+   "ebcId": 324773,
    "tip": "River view rooms only. The hotel boat goes to the Rijksmuseum, which is the best way into the city in winter."
   },
   {
-   "ebcId": 910017,
+   "ebcId": 309521,
    "tip": "The rooftop pool looks at Sagrada Família. Casa Batlló is a three minute walk; book the first slot of the day."
   },
   {
-   "ebcId": 910018,
+   "ebcId": 309165,
    "tip": "Sea view above the 20th floor. The beach is across the road, the old town a ten minute taxi."
   },
   {
-   "ebcId": 910019,
+   "ebcId": 72202,
    "tip": "The sail is on the beach, so every room sees the sea. Eclipse bar on the 26th floor for sunset."
   },
   {
-   "ebcId": 910020,
+   "ebcId": 356072,
    "tip": "Via Veneto is quiet at night and Villa Borghese is at the end of the street. Corner rooms under the dome have the view."
   },
   {
-   "ebcId": 910021,
+   "ebcId": 393287,
    "tip": "The New Year fireworks are right in front of the hotel. Book the beach side; the pool deck is the best seat in Rio."
   },
   {
-   "ebcId": 900004,
+   "ebcId": 1700418,
    "tip": "Afternoon tea on the terrace is the ritual; book it when you book the room. Sea facing rooms are worth the step up."
   },
   {
-   "ebcId": 900006,
+   "ebcId": 322834,
    "tip": "Stay in the palace wing, not the garden annex. The garden pool is open all year."
   }
  ],
@@ -102,13 +102,13 @@
    "checkIn": "2026-12-29",
    "checkOut": "2027-01-02",
    "ebcIds": [
-    910021,
-    910008,
-    910010,
-    910011,
-    910005,
-    910001,
-    910015
+    393287,
+    288903,
+    805571,
+    421077,
+    303974,
+    483658,
+    308854
    ],
    "heroUrl": "https://images.unsplash.com/photo-1549534077-1b4f31dd59ea"
   },
@@ -120,13 +120,13 @@
    "checkIn": "2026-12-22",
    "checkOut": "2026-12-26",
    "ebcIds": [
-    910007,
-    910016,
-    910002,
-    910014,
-    910017,
-    910020,
-    900004
+    1919916,
+    324773,
+    284785,
+    283296,
+    309521,
+    356072,
+    1700418
    ],
    "heroUrl": "https://images.unsplash.com/photo-1514729797186-944d57303199"
   },
@@ -134,101 +134,101 @@
    "slug": "paris",
    "kind": "destination",
    "ebcIds": [
-    910001,
-    910002,
-    910003,
-    910004
+    483658,
+    284785,
+    284440,
+    285550
    ]
   },
   {
    "slug": "london",
    "kind": "destination",
    "ebcIds": [
-    910005,
-    910006,
-    910007
+    303974,
+    287987,
+    1919916
    ]
   },
   {
    "slug": "dubai",
    "kind": "destination",
    "ebcIds": [
-    910008,
-    910009
+    288903,
+    210858
    ]
   },
   {
    "slug": "new-york",
    "kind": "destination",
    "ebcIds": [
-    910010
+    805571
    ]
   },
   {
    "slug": "singapore",
    "kind": "destination",
    "ebcIds": [
-    910011,
-    910012
+    421077,
+    421119
    ]
   },
   {
    "slug": "istanbul",
    "kind": "destination",
    "ebcIds": [
-    910013,
-    910014
+    4865,
+    283296
    ]
   },
   {
    "slug": "marrakech",
    "kind": "destination",
    "ebcIds": [
-    910015
+    308854
    ]
   },
   {
    "slug": "amsterdam",
    "kind": "destination",
    "ebcIds": [
-    910016
+    324773
    ]
   },
   {
    "slug": "barcelona",
    "kind": "destination",
    "ebcIds": [
-    910017,
-    910018,
-    910019
+    309521,
+    309165,
+    72202
    ]
   },
   {
    "slug": "rome",
    "kind": "destination",
    "ebcIds": [
-    910020
+    356072
    ]
   },
   {
    "slug": "rio",
    "kind": "destination",
    "ebcIds": [
-    910021
+    393287
    ]
   },
   {
    "slug": "madeira",
    "kind": "destination",
    "ebcIds": [
-    900004
+    1700418
    ]
   },
   {
    "slug": "lisbon",
    "kind": "destination",
    "ebcIds": [
-    900006
+    322834
    ]
   }
  ],
