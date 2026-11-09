@@ -46,7 +46,13 @@ export function supabaseDb(): Db {
       let q = sb.from("storefronts").select("*").eq("live", true);
       q = h.endsWith(`.${platformHost}`) ? q.eq("slug", h.split(".")[0]!) : q.eq("custom_domain", h);
       const r = await q.maybeSingle();
-      return r.data ? fromRow<Storefront>(r.data) : null;
+      if (r.data) return fromRow<Storefront>(r.data);
+      // Platform, preview and local addresses (nomadly.app, *.vercel.app, localhost) show the default storefront,
+      // so the product can be demoed before a creator's domain is pointed at us. A creator's own domain never falls back.
+      const isPlatformish = h === platformHost || h === `www.${platformHost}` || h.endsWith(".vercel.app") || h === "localhost" || h === "127.0.0.1";
+      if (!isPlatformish) return null;
+      const d = await sb.from("storefronts").select("*").eq("slug", env().DEFAULT_STOREFRONT ?? "lina").maybeSingle();
+      return d.data ? fromRow<Storefront>(d.data) : null;
     },
     async storefrontBySlug(slug) { const r = await sb.from("storefronts").select("*").eq("slug", slug).maybeSingle(); return r.data ? fromRow<Storefront>(r.data) : null; },
     async pinnedHotels(storefrontId) {
