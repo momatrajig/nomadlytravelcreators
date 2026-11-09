@@ -80,7 +80,7 @@ const SEARCH_TTL = 10 * 60; // seconds; supplier result tokens live for hours, p
  */
 export async function searchStays(sf: Storefront, checkIn: string, checkOut: string, adults: number, childrenAges: number[] = [], only?: number[], leaderIso?: string): Promise<StaysResult> {
   nights(checkIn, checkOut);
-  const key = `stays:${sf.id}:${checkIn}:${checkOut}:${adults}:${childrenAges.join(".")}:${(leaderIso ?? "").toUpperCase()}:${only ? [...only].sort((a, b) => a - b).join(".") : "all"}:${sf.creatorRate}`;
+  const key = `stays:v2:${sf.id}:${checkIn}:${checkOut}:${adults}:${childrenAges.join(".")}:${(leaderIso ?? "").toUpperCase()}:${only ? [...only].sort((a, b) => a - b).join(".") : "all"}:${sf.creatorRate}`;
   const hit = await db().cacheGet<StaysResult>(key).catch(() => null);
   if (hit) return hit;
   const running = inflight.get(key);
@@ -104,12 +104,12 @@ async function searchStaysUncached(sf: Storefront, checkIn: string, checkOut: st
   const nets = res.hotels.map((h) => {
     const o = h.offers[0];
     const cheapest = o ? Math.min(...o.packages.filter((p) => p.complete).map((p) => p.price.components?.supplier?.value ?? p.price.selling.value)) : Infinity;
-    return { ebcId: h.index, supplierNet: cheapest };
+    return { ebcId: Number(h.index), supplierNet: cheapest };
   }).filter((n) => Number.isFinite(n.supplierNet));
   const { rate, ceiling } = await effectiveRate(sf, nets, checks);
   const offers: StayOffer[] = res.hotels.filter((h) => h.offers.length).map((h) => {
     const o = h.offers[0]!;
-    const refs = checks.filter((c) => c.ebcId === h.index).map((c) => ({ source: SOURCE_LABEL[c.source], price: c.price, checkedAt: c.checkedAt }));
+    const refs = checks.filter((c) => Number(c.ebcId) === Number(h.index)).map((c) => ({ source: SOURCE_LABEL[c.source], price: c.price, checkedAt: c.checkedAt }));
     // a five star hotel can return two hundred packages; the reader compares a handful: keep the cheapest
     // eight, making sure the cheapest refundable and cheapest with breakfast are among them
     const all = packagesToRates(o.packages, o.rooms, rate).sort((a, b) => a.readerPrice - b.readerPrice);
@@ -117,8 +117,10 @@ async function searchStaysUncached(sf: Storefront, checkIn: string, checkOut: st
     const rates = [...new Set([...all.slice(0, 8), ...must])].sort((a, b) => a.readerPrice - b.readerPrice);
     const low = lowestReference(refs);
     const cheapestFlex = rates.find((r) => r.refundable) ?? rates[0];
-    const pin = pins.find((x) => x.ebcId === h.index);
-    return { ebcId: h.index, name: pin?.name ?? h.name, stars: pin?.stars ?? h.stars, hotelIndex: h.index, offerIndex: o.id, srk: res.srk, resultsToken: res.tokens.results, rates, references: refs, lowestReference: low, saving: low && cheapestFlex ? r2(low.price - cheapestFlex.readerPrice) : null };
+    // the live API returns the hotel index as a string; our IDs are numbers
+    const id = Number(h.index);
+    const pin = pins.find((x) => x.ebcId === id);
+    return { ebcId: id, name: pin?.name ?? h.name, stars: pin?.stars ?? h.stars, hotelIndex: h.index, offerIndex: o.id, srk: res.srk, resultsToken: res.tokens.results, rates, references: refs, lowestReference: low, saving: low && cheapestFlex ? r2(low.price - cheapestFlex.readerPrice) : null };
   });
   const checkedAt = checks.map((c) => c.checkedAt).sort().at(-1) ?? null;
   return { offers, rate, ceiling, checkedAt };
