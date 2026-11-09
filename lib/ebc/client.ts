@@ -149,17 +149,21 @@ export class EbcClient {
   hotelImages(id: number) { return this.request<{ _embedded?: { images?: HotelImage[] }; images?: HotelImage[] }>("GET", `/mapping/v1/hotels/${id}/images`).then((r) => r.images ?? r._embedded?.images ?? []); }
 
   // ---------- nationalities ----------
-  /** raw first page, for the health check when the shape differs from the documentation */
-  nationalitiesSample() { return this.request<Record<string, unknown>>("GET", "/mapping/v1/nationalities", { query: { page: 1, limit: 500 } }); }
   private nationalities: { at: number; byIso: Map<string, number> } | null = null;
   /** Mapping nationality ID for an ISO code (the leaderNationality search field). Cached 48 hours, as the API guide asks. */
   async nationalityId(iso: string): Promise<number> {
     if (!this.nationalities || this.now() - this.nationalities.at > 48 * 3_600_000) {
+      // the API pages by 10 and ignores a larger limit: read page 1, then the rest in parallel
+      type Nat = { id: number; ISO?: string; iso?: string; name?: string };
+      type Page = { _page_count?: number; _embedded?: { nationalities?: Nat[] } };
+      const first = await this.request<Page>("GET", "/mapping/v1/nationalities", { query: { page: 1 } });
+      const pages = Math.min(first._page_count ?? 1, 60);
+      const rest = await Promise.all(Array.from({ length: pages - 1 }, (_, i) => this.request<Page>("GET", "/mapping/v1/nationalities", { query: { page: i + 2 } })));
       const byIso = new Map<string, number>();
-      for (let page = 1, pages = 1; page <= pages && page <= 20; page++) {
-        const r = await this.request<{ _page_count?: number; _embedded?: { nationalities?: Array<{ id: number; iso: string }> } }>("GET", "/mapping/v1/nationalities", { query: { page, limit: 500 } });
-        pages = r._page_count ?? 1;
-        for (const n of r._embedded?.nationalities ?? []) if (n.iso) byIso.set(n.iso.toUpperCase(), n.id);
+      for (const p of [first, ...rest]) for (const n of p._embedded?.nationalities ?? []) {
+        const iso = (n.ISO ?? n.iso ?? "").toUpperCase();
+        // the list carries a few placeholder rows (names starting AAA); a real country name wins
+        if (iso && (!byIso.has(iso) || !/^AAA/.test(n.name ?? ""))) byIso.set(iso, n.id);
       }
       this.nationalities = { at: this.now(), byIso };
     }

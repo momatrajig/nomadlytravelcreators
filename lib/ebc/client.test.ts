@@ -106,7 +106,7 @@ describe("leader nationality in live mode", () => {
     const f: typeof fetch = async (input, init) => {
       const u = String(input instanceof Request ? input.url : input);
       if (u.endsWith("/oauth2/token")) return new Response(JSON.stringify({ access_token: "t", expires_in: 3600 }));
-      if (u.includes("/mapping/v1/nationalities")) { natCalls++; return new Response(JSON.stringify({ _page_count: 1, _embedded: { nationalities: [{ id: 7, iso: "LB" }, { id: 231, iso: "US" }] } })); }
+      if (u.includes("/mapping/v1/nationalities")) { natCalls++; const page = Number(new URL(u).searchParams.get("page")); return new Response(JSON.stringify({ _page_count: 2, _embedded: { nationalities: page === 1 ? [{ id: 900, ISO: "LB", name: "AAALB" }, { id: 7, ISO: "LB", name: "LEBANON" }] : [{ id: 231, ISO: "US", name: "UNITED STATES" }] } })); }
       sent = JSON.parse(String(init?.body)); return new Response(JSON.stringify({ srk: "s", tokens: { results: "r" }, hotels: [] }));
     };
     const c = new EbcClient({ ...cfg, mode: "live", leaderNationalityId: 0, defaultNationalityIso: "US", fetch: f });
@@ -114,7 +114,7 @@ describe("leader nationality in live mode", () => {
     expect((sent as { occupancy: { leaderNationality: number } }).occupancy.leaderNationality).toBe(7);
     await c.searchSync({ accommodation: [1], checkIn: "2026-12-03", checkOut: "2026-12-05", occupancy: { rooms: [{ adults: 1, childrenAges: [] }] } });
     expect((sent as { occupancy: { leaderNationality: number } }).occupancy.leaderNationality).toBe(231);
-    expect(natCalls).toBe(1);
+    expect(natCalls).toBe(2); // two pages, read once, then cached
   });
 });
 
