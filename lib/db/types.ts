@@ -8,6 +8,8 @@ export interface Hotel {
   images: Array<{ url: string; w?: number; h?: number }>; rating: number | null; ratingCount: number | null;
 }
 export interface PinnedHotel extends Hotel { position: number; tip: string | null; stayedWhen: string | null }
+/** A curated set shown as its own band: a season (Christmas and New Year) or a destination. Dates are the band's default search. */
+export interface Collection { id: string; storefrontId: string; slug: string; kind: "season" | "destination"; title: string; subtitle: string | null; checkIn: string | null; checkOut: string | null; ebcIds: number[]; position: number; heroUrl: string | null }
 export interface PriceCheck { ebcId: number; source: "booking" | "expedia" | "agoda" | "tripcom" | "hotel"; checkIn: string; checkOut: string; adults: number; price: number; currency: string; checkedAt: string }
 export interface Quote {
   id: string; storefrontId: string; ebcId: number; checkIn: string; checkOut: string; occupancy: Array<{ adults: number; childrenAges: number[] }>;
@@ -46,6 +48,7 @@ export interface Db {
   storefrontByHost(host: string, platformHost: string): Promise<Storefront | null>;
   storefrontBySlug(slug: string): Promise<Storefront | null>;
   pinnedHotels(storefrontId: string): Promise<PinnedHotel[]>;
+  collections(storefrontId: string): Promise<Collection[]>;
   hotel(ebcId: number): Promise<Hotel | null>;
   latestPriceChecks(ebcIds: number[], checkIn: string, checkOut: string, adults: number): Promise<PriceCheck[]>;
   saveQuote(q: Omit<Quote, "id" | "createdAt">): Promise<Quote>;

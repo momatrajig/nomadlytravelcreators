@@ -13,7 +13,7 @@ const g = globalThis as unknown as { __nomadlyDb?: Db };
 export function db(): Db {
   if (g.__nomadlyDb) return g.__nomadlyDb;
   let instance: Db;
-  if (env().DATA_MODE === "supabase" && env().SUPABASE_SERVICE_ROLE_KEY) {
+  if (env().DATA_MODE === "supabase" && env().SUPABASE_SERVICE_ROLE_KEY && env().NEXT_PUBLIC_SUPABASE_URL) {
     // lazy import keeps the supabase client out of the local test path
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { supabaseDb } = require("./supabase") as typeof import("./supabase");

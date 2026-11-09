@@ -12,7 +12,7 @@ describe("booking service end to end on fixtures", () => {
   it("searches the pinned hotels, prices them with option D and reports savings", async () => {
     const sf = (await db().storefrontBySlug("lina"))!;
     const r = await searchStays(sf, "2026-12-03", "2026-12-05", 1);
-    expect(r.offers).toHaveLength(8);
+    expect(r.offers).toHaveLength(16);
     expect(r.rate).toBe(0.08); // ceiling is 10.5 percent, above the dial max
     const ic = r.offers.find((o) => o.ebcId === 515886)!;
     const flex = ic.rates.find((x) => x.refundable && x.board === "RO")!;
@@ -74,5 +74,22 @@ describe("booking service end to end on fixtures", () => {
     expect(penaltyNow(base, Date.parse("2026-11-10T00:00:00"))).toBe(0);
     expect(penaltyNow(base, Date.parse("2026-11-25T00:00:00"))).toBe(171.56);
     expect(penaltyNow({ ...base, refundable: false }, Date.parse("2026-11-10T00:00:00"))).toBe(379.61);
+  });
+});
+
+describe("extras", () => {
+  it("adds Veny services to the charge and refunds them with the stay", async () => {
+    resetMock();
+    const sf = (await db().storefrontBySlug("lina"))!;
+    const r = await searchStays(sf, "2026-12-03", "2026-12-05", 1);
+    const o = r.offers.find((x) => x.ebcId === 515886)!;
+    const q = await holdQuote(sf, o, o.rates.find((x) => x.refundable)!.packageCode, "2026-12-03", "2026-12-05", [{ adults: 1, childrenAges: [] }]);
+    const { booking, amount } = await startPayment(sf, q, { firstName: "A", lastName: "B", email: "a@b.c" }, undefined, ["transfer", "esim", "esim"]);
+    expect(booking.extras.map((x) => x.kind)).toEqual(["transfer", "esim"]);
+    expect(amount).toBe(379.59 + 29 + 12);
+    expect(booking.extras[0]!.creatorShare).toBe(4.5);
+    await confirmPaid(booking.id, "pi_x", "https://x");
+    const c = await cancelBooking(booking.id);
+    expect(c.refund).toBe(420.59);
   });
 });

@@ -6,7 +6,7 @@ import { openSheet } from "@/lib/flow/engine";
 import { BOARD, fmtDate, fmtTime, usd } from "@/lib/format";
 
 export interface StayCardData {
-  ebcId: number; name: string; stars: number; area: string | null; rating: number | null; ratingCount: number | null; images: string[];
+  ebcId: number; name: string; stars: number; area: string | null; city: string | null; rating: number | null; ratingCount: number | null; images: string[];
   readerPrice: number; refundable: boolean; board: string; cancelDeadline: string | null; cancelCharge: number | null; onRequest: boolean;
   lowestReference: { source: string; price: number } | null; saving: number | null; booked: number; tip: string | null;
 }
@@ -18,7 +18,7 @@ function card(h: StayCardData, i: number, nights: number, checkedAt: string | nu
     : `<span class="nf-badge soft">${usd(-h.saving, true)} above ${esc(h.lowestReference!.source)}</span>`;
   return `<div class="nf-pic"><img class="nf-img" ${i < 3 ? `src="${h.images[0]}"` : `data-src="${h.images[0]}"`} alt="${esc(h.name)}"><div class="nf-shade"></div></div>
   <div class="nf-top">${badge}</div>
-  <div class="nf-body"><div class="nf-kicker">${esc(h.area ?? "")}</div><div class="nf-title">${esc(h.name)}</div>
+  <div class="nf-body"><div class="nf-kicker">${esc([h.area, h.city].filter(Boolean).join(", "))}</div><div class="nf-title">${esc(h.name)}</div>
    <div class="nf-meta"><span>${I.star}${h.stars} star${h.rating ? `, ${h.rating.toFixed(1)}` : ""}</span>${h.refundable && h.cancelDeadline ? `<span>${I.clock}Free cancel until ${fmtDate(h.cancelDeadline)}</span>` : h.refundable ? "" : `<span>${I.info}No refunds</span>`}${h.booked ? `<span>${I.users}Booked ${h.booked} ${h.booked === 1 ? "time" : "times"} by readers</span>` : ""}</div>
    <div class="nf-price">${h.saving && h.saving > 0 ? `<span class="was">${usd(h.lowestReference!.price, true)}</span>` : ""}<span class="now">${usd(h.readerPrice, true)}</span><span class="per">${nights} ${nights === 1 ? "night" : "nights"}${checkedAt ? `, checked ${fmtTime(checkedAt)} today` : ""}</span></div>
    <div class="nf-cta"><a class="nf-primary" href="/hotel/${h.ebcId}?${qs}">See rates ${I.arrow}</a><button type="button" class="nf-ghost" data-nf-open>Photos</button></div></div>`;

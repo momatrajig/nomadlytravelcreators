@@ -1,7 +1,7 @@
 /** Supabase implementation (service role, server only). Column names are snake_case in SQL, camelCase in code. */
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { env } from "@/lib/env";
-import type { Booking, Creator, Db, Hotel, Payout, PinnedHotel, PriceCheck, PromoCode, Quote, Storefront } from "./types";
+import type { Booking, Collection, Creator, Db, Hotel, Payout, PinnedHotel, PriceCheck, PromoCode, Quote, Storefront } from "./types";
 
 const snake = (s: string) => s.replace(/[A-Z]/g, (m) => `_${m.toLowerCase()}`);
 const camel = (s: string) => s.replace(/_([a-z])/g, (_, c: string) => c.toUpperCase());
@@ -53,6 +53,7 @@ export function supabaseDb(): Db {
       const rows = must(await sb.from("storefront_hotels").select("position, tip, stayed_when, hotels(*)").eq("storefront_id", storefrontId).order("position")) as Array<Record<string, unknown>>;
       return rows.map((r) => ({ ...hotelFrom(r.hotels as Record<string, unknown>), position: r.position as number, tip: (r.tip as string) ?? null, stayedWhen: (r.stayed_when as string) ?? null }));
     },
+    async collections(storefrontId) { const rows = must(await sb.from("collections").select("*").eq("storefront_id", storefrontId).order("position")) as Array<Record<string, unknown>>; return rows.map((r) => fromRow<Collection>(r)); },
     async hotel(ebcId) { const r = await sb.from("hotels").select("*").eq("ebc_id", ebcId).maybeSingle(); return r.data ? hotelFrom(r.data) : null; },
     async latestPriceChecks(ids, checkIn, checkOut, adults) {
       const rows = must(await sb.from("latest_price_checks").select("*").in("ebc_id", ids).eq("check_in", checkIn).eq("check_out", checkOut).eq("adults", adults)) as Array<Record<string, unknown>>;

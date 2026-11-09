@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { fmtDate, usd } from "@/lib/format";
+import { EXTRAS, type ExtraKind } from "@/lib/extras/catalog";
 
 interface Props { quoteId: string; amount: number; currency: string; refundable: boolean; cancelDeadline: string | null; cancelCharge: number | null; brandName: string; stripeKey: string | null; expiresAt: string }
 type Guest = { firstName: string; lastName: string; email: string; phone: string };
@@ -11,6 +12,8 @@ export default function CheckoutForm(p: Props) {
   const [guest, setGuest] = useState<Guest>({ firstName: "", lastName: "", email: "", phone: "" });
   const [promo, setPromo] = useState("");
   const [terms, setTerms] = useState(false);
+  const [extras, setExtras] = useState<ExtraKind[]>([]);
+  const extrasTotal = EXTRAS.filter((x) => extras.includes(x.kind)).reduce((a, x) => a + x.price, 0);
   const [errs, setErrs] = useState<Record<string, string>>({});
   const [server, setServer] = useState<{ bookingId: string; reference: string; amount: number; clientSecret: string | null; devMode?: boolean } | null>(null);
   const [busy, setBusy] = useState(false);
@@ -31,7 +34,7 @@ export default function CheckoutForm(p: Props) {
     ev.preventDefault(); if (!validate()) return;
     setBusy(true); setFail(null);
     try {
-      const res = await fetch("/api/checkout", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ quoteId: p.quoteId, guest: { ...guest, phone: guest.phone || undefined }, promoCode: promo || undefined, acceptedTerms: true }) });
+      const res = await fetch("/api/checkout", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ quoteId: p.quoteId, guest: { ...guest, phone: guest.phone || undefined }, promoCode: promo || undefined, acceptedTerms: true, extras }) });
       const j = await res.json();
       if (!res.ok) { setFail(j.message ?? "Could not start the payment."); setBusy(false); return; }
       setServer(j);
@@ -54,6 +57,19 @@ export default function CheckoutForm(p: Props) {
         </div>
       </section>
       <section className="panel" style={{ marginBottom: 14 }}>
+        <h2 style={{ fontSize: 20, marginBottom: 4 }}>Add to your trip</h2>
+        <p className="small mute" style={{ margin: "0 0 10px" }}>Veny services, booked with the stay, one payment. Each one costs less than on its own site.</p>
+        <div style={{ display: "grid", gap: 8 }}>
+          {EXTRAS.map((x) => (
+            <label key={x.kind} style={{ display: "grid", gridTemplateColumns: "auto 1fr auto", gap: 12, alignItems: "start", padding: "10px 12px", border: "1px solid var(--line)", borderRadius: 12, background: extras.includes(x.kind) ? "var(--brand-soft)" : "var(--surface)" }}>
+              <input type="checkbox" checked={extras.includes(x.kind)} onChange={(e) => setExtras(e.target.checked ? [...extras, x.kind] : extras.filter((k) => k !== x.kind))} style={{ marginTop: 4 }} />
+              <span><b>{x.name}</b><br /><span className="small" style={{ color: "var(--fg-2)" }}>{x.short}</span></span>
+              <span style={{ textAlign: "right" }}><b>{usd(x.price, true)}</b><br /><span className="small mute" style={{ textDecoration: "line-through" }}>{usd(x.elsewhere, true)}</span></span>
+            </label>
+          ))}
+        </div>
+      </section>
+      <section className="panel" style={{ marginBottom: 14 }}>
         <h2 style={{ fontSize: 20, marginBottom: 8 }}>Cancellation</h2>
         <p className="small" style={{ margin: 0, color: "var(--fg-2)" }}>{p.refundable ? `Cancel free until ${p.cancelDeadline ? fmtDate(p.cancelDeadline) : "check in"}${p.cancelCharge ? `. After that ${usd(p.cancelCharge)} is charged` : ""}. If you do not turn up, the full ${usd(p.amount, true)} is charged.` : `This rate has no refunds. The full ${usd(p.amount, true)} is kept if your plans change.`}</p>
         <label style={{ display: "flex", gap: 10, marginTop: 12, alignItems: "flex-start" }}><input type="checkbox" checked={terms} onChange={(e) => setTerms(e.target.checked)} style={{ marginTop: 4 }} /> <span>I have read the cancellation terms.</span></label>
@@ -64,7 +80,7 @@ export default function CheckoutForm(p: Props) {
       {!server ? (
         <>
           <p className="small" style={{ color: "var(--fg-2)" }}>You pay Nomadly today and Nomadly pays the hotel. Your card statement will show NOMADLY*{p.brandName.replace(/[^A-Za-z0-9]/g, "").toUpperCase().slice(0, 12)}. City tax is paid at the hotel, not now.</p>
-          <button className="btn btn-brand btn-lg" type="submit" style={{ width: "100%" }} disabled={busy || ms === 0} aria-disabled={busy || ms === 0}>{busy ? "One moment…" : `Continue to payment, ${usd(p.amount)}`}</button>
+          <button className="btn btn-brand btn-lg" type="submit" style={{ width: "100%" }} disabled={busy || ms === 0} aria-disabled={busy || ms === 0}>{busy ? "One moment…" : `Continue to payment, ${usd(p.amount + extrasTotal)}`}</button>
         </>
       ) : server.clientSecret && stripePromise ? (
         <Elements stripe={stripePromise} options={{ clientSecret: server.clientSecret, appearance: { theme: "night", variables: { colorPrimary: "var(--brand)" } } }}>

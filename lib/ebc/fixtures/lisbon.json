@@ -30,7 +30,9 @@
     "bookingSoldOut": false,
     "tip": "Ask for a room above the 12th floor on the park side. The breakfast is good but Rua Castilho has two bakeries that are better and cheaper.",
     "lat": 38.7266,
-    "lng": -9.1529
+    "lng": -9.1529,
+    "city": "Lisbon",
+    "ebcIdVerified": true
   },
   {
     "slug": "sofitel",
@@ -63,7 +65,9 @@
     "bookingSoldOut": false,
     "tip": "Breakfast is included on this rate, which is rare on the Avenida. The bar does a quiet late lunch if you land at midday.",
     "lat": 38.7196,
-    "lng": -9.1455
+    "lng": -9.1455,
+    "city": "Lisbon",
+    "ebcIdVerified": true
   },
   {
     "slug": "tivoli",
@@ -96,7 +100,9 @@
     "bookingSoldOut": false,
     "tip": "Right on top of Oriente station, so this is the one if you have an early train to Porto. Ask for a river view, there is no extra charge if they have one.",
     "lat": 38.7676,
-    "lng": -9.0987
+    "lng": -9.0987,
+    "city": "Lisbon",
+    "ebcIdVerified": true
   },
   {
     "slug": "iberostar",
@@ -129,7 +135,9 @@
     "bookingSoldOut": false,
     "tip": "The rooftop pool is heated and open in December. Adults only, so skip it for a family trip.",
     "lat": 38.7352,
-    "lng": -9.1444
+    "lng": -9.1444,
+    "city": "Lisbon",
+    "ebcIdVerified": true
   },
   {
     "slug": "aurea",
@@ -162,7 +170,9 @@
     "bookingSoldOut": false,
     "tip": "Built around Roman ruins you can see from the lobby. Rooms over Rua do Com\u00e9rcio hear the trams, ask for the courtyard side.",
     "lat": 38.709,
-    "lng": -9.1368
+    "lng": -9.1368,
+    "city": "Lisbon",
+    "ebcIdVerified": true
   },
   {
     "slug": "letras",
@@ -195,7 +205,9 @@
     "bookingSoldOut": false,
     "tip": "Quiet for the location. The gym is small but real. Good value if you only need a base.",
     "lat": 38.7228,
-    "lng": -9.1488
+    "lng": -9.1488,
+    "city": "Lisbon",
+    "ebcIdVerified": true
   },
   {
     "slug": "universal",
@@ -228,7 +240,9 @@
     "bookingSoldOut": false,
     "tip": "On request only for these dates, so book early and expect a confirmation within a few hours. Metro at the door.",
     "lat": 38.7366,
-    "lng": -9.1433
+    "lng": -9.1433,
+    "city": "Lisbon",
+    "ebcIdVerified": true
   },
   {
     "slug": "corinthia",
@@ -257,6 +271,8 @@
     "bookingSoldOut": true,
     "tip": "The spa is the reason to stay. It is away from the center, so budget taxis, but the readers who went loved it.",
     "lat": 38.7322,
-    "lng": -9.168
+    "lng": -9.168,
+    "city": "Lisbon",
+    "ebcIdVerified": true
   }
 ]

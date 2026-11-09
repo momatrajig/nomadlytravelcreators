@@ -3,10 +3,12 @@
  * product calls, with the same shapes, tokens that expire, and the failure cases that
  * matter (expired availability token, offer reconfigured, non refundable, on request).
  */
-import lisbon from "./fixtures/lisbon.json";
+import lisbonFx from "./fixtures/lisbon.json";
+import portugalFx from "./fixtures/portugal.json";
+const lisbon = [...lisbonFx, ...portugalFx];
 import type { AvailabilityResponse, BookRequest, BookResponse, Offer, Reservation, SearchHotel, SearchResponse } from "./types";
 
-type Fixture = (typeof lisbon)[number];
+type Fixture = (typeof lisbonFx)[number];
 
 const TOKEN_TTL_MS = 10 * 60 * 60 * 1000; // results tokens last hours
 const AVAIL_TTL_MS = 20 * 60 * 1000; // availability tokens are short lived
@@ -20,6 +22,8 @@ const reservations = new Map<number, Reservation>();
 let nextResId = 231821;
 
 const rid = () => Math.random().toString(36).slice(2, 10);
+/** free cancellation closes 12 days before check in on the mock supplier */
+const deadline = (checkIn: string) => { const d = new Date(checkIn + 'T23:59:00Z'); d.setUTCDate(d.getUTCDate() - 12); return d.toISOString().slice(0, 19); };
 const nightsBetween = (a: string, b: string) => Math.max(1, Math.round((Date.parse(b) - Date.parse(a)) / 86_400_000));
 
 function json(body: unknown, status = 200, headers: Record<string, string> = {}): Response {
@@ -32,8 +36,8 @@ function problem(status: number, title: string, detail?: string): Response {
 function offerFor(h: Fixture, s: Session): Offer {
   const price = (v: number) => ({ selling: { value: Math.round(v * s.nights * 100) / 100, currency: "USD" }, components: { supplier: { value: Math.round(v * s.nights * 100) / 100, currency: "USD" } } });
   const rooms = [
-    { index: `${h.slug}-flex`, name: "Superior room, flexible", status: (h.onRequest ? "RQ" : "OK") as "RQ" | "OK", boardBasis: "RO" as const, nonRefundable: false, price: price(h.supplierNet / 2), cancellationDeadline: { date: "2026-11-21T23:59:00", charge: { value: h.penalty, currency: "USD" } } },
-    { index: `${h.slug}-bb`, name: "Superior room, breakfast included", status: (h.onRequest ? "RQ" : "OK") as "RQ" | "OK", boardBasis: "BB" as const, nonRefundable: false, price: price((h.supplierNet + 28) / 2), cancellationDeadline: { date: "2026-11-21T23:59:00", charge: { value: h.penalty, currency: "USD" } } },
+    { index: `${h.slug}-flex`, name: "Superior room, flexible", status: (h.onRequest ? "RQ" : "OK") as "RQ" | "OK", boardBasis: "RO" as const, nonRefundable: false, price: price(h.supplierNet / 2), cancellationDeadline: { date: deadline(s.checkIn), charge: { value: h.penalty, currency: "USD" } } },
+    { index: `${h.slug}-bb`, name: "Superior room, breakfast included", status: (h.onRequest ? "RQ" : "OK") as "RQ" | "OK", boardBasis: "BB" as const, nonRefundable: false, price: price((h.supplierNet + 28) / 2), cancellationDeadline: { date: deadline(s.checkIn), charge: { value: h.penalty, currency: "USD" } } },
     { index: `${h.slug}-nr`, name: "Superior room, no refunds", status: "OK" as const, boardBasis: "RO" as const, nonRefundable: true, price: price(h.supplierNetNonRef / 2) },
   ];
   return {
@@ -89,7 +93,7 @@ export function mockTransport(now: () => number = Date.now): typeof fetch {
           package: pkg, rooms: offer.rooms.filter((r) => pkg.packageRooms[0]!.roomReferences[0]!.roomCode === r.index),
           paymentMethods: { credit: { code: "credit", info: { enabled: true, active: true, available: { value: 25_000, currency: "USD" } } } },
           autocancelDate: new Date(now() + 2 * 3_600_000).toISOString(),
-          cancellationPolicy: { date: nonRef ? s.checkIn : "2026-11-21T23:59:00", policies: nonRef ? [{ type: "standard", date: new Date(now()).toISOString().slice(0, 19), charge: { value: a.price, currency: "USD" } }] : [{ type: "standard", date: "2026-11-21T23:59:00", charge: { value: h.penalty, currency: "USD" } }, { type: "noshow", date: s.checkIn, charge: { value: a.price, currency: "USD" } }] },
+          cancellationPolicy: { date: nonRef ? s.checkIn : deadline(s.checkIn), policies: nonRef ? [{ type: "standard", date: new Date(now()).toISOString().slice(0, 19), charge: { value: a.price, currency: "USD" } }] : [{ type: "standard", date: deadline(s.checkIn), charge: { value: h.penalty, currency: "USD" } }, { type: "noshow", date: s.checkIn, charge: { value: a.price, currency: "USD" } }] },
           price: pkg.price,
           taxes: [{ type: "general", name: "VAT 6 percent", amount: Math.round(a.price * 0.06 * 100) / 100, currency: "USD", isIncluded: true }, { type: "property", name: "Lisbon municipal tourist tax", amount: 4.5 * s.nights, currency: "USD", isIncluded: false, description: "Paid at the hotel, per person per night" }],
           remarks: h.deposit !== "None" ? [{ group: "CATEGORY_ESSENTIAL_INFORMATION", list: [h.deposit] }] : [],
@@ -116,7 +120,7 @@ export function mockTransport(now: () => number = Date.now): typeof fetch {
           id, clientRef: req.clientRef, hotelConfirmationNumber: status === "OK" ? `HB${id}X` : undefined,
           service: { status }, payment: { status: "OK", type: "credit" },
           prices: { currency: "USD", issue: { supplier: a.price, selling: a.price }, total: { supplier: a.price, selling: a.price } },
-          cancellationPolicy: a.nonRef ? undefined : { date: "2026-11-21T23:59:00", policies: [{ type: "standard", date: "2026-11-21T23:59:00", charge: { value: a.hotel.penalty, currency: "USD" } }] },
+          cancellationPolicy: a.nonRef ? undefined : { date: deadline(s.checkIn), policies: [{ type: "standard", date: deadline(s.checkIn), charge: { value: a.hotel.penalty, currency: "USD" } }] },
           serviceDates: { startDate: s.checkIn, endDate: s.checkOut, duration: s.nights, type: "nights" },
           hotel: { id: a.hotel.ebcId, cityId: 1, countryId: 1, name: a.hotel.name, stars: a.hotel.stars },
           rooms: [{ id: "1", name: "Superior room", boardBasis: "RO" }],

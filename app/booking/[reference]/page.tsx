@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { confirmPaid, penaltyNow } from "@/lib/booking/service";
+import { chargedTotal, confirmPaid, penaltyNow } from "@/lib/booking/service";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
 import { BOARD, fmtDate, usd } from "@/lib/format";
@@ -41,10 +41,11 @@ export default async function BookingPage({ params, searchParams }: { params: Pr
         <h1 style={{ fontSize: 28, marginTop: 10 }}>{hotel?.name}</h1>
         <p className="mute" style={{ margin: "4px 0 0" }}>{fmtDate(b.checkIn)} to {fmtDate(b.checkOut)}, {b.nights} {b.nights === 1 ? "night" : "nights"}. {b.roomName ?? "Room"}, {BOARD[b.board ?? "RO"]?.toLowerCase()}.</p>
         <p style={{ margin: "12px 0 0" }}>{st.text}</p>
+        {b.extras.length > 0 && <ul className="small" style={{ margin: "10px 0 0", paddingLeft: 18, color: "var(--fg-2)" }}>{b.extras.map((x) => <li key={x.kind}>{x.name}, {usd(x.price, true)}</li>)}</ul>}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 12, marginTop: 16 }}>
           <div><div className="small mute">Your reference</div><b>{b.reference}</b></div>
           {b.hotelConfirmation && <div><div className="small mute">Hotel confirmation</div><b>{b.hotelConfirmation}</b></div>}
-          <div><div className="small mute">Paid</div><b>{usd(b.readerPrice)}</b></div>
+          <div><div className="small mute">Paid</div><b>{usd(chargedTotal(b))}</b></div>
           <div><div className="small mute">Cancellation</div><b>{b.refundable ? (penalty === 0 ? `Free until ${b.cancelDeadline ? fmtDate(b.cancelDeadline) : "check in"}` : `${usd(penalty)} if canceled now`) : "No refunds"}</b></div>
         </div>
       </div>
@@ -52,7 +53,7 @@ export default async function BookingPage({ params, searchParams }: { params: Pr
         <h2 style={{ fontSize: 20 }}>If anything goes wrong</h2>
         <p className="small" style={{ color: "var(--fg-2)", margin: "6px 0 10px" }}>If the hotel cannot find your booking, show them the reference above and the voucher in your email. Nomadly support answers 7 days a week, 08:00 to 22:00 Lisbon time, by phone and WhatsApp, in English, Arabic and Portuguese.</p>
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-          {canCancel && <CancelButton bookingId={b.id} email={email} penalty={penalty} refund={Math.round((b.readerPrice - penalty) * 100) / 100} />}
+          {canCancel && <CancelButton bookingId={b.id} email={email} penalty={penalty} refund={Math.round((chargedTotal(b) - penalty) * 100) / 100} />}
           <Link className="btn" href="/">Back to the storefront</Link>
         </div>
       </div>

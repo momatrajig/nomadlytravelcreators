@@ -12,6 +12,7 @@ const B = z.object({
   guest: z.object({ firstName: z.string().trim().min(2).max(60), lastName: z.string().trim().min(2).max(60), email: z.string().email().max(120), phone: z.string().trim().max(30).optional(), country: z.string().length(2).optional() }),
   promoCode: z.string().trim().max(24).optional(),
   acceptedTerms: z.literal(true),
+  extras: z.array(z.enum(["transfer", "esim", "bag", "delay"])).max(4).default([]),
 });
 
 /**
@@ -24,7 +25,7 @@ export async function POST(req: Request) {
     const b = await parseBody(req, B);
     const quote = await db().quote(b.quoteId);
     if (!quote || quote.storefrontId !== sf.id) return NextResponse.json({ error: "NOT_FOUND", message: "Quote not found." }, { status: 404 });
-    const { booking, amount, currency } = await startPayment(sf, quote, b.guest, b.promoCode);
+    const { booking, amount, currency } = await startPayment(sf, quote, b.guest, b.promoCode, b.extras);
     if (!env().STRIPE_SECRET_KEY) {
       // development without Stripe: pretend the payment succeeded so the flow can be exercised end to end
       return NextResponse.json({ bookingId: booking.id, reference: booking.reference, amount, currency, clientSecret: null, devMode: true });

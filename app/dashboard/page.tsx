@@ -12,7 +12,8 @@ export default async function Overview() {
   const sf = (await db().storefrontsForCreator(c.id))[0];
   const bookings = await db().bookingsForCreator(c.id, 200);
   const recent = lastThirtyDays(bookings);
-  const earned = recent.filter((b) => b.status !== "canceled").reduce((a, b) => a + b.creatorShare - b.promoDiscount, 0);
+  const earnOf = (b: { creatorShare: number; promoDiscount: number; extras: Array<{ creatorShare: number }> }) => b.creatorShare - b.promoDiscount + b.extras.reduce((a, x) => a + x.creatorShare, 0);
+  const earned = recent.filter((b) => b.status !== "canceled").reduce((a, b) => a + earnOf(b), 0);
   const rate = sf?.creatorRate ?? 0.08;
   const per = stayLedger(AVG_STAY / (1 + NOMADLY_MARKUP) / (1 + rate), rate).creatorShare;
   const count = (s: string) => recent.filter((b) => b.status === s).length;
@@ -32,10 +33,10 @@ export default async function Overview() {
               <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}><b>{b.reference}</b><div className="small mute">{fmtDate(b.createdAt)}</div></td>
               <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}>{fmtDate(b.checkIn)}, {b.nights} {b.nights === 1 ? "night" : "nights"}</td>
               <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}><span className={`chip ${b.status === "confirmed" || b.status === "completed" ? "chip-ok" : b.status === "canceled" || b.status === "failed" ? "chip-bad" : "chip-warn"}`}>{b.status.replace("_", " ")}</span></td>
-              <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}>{usd(b.readerPrice)}</td>
+              <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}>{usd(b.readerPrice + b.extras.reduce((a, x) => a + x.price, 0))}{b.extras.length ? <div className="small mute">{b.extras.length} {b.extras.length === 1 ? "extra" : "extras"}</div> : null}</td>
               <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}>{usd(b.supplierNet)}</td>
               <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}>{usd(b.nomadlyNet - b.supplierNet)}</td>
-              <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)", color: "var(--ok)", fontWeight: 600 }}>{b.status === "canceled" ? usd(0) : usd(b.creatorShare - b.promoDiscount)}</td>
+              <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)", color: "var(--ok)", fontWeight: 600 }}>{b.status === "canceled" ? usd(0) : usd(earnOf(b))}</td>
             </tr>)}
             {!bookings.length && <tr><td colSpan={7} className="mute" style={{ padding: 20 }}>No bookings yet. Share your storefront link and this fills in by itself.</td></tr>}
           </tbody>

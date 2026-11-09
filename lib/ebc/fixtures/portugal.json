@@ -1,0 +1,250 @@
+[
+  {
+    "slug": "yeatman",
+    "ebcId": 900001,
+    "ebcIdVerified": false,
+    "name": "The Yeatman",
+    "area": "Vila Nova de Gaia",
+    "city": "Porto",
+    "stars": 5,
+    "rating": 9.3,
+    "votes": 2870,
+    "supplierNet": 412.0,
+    "supplierNetNonRef": 370.8,
+    "penalty": 206.0,
+    "refs": [
+      {
+        "source": "Booking.com",
+        "price": 498
+      },
+      {
+        "source": "Expedia",
+        "price": 505
+      }
+    ],
+    "booked": 1,
+    "lat": 41.1366,
+    "lng": -8.6137,
+    "deposit": "None",
+    "onRequest": false,
+    "bookingSoldOut": false,
+    "tip": "Every room faces the river and the old town. Book the wine dinner on the first night, then sleep in."
+  },
+  {
+    "slug": "vilavita",
+    "ebcId": 900002,
+    "ebcIdVerified": false,
+    "name": "Vila Vita Parc",
+    "area": "Porches",
+    "city": "Algarve",
+    "stars": 5,
+    "rating": 9.4,
+    "votes": 1960,
+    "supplierNet": 468.0,
+    "supplierNetNonRef": 421.2,
+    "penalty": 234.0,
+    "refs": [
+      {
+        "source": "Booking.com",
+        "price": 566
+      },
+      {
+        "source": "Expedia",
+        "price": 571
+      }
+    ],
+    "booked": 0,
+    "lat": 37.1013,
+    "lng": -8.3807,
+    "deposit": "None",
+    "onRequest": false,
+    "bookingSoldOut": false,
+    "tip": "Ask for the Oasis side if you want quiet. The cliff path to Senhora da Rocha is the best hour of the day."
+  },
+  {
+    "slug": "quintacomporta",
+    "ebcId": 900003,
+    "ebcIdVerified": false,
+    "name": "Quinta da Comporta",
+    "area": "Carvalhal",
+    "city": "Comporta",
+    "stars": 5,
+    "rating": 9.2,
+    "votes": 640,
+    "supplierNet": 392.0,
+    "supplierNetNonRef": 352.8,
+    "penalty": 196.0,
+    "refs": [
+      {
+        "source": "Booking.com",
+        "price": 472
+      },
+      {
+        "source": "Agoda",
+        "price": 479
+      }
+    ],
+    "booked": 1,
+    "lat": 38.3362,
+    "lng": -8.7778,
+    "deposit": "None",
+    "onRequest": false,
+    "bookingSoldOut": false,
+    "tip": "Rent the bikes at reception and ride to the rice fields before breakfast. The pool is heated from November."
+  },
+  {
+    "slug": "reids",
+    "ebcId": 900004,
+    "ebcIdVerified": false,
+    "name": "Reid's Palace, a Belmond Hotel",
+    "area": "Funchal",
+    "city": "Madeira",
+    "stars": 5,
+    "rating": 9.3,
+    "votes": 2210,
+    "supplierNet": 486.0,
+    "supplierNetNonRef": 437.4,
+    "penalty": 243.0,
+    "refs": [
+      {
+        "source": "Booking.com",
+        "price": 588
+      },
+      {
+        "source": "Expedia",
+        "price": 594
+      }
+    ],
+    "booked": 0,
+    "lat": 32.6376,
+    "lng": -16.9299,
+    "deposit": "Pre authorization of USD 200 by card at check in",
+    "onRequest": false,
+    "bookingSoldOut": false,
+    "tip": "Afternoon tea on the terrace is the ritual; book it when you book the room. Sea facing rooms are worth the step up."
+  },
+  {
+    "slug": "carvoeiro",
+    "ebcId": 900005,
+    "ebcIdVerified": false,
+    "name": "Tivoli Carvoeiro",
+    "area": "Carvoeiro",
+    "city": "Algarve",
+    "stars": 5,
+    "rating": 8.9,
+    "votes": 3340,
+    "supplierNet": 258.0,
+    "supplierNetNonRef": 232.2,
+    "penalty": 129.0,
+    "refs": [
+      {
+        "source": "Booking.com",
+        "price": 312
+      },
+      {
+        "source": "Expedia",
+        "price": 318
+      }
+    ],
+    "booked": 2,
+    "lat": 37.0952,
+    "lng": -8.4665,
+    "deposit": "None",
+    "onRequest": false,
+    "bookingSoldOut": false,
+    "tip": "The cove below the hotel empties by 6 pm. Sunset from the Sky Bar, dinner in the village."
+  },
+  {
+    "slug": "pestana",
+    "ebcId": 900006,
+    "ebcIdVerified": false,
+    "name": "Pestana Palace",
+    "area": "Alc\u00e2ntara",
+    "city": "Lisbon",
+    "stars": 5,
+    "rating": 9.0,
+    "votes": 4120,
+    "supplierNet": 296.0,
+    "supplierNetNonRef": 266.4,
+    "penalty": 148.0,
+    "refs": [
+      {
+        "source": "Booking.com",
+        "price": 358
+      },
+      {
+        "source": "Expedia",
+        "price": 364
+      }
+    ],
+    "booked": 1,
+    "lat": 38.7044,
+    "lng": -9.1807,
+    "deposit": "None",
+    "onRequest": false,
+    "bookingSoldOut": false,
+    "tip": "Stay in the palace wing, not the garden annex. The garden pool is open all year."
+  },
+  {
+    "slug": "torel",
+    "ebcId": 900007,
+    "ebcIdVerified": false,
+    "name": "Torel Avantgarde",
+    "area": "Miragaia",
+    "city": "Porto",
+    "stars": 5,
+    "rating": 9.4,
+    "votes": 1510,
+    "supplierNet": 276.0,
+    "supplierNetNonRef": 248.4,
+    "penalty": 138.0,
+    "refs": [
+      {
+        "source": "Booking.com",
+        "price": 334
+      },
+      {
+        "source": "Agoda",
+        "price": 339
+      }
+    ],
+    "booked": 1,
+    "lat": 41.145,
+    "lng": -8.6225,
+    "deposit": "None",
+    "onRequest": false,
+    "bookingSoldOut": false,
+    "tip": "Rooms are named after artists; ask for a river view on the top floor. The restaurant is the best breakfast in Porto."
+  },
+  {
+    "slug": "infante",
+    "ebcId": 900008,
+    "ebcIdVerified": false,
+    "name": "Infante Sagres",
+    "area": "Baixa",
+    "city": "Porto",
+    "stars": 5,
+    "rating": 9.0,
+    "votes": 2680,
+    "supplierNet": 242.0,
+    "supplierNetNonRef": 217.8,
+    "penalty": 121.0,
+    "refs": [
+      {
+        "source": "Booking.com",
+        "price": 293
+      },
+      {
+        "source": "Expedia",
+        "price": 299
+      }
+    ],
+    "booked": 0,
+    "lat": 41.1472,
+    "lng": -8.6118,
+    "deposit": "None",
+    "onRequest": false,
+    "bookingSoldOut": false,
+    "tip": "The oldest grand hotel in the city and it feels like it, in the right way. Walk everywhere from here."
+  }
+]
