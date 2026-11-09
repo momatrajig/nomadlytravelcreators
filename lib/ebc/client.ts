@@ -149,6 +149,8 @@ export class EbcClient {
   hotelImages(id: number) { return this.request<{ _embedded?: { images?: HotelImage[] }; images?: HotelImage[] }>("GET", `/mapping/v1/hotels/${id}/images`).then((r) => r.images ?? r._embedded?.images ?? []); }
 
   // ---------- nationalities ----------
+  /** raw first page, for the health check when the shape differs from the documentation */
+  nationalitiesSample() { return this.request<Record<string, unknown>>("GET", "/mapping/v1/nationalities", { query: { page: 1, limit: 500 } }); }
   private nationalities: { at: number; byIso: Map<string, number> } | null = null;
   /** Mapping nationality ID for an ISO code (the leaderNationality search field). Cached 48 hours, as the API guide asks. */
   async nationalityId(iso: string): Promise<number> {
