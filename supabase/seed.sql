@@ -33,3 +33,25 @@ insert into price_checks (ebc_id, source, check_in, check_out, adults, price, cu
   (323689, 'booking', '2026-12-03', '2026-12-05', 1, 308, 'USD'),
   (2218071, 'booking', '2026-12-03', '2026-12-05', 1, 290, 'USD'),
   (322364, 'expedia', '2026-12-03', '2026-12-05', 1, 455, 'USD'), (322364, 'agoda', '2026-12-03', '2026-12-05', 1, 461, 'USD');
+
+-- destinations and services
+insert into destinations (slug, name, country, country_iso, tz, lat, lng, blurb, position) values
+  ('lisbon', 'Lisbon', 'Portugal', 'PT', 'Europe/Lisbon', 38.7223, -9.1393, 'Seven hills, tiled facades and the best light in Europe.', 0),
+  ('porto', 'Porto', 'Portugal', 'PT', 'Europe/Lisbon', 41.1579, -8.6291, 'Port wine lodges, the Douro and a city that stays itself.', 1),
+  ('paris', 'Paris', 'France', 'FR', 'Europe/Paris', 48.8566, 2.3522, 'The palaces, the bistros, the walk home along the Seine.', 2),
+  ('rome', 'Rome', 'Italy', 'IT', 'Europe/Rome', 41.9028, 12.4964, 'Two thousand years in one afternoon walk.', 3),
+  ('barcelona', 'Barcelona', 'Spain', 'ES', 'Europe/Madrid', 41.3874, 2.1686, 'Gaudí, the sea and dinner at eleven.', 4),
+  ('dubai', 'Dubai', 'United Arab Emirates', 'AE', 'Asia/Dubai', 25.2048, 55.2708, 'Beach, desert and the tallest skyline on earth, six hours from Europe.', 5),
+  ('istanbul', 'Istanbul', 'Türkiye', 'TR', 'Europe/Istanbul', 41.0082, 28.9784, 'Two continents, one breakfast table.', 6),
+  ('london', 'London', 'United Kingdom', 'GB', 'Europe/London', 51.5074, -0.1278, 'The grand hotels, done properly.', 7),
+  ('amsterdam', 'Amsterdam', 'Netherlands', 'NL', 'Europe/Amsterdam', 52.3676, 4.9041, 'Canal houses turned into the quietest luxury in Europe.', 8),
+  ('bali', 'Bali', 'Indonesia', 'ID', 'Asia/Makassar', -8.4095, 115.1889, 'Rice terraces, cliff edges and villas with their own pools.', 9),
+  ('marrakech', 'Marrakech', 'Morocco', 'MA', 'Africa/Casablanca', 31.6295, -7.9811, 'Riads, palm groves and the Atlas behind them.', 10),
+  ('madeira', 'Madeira', 'Portugal', 'PT', 'Atlantic/Madeira', 32.6669, -16.9241, 'Cliff hotels above the Atlantic, spring all year.', 11),
+  ('new-york', 'New York', 'United States', 'US', 'America/New_York', 40.7128, -74.006, 'The city that needs no blurb.', 12);
+update hotels set destination_slug = 'lisbon' where destination_slug is null;
+insert into services (key, name, blurb, price, elsewhere, commission, unit) values
+  ('ride', 'Airport ride', 'A driver waiting at arrivals with your name, fixed price, flight tracked.', 29, 47, 9, 'per ride'),
+  ('esim', 'Travel eSIM, 10 GB', 'Data the moment you land. Installed from a QR code before you fly.', 12, 18, 4, 'per trip'),
+  ('bag', 'Bag protection', 'USD 1,500 cover for a lost or delayed bag, paid within 48 hours of the claim.', 9, 31, 3.5, 'per trip'),
+  ('delay', 'Delay cover', 'USD 200 paid automatically if your flight lands more than 3 hours late.', 11, 36, 4, 'per trip');
