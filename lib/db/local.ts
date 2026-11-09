@@ -1,23 +1,30 @@
-/** In memory implementation seeded from the Lisbon fixture. Used by tests and credential free dev. */
+/** In memory implementation seeded from the fixtures and the demo storefront plan. Used by tests and credential free dev. */
 import { randomUUID } from "node:crypto";
 import lisbonFx from "@/lib/ebc/fixtures/lisbon.json";
 import portugalFx from "@/lib/ebc/fixtures/portugal.json";
-const lisbon = [...lisbonFx, ...portugalFx];
+import worldFx from "@/lib/ebc/fixtures/world.json";
+import plan from "@/lib/content/lina.json";
+import { destination, destinationForCity } from "@/lib/content/destinations";
+import type { Photo } from "@/lib/media/photo";
 import type { Booking, Collection, Creator, Db, Hotel, Payout, PinnedHotel, PriceCheck, PromoCode, Quote, Storefront } from "./types";
+
+type Fx = { slug: string; ebcId: number; name: string; area: string; city: string; stars: number; rating: number; votes: number; lat: number; lng: number; tip: string; refs: Array<{ source: string; price: number }>; images?: Photo[]; destination?: string };
+const ALL: Fx[] = [...lisbonFx, ...portugalFx, ...worldFx] as Fx[];
 
 const STOREFRONT: Storefront = {
   id: "20000000-0000-0000-0000-000000000001", creatorId: "10000000-0000-0000-0000-000000000001", slug: "lina", customDomain: "stays.wanderwithlina.com",
   brandName: "Wander with Lina", brandColor: "#2458d6", logoPath: null, template: "postcard",
-  headline: "Book the hotels I actually stayed in, below the big sites.", cityId: 1, cityName: "Lisbon", currency: "USD", creatorRate: 0.08, flightFee: 5, live: true,
+  headline: "Hotels I slept in, from Paris to Rio, priced below the big sites.", cityId: null, cityName: null, currency: "USD", creatorRate: 0.08, flightFee: 5, live: true,
 };
 const SRC: Record<string, PriceCheck["source"]> = { "Booking.com": "booking", Expedia: "expedia", Agoda: "agoda" };
-const IMG_COUNT: Record<string, number> = { vilavita: 3, quintacomporta: 3, reids: 3, pestana: 3, torel: 3 };
-const COLLECTIONS: Collection[] = [
-  { id: "c1", storefrontId: STOREFRONT.id, slug: "new-year", kind: "season", title: "Christmas and New Year", subtitle: "Four nights over New Year, 29 Dec to 2 Jan, two adults. Prices checked against the big sites for those exact dates.", checkIn: "2026-12-29", checkOut: "2027-01-02", ebcIds: [322364, 515886, 900004, 900001, 900002, 900006], position: 0, heroUrl: "/img/reids_0.jpg" },
-  { id: "c2", storefrontId: STOREFRONT.id, slug: "porto", kind: "destination", title: "Porto", subtitle: "Three stays on the Douro.", checkIn: null, checkOut: null, ebcIds: [900001, 900007, 900008], position: 1, heroUrl: "/img/yeatman_0.jpg" },
-  { id: "c3", storefrontId: STOREFRONT.id, slug: "algarve", kind: "destination", title: "Algarve and Comporta", subtitle: "Cliffs, coves and rice fields.", checkIn: null, checkOut: null, ebcIds: [900002, 900005, 900003], position: 2, heroUrl: "/img/vilavita_0.jpg" },
-  { id: "c4", storefrontId: STOREFRONT.id, slug: "madeira", kind: "destination", title: "Madeira", subtitle: "Tea on the terrace.", checkIn: null, checkOut: null, ebcIds: [900004], position: 3, heroUrl: "/img/reids_1.jpg" },
-];
+const COLLECTIONS: Collection[] = plan.collections.map((c, i) => {
+  const d = c.kind === "destination" ? destination(c.slug) : null;
+  return {
+    id: `c${i}`, storefrontId: STOREFRONT.id, slug: c.slug, kind: c.kind as Collection["kind"], title: "title" in c ? c.title! : d?.name ?? c.slug,
+    subtitle: "subtitle" in c ? c.subtitle! : d?.blurb ?? null, checkIn: "checkIn" in c ? c.checkIn! : null, checkOut: "checkOut" in c ? c.checkOut! : null,
+    ebcIds: c.ebcIds, position: i, heroUrl: "heroUrl" in c ? c.heroUrl! : d?.hero ?? null,
+  };
+});
 
 export function localDb(): Db {
   const hotels = new Map<number, Hotel>();
@@ -32,17 +39,16 @@ export function localDb(): Db {
   const CREATOR: Creator = { id: STOREFRONT.creatorId, userId: "00000000-0000-0000-0000-000000000001", displayName: "Lina", email: "lina@example.com" };
   let sf: Storefront = { ...STOREFRONT };
 
-  lisbon.forEach((h, i) => {
-    const n = IMG_COUNT[h.slug] ?? 4;
-    const hotel: Hotel = { ebcId: h.ebcId, name: h.name, stars: h.stars, address: h.area, cityName: h.city, lat: h.lat, lng: h.lng, images: Array.from({ length: n }, (_, k) => ({ url: `/img/${h.slug}_${k}.jpg` })), rating: h.rating, ratingCount: h.votes };
-    hotels.set(h.ebcId, hotel);
-    pins.push({ ...hotel, position: i, tip: h.tip, stayedWhen: null });
-    for (const r of h.refs) {
-      checks.push({ ebcId: h.ebcId, source: SRC[r.source] ?? "booking", checkIn: "2026-12-03", checkOut: "2026-12-05", adults: 1, price: r.price, currency: "USD", checkedAt: new Date().toISOString() });
-      // festive dates: the big sites run about 22 percent higher for the same room over New Year
-      checks.push({ ebcId: h.ebcId, source: SRC[r.source] ?? "booking", checkIn: "2026-12-29", checkOut: "2027-01-02", adults: 2, price: Math.round(r.price * 2 * 1.22), currency: "USD", checkedAt: new Date().toISOString() });
+  for (const h of ALL) {
+    hotels.set(h.ebcId, { ebcId: h.ebcId, name: h.name, stars: h.stars, address: h.area, cityName: h.city, lat: h.lat, lng: h.lng, images: h.images ?? [], rating: h.rating, ratingCount: h.votes, destination: h.destination ?? destinationForCity(h.city)?.slug ?? null });
+    for (const d of plan.priceDates) for (const r of h.refs) {
+      if (!SRC[r.source]) continue;
+      checks.push({ ebcId: h.ebcId, source: SRC[r.source]!, checkIn: d.checkIn, checkOut: d.checkOut, adults: d.adults, price: Math.round(r.price * d.factor), currency: "USD", checkedAt: new Date().toISOString() });
     }
-  });
+  }
+  plan.pins.forEach((p, i) => { const hotel = hotels.get(p.ebcId)!; pins.push({ ...hotel, position: i, tip: p.tip, stayedWhen: null }); });
+  // the service tests also exercise the eBooking mapped Lisbon hotels (on request, real IDs); the demo storefront does not show them
+  if (process.env.NOMADLY_PIN_ALL === "1") for (const h of ALL) if (!pins.some((p) => p.ebcId === h.ebcId)) pins.push({ ...hotels.get(h.ebcId)!, position: pins.length, tip: h.tip, stayedWhen: null });
 
   return {
     async creatorByUserId(userId) { return CREATOR.userId === userId ? CREATOR : null; },

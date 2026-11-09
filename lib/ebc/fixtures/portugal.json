@@ -121,7 +121,44 @@
     "deposit": "Pre authorization of USD 200 by card at check in",
     "onRequest": false,
     "bookingSoldOut": false,
-    "tip": "Afternoon tea on the terrace is the ritual; book it when you book the room. Sea facing rooms are worth the step up."
+    "tip": "Afternoon tea on the terrace is the ritual; book it when you book the room. Sea facing rooms are worth the step up.",
+    "images": [
+      {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/4/43/Funchal,_Belmond_Reid%E2%80%99s_Palace.jpg",
+        "w": 1920,
+        "credit": "Dr. Thomas Liptak",
+        "license": "CC BY-SA 4.0",
+        "source": "https://commons.wikimedia.org/wiki/File:Funchal,_Belmond_Reid%E2%80%99s_Palace.jpg"
+      },
+      {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/3/34/Funchal,_Reid%E2%80%99s_Palace_(from_Ribeiro_Seco).jpg",
+        "w": 1920,
+        "credit": "Dr. Thomas Liptak",
+        "license": "CC BY-SA 4.0",
+        "source": "https://commons.wikimedia.org/wiki/File:Funchal,_Reid%E2%80%99s_Palace_(from_Ribeiro_Seco).jpg"
+      },
+      {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/f/f1/Reids_Hotel_Funchal_Seaside_2016.JPG",
+        "w": 1920,
+        "credit": "Stefan Bellini",
+        "license": "CC0",
+        "source": "https://commons.wikimedia.org/wiki/File:Reids_Hotel_Funchal_Seaside_2016.JPG"
+      },
+      {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/2/2f/Funchal,_Madeira_-_2013-04-03_-_90144680.jpg",
+        "w": 1920,
+        "credit": "Sergey Ashmarin",
+        "license": "CC BY-SA 3.0",
+        "source": "https://commons.wikimedia.org/wiki/File:Funchal,_Madeira_-_2013-04-03_-_90144680.jpg"
+      },
+      {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/b/ba/Reid's_Palace_Hotel,_September_2009.jpg",
+        "w": 1920,
+        "credit": "UggBoy UggGirl",
+        "license": "CC BY 2.0",
+        "source": "https://commons.wikimedia.org/wiki/File:Reid's_Palace_Hotel,_September_2009.jpg"
+      }
+    ]
   },
   {
     "slug": "carvoeiro",
@@ -159,7 +196,7 @@
     "ebcId": 900006,
     "ebcIdVerified": false,
     "name": "Pestana Palace",
-    "area": "Alc\u00e2ntara",
+    "area": "Alcântara",
     "city": "Lisbon",
     "stars": 5,
     "rating": 9.0,
@@ -183,7 +220,51 @@
     "deposit": "None",
     "onRequest": false,
     "bookingSoldOut": false,
-    "tip": "Stay in the palace wing, not the garden annex. The garden pool is open all year."
+    "tip": "Stay in the palace wing, not the garden annex. The garden pool is open all year.",
+    "images": [
+      {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/5/59/Pal%C3%A1cio_Vale_Flor_(_Pestana_Palace_Hotel_)_-_Lisboa_-_Portugal_(52340637258).jpg",
+        "w": 1920,
+        "credit": "Vitor Oliveira",
+        "license": "CC BY-SA 2.0",
+        "source": "https://commons.wikimedia.org/wiki/File:Pal%C3%A1cio_Vale_Flor_(_Pestana_Palace_Hotel_)_-_Lisboa_-_Portugal_(52340637258).jpg"
+      },
+      {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/3/3f/Interior_view_-_Hotel_Pestana_Palace_-_Lisbon,_Portugal_-_DSC07071.JPG",
+        "w": 1920,
+        "credit": "Daderot",
+        "license": "CC0",
+        "source": "https://commons.wikimedia.org/wiki/File:Interior_view_-_Hotel_Pestana_Palace_-_Lisbon,_Portugal_-_DSC07071.JPG"
+      },
+      {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/e/e6/Pal%C3%A1cio_Vale_Flor_(_Pestana_Palace_Hotel_)_-_Lisboa_-_Portugal_(52340698569).jpg",
+        "w": 1920,
+        "credit": "Vitor Oliveira",
+        "license": "CC BY-SA 2.0",
+        "source": "https://commons.wikimedia.org/wiki/File:Pal%C3%A1cio_Vale_Flor_(_Pestana_Palace_Hotel_)_-_Lisboa_-_Portugal_(52340698569).jpg"
+      },
+      {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/3/30/Lounge_in_red_(30057855996).jpg",
+        "w": 1280,
+        "credit": "Bosc d'Anjou",
+        "license": "CC BY 2.0",
+        "source": "https://commons.wikimedia.org/wiki/File:Lounge_in_red_(30057855996).jpg"
+      },
+      {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/3/33/Lounge_in_blue_(29797458990).jpg",
+        "w": 1280,
+        "credit": "Bosc d'Anjou",
+        "license": "CC BY 2.0",
+        "source": "https://commons.wikimedia.org/wiki/File:Lounge_in_blue_(29797458990).jpg"
+      },
+      {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/c/c6/Pal%C3%A1cio_Vale_Flor_(_Pestana_Palace_Hotel_)_-_Lisboa_-_Portugal_(52340698909).jpg",
+        "w": 1920,
+        "credit": "Vitor Oliveira",
+        "license": "CC BY-SA 2.0",
+        "source": "https://commons.wikimedia.org/wiki/File:Pal%C3%A1cio_Vale_Flor_(_Pestana_Palace_Hotel_)_-_Lisboa_-_Portugal_(52340698909).jpg"
+      }
+    ]
   },
   {
     "slug": "torel",

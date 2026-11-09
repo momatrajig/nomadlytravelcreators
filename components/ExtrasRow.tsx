@@ -11,20 +11,20 @@ const ICON: Record<string, string> = {
 /** Veny services as a quiet row. They are added at checkout, with the stay, in one payment. */
 export default function ExtrasRow() {
   return (
-    <section aria-labelledby="extras" style={{ marginTop: 26 }}>
-      <h2 id="extras" style={{ fontSize: 24 }}>Getting there, and the small things</h2>
-      <p className="mute" style={{ margin: "4px 0 14px" }}>Add any of these at checkout, in the same payment as the room. Each costs less than on its own site, and you cancel them with the stay.</p>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 14 }}>
-        {EXTRAS.map((x) => (
-          <div key={x.kind} className="panel" style={{ display: "grid", gap: 10 }}>
-            <span style={{ width: 44, height: 44, borderRadius: 12, background: "linear-gradient(135deg, var(--navy), var(--brand))", display: "grid", placeItems: "center" }}>
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d={ICON[x.icon]} /></svg>
-            </span>
-            <div><b>{x.name}</b><p className="small" style={{ margin: "4px 0 0", color: "var(--fg-2)" }}>{x.short}</p></div>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}><span className="price" style={{ fontSize: 22 }}>{usd(x.price, true)}</span><span className="small mute" style={{ textDecoration: "line-through" }}>{usd(x.elsewhere, true)} elsewhere</span></div>
-          </div>
-        ))}
+    <section className="block extras" aria-labelledby="extras">
+      <div className="block-head">
+        <h2 id="extras">Add the trip around the room</h2>
+        <p>Added at checkout, in the same payment, and cancelled with the stay.</p>
       </div>
+      <ul role="list">
+        {EXTRAS.map((x) => (
+          <li key={x.kind}>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d={ICON[x.icon]} /></svg>
+            <div><h3>{x.name}</h3><p>{x.short}</p></div>
+            <div className="extra-price"><b>{usd(x.price, true)}</b><s>{usd(x.elsewhere, true)} on its own</s></div>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

@@ -5,6 +5,7 @@ import { cancelBooking, confirmPaid, holdQuote, penaltyNow, searchStays, startPa
 
 process.env.EBC_MODE = "mock";
 process.env.DATA_MODE = "local";
+process.env.NOMADLY_PIN_ALL = "1";
 
 describe("booking service end to end on fixtures", () => {
   beforeEach(() => resetMock());
@@ -12,7 +13,7 @@ describe("booking service end to end on fixtures", () => {
   it("searches the pinned hotels, prices them with option D and reports savings", async () => {
     const sf = (await db().storefrontBySlug("lina"))!;
     const r = await searchStays(sf, "2026-12-03", "2026-12-05", 1);
-    expect(r.offers).toHaveLength(16);
+    expect(r.offers).toHaveLength(37);
     expect(r.rate).toBe(0.08); // ceiling is 10.5 percent, above the dial max
     const ic = r.offers.find((o) => o.ebcId === 515886)!;
     const flex = ic.rates.find((x) => x.refundable && x.board === "RO")!;

@@ -2,12 +2,14 @@ import Link from "next/link";
 import SearchBar from "@/components/SearchBar";
 import StaysFlow from "@/components/StaysFlow";
 import ExtrasRow from "@/components/ExtrasRow";
+import HeroCycle from "@/components/HeroCycle";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
-import { fmtDate, fmtTime } from "@/lib/format";
+import { checkedLabel, fmtDate, usd } from "@/lib/format";
 import { readDates } from "@/lib/dates";
-import { stayView } from "@/lib/storefront/data";
+import { stayView, storefrontDestinations } from "@/lib/storefront/data";
 import { requireStorefront } from "@/lib/tenant";
+import { photoSet, photoSrc } from "@/lib/media/photo";
 
 export const dynamic = "force-dynamic";
 
@@ -15,68 +17,84 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
   const sf = await requireStorefront();
   const { checkIn, checkOut, adults, qs } = readDates(await searchParams, env().EBC_MODE);
   const [pins, collections] = await Promise.all([db().pinnedHotels(sf.id), db().collections(sf.id)]);
-  const homeIds = pins.filter((p) => p.cityName === sf.cityName).map((p) => p.ebcId);
-  const season = collections.find((c) => c.kind === "season");
-  const destinations = collections.filter((c) => c.kind === "destination");
-  const [v, sv] = await Promise.all([
-    stayView(sf, checkIn, checkOut, adults, homeIds),
-    season?.checkIn && season.checkOut ? stayView(sf, season.checkIn, season.checkOut, 2, season.ebcIds) : Promise.resolve(null),
+  const seasons = collections.filter((c) => c.kind === "season" && c.checkIn && c.checkOut);
+  const dests = storefrontDestinations(pins);
+  const [all, ...sv] = await Promise.all([
+    stayView(sf, checkIn, checkOut, adults),
+    ...seasons.map((s) => stayView(sf, s.checkIn!, s.checkOut!, 2, s.ebcIds)),
   ]);
-  const hero = v.pins[0]?.images[0]?.url;
   const first = sf.brandName.split(" ").pop();
-  const [lead, ...rest] = sf.headline.split(", ");
+  const fromPrice = (ids: number[]) => {
+    const prices = all.cards.filter((c) => ids.includes(c.ebcId)).map((c) => c.readerPrice / all.nights);
+    return prices.length ? Math.min(...prices) : null;
+  };
+  const slides = ["paris", "dubai", "rio", "london", "istanbul"].map((s) => dests.find((d) => d.slug === s)).filter(Boolean).map((d) => ({ url: d!.hero, place: d!.name }));
+  const best = all.cards.filter((c) => (c.saving ?? 0) > 0).length;
   return (
     <>
-      <section className="hero" aria-label="Welcome">
-        {hero && <img src={hero} alt="" fetchPriority="high" />}
-        <div className="shade" />
-        <div className="copy">
-          <h1 style={{ color: "#fff" }}>{lead}{rest.length ? <>, <em>{rest.join(", ")}</em></> : null}</h1>
-          <p>Every price here is checked against Booking.com, Expedia and Agoda, and you see the difference before you book. I stayed in each of these hotels and I tell you what I would ask for.</p>
+      <section className="hero" aria-labelledby="hero-h">
+        <HeroCycle slides={slides} />
+        <div className="hero-copy">
+          <h1 id="hero-h">{sf.headline}</h1>
+          <p>Book through {first} and pay less than on Booking.com or Expedia for the same room and dates. You see both prices before you pay.</p>
         </div>
       </section>
-      <div style={{ marginTop: -28, position: "relative", zIndex: 2 }}><SearchBar checkIn={checkIn} checkOut={checkOut} adults={adults} city={sf.cityName ?? ""} /></div>
+      <div className="search-dock"><SearchBar checkIn={checkIn} checkOut={checkOut} adults={adults} destinations={dests.map((d) => ({ slug: d.slug, name: d.name }))} /></div>
 
-      <section className="nf-section" aria-labelledby="picks">
+      <section className="block" aria-labelledby="dest-h">
+        <div className="block-head">
+          <h2 id="dest-h">Where I stayed</h2>
+          <p>{dests.length} places, {pins.length} hotels. Prices per night for {fmtDate(checkIn)} to {fmtDate(checkOut)}.</p>
+        </div>
+        <ul className="rail" role="list">
+          {dests.map((d) => {
+            const from = fromPrice(d.hotels);
+            return (
+              <li key={d.slug}>
+                <Link href={`/stays?d=${d.slug}&${qs}`} className="place">
+                  <img src={photoSrc(d.hero, 800)} srcSet={photoSet(d.hero)} sizes="(max-width: 600px) 70vw, 280px" alt="" loading="lazy" />
+                  <span className="place-text">
+                    <span className="place-name">{d.name}</span>
+                    <span className="place-meta">{d.country}. {d.hotels.length} {d.hotels.length === 1 ? "hotel" : "hotels"}{from ? `, from ${usd(from, true)} a night` : ""}</span>
+                  </span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+
+      {seasons.map((s, k) => {
+        const v = sv[k]!;
+        return (
+          <section key={s.slug} className="nf-section" style={{ ["--band" as string]: `url("${photoSrc(s.heroUrl ?? "", 1600)}")` }} aria-labelledby={`s-${s.slug}`}>
+            <div className="nf-head">
+              <div><h2 id={`s-${s.slug}`}>{s.title}</h2><p>{s.subtitle}{v.checkedAt ? ` Big site prices ${checkedLabel(v.checkedAt)}.` : ""}</p></div>
+              <Link href={`/stays?in=${s.checkIn}&out=${s.checkOut}&adults=2&collection=${s.slug}`}>All {s.ebcIds.length} hotels</Link>
+            </div>
+            {v.error ? <p className="nf-empty" role="alert">{v.error}</p> : <StaysFlow items={v.cards} nights={v.nights} checkedAt={v.checkedAt} qs={`in=${s.checkIn}&out=${s.checkOut}&adults=2`} label={s.title} tabs={false} />}
+          </section>
+        );
+      })}
+
+      <section className="nf-section plain" aria-labelledby="picks">
         <div className="nf-head">
-          <div><h2 id="picks">{first}&apos;s {sf.cityName} picks, <em>priced below the big sites.</em></h2>
-            <p>{fmtDate(checkIn)} to {fmtDate(checkOut)}, {adults} {adults === 1 ? "adult" : "adults"}, {v.nights} {v.nights === 1 ? "night" : "nights"}.{v.checkedAt ? ` Prices on the big sites were read at ${fmtTime(v.checkedAt)} today.` : ""}</p></div>
-          <Link href={`/stays?${qs}&city=${encodeURIComponent(sf.cityName ?? "")}`}>See all {sf.cityName} stays</Link>
+          <div><h2 id="picks">Every hotel, {fmtDate(checkIn)} to {fmtDate(checkOut)}</h2>
+            <p>{best} of {all.cards.length} are below the big sites for these dates. {adults} {adults === 1 ? "adult" : "adults"}, {all.nights} {all.nights === 1 ? "night" : "nights"}, tax included.</p></div>
+          <Link href={`/stays?${qs}`}>See the list</Link>
         </div>
-        {v.error ? <div className="notice warn" role="alert">{v.error} <Link href={`/?${qs}`}>Retry</Link></div> : <StaysFlow items={v.cards} nights={v.nights} checkedAt={v.checkedAt} qs={qs} label={`${sf.cityName} picks`} />}
+        {all.error ? <p className="nf-empty" role="alert">{all.error} <Link href={`/?${qs}`}>Try again</Link></p> : <StaysFlow items={all.cards} nights={all.nights} checkedAt={all.checkedAt} qs={qs} label="Every hotel" />}
       </section>
-
-      {season && sv && (
-        <section className="nf-section" aria-labelledby="season" style={{ background: "radial-gradient(120% 90% at 20% 0%, #2a1434 0%, #0b1020 60%)" }}>
-          <div className="nf-head">
-            <div><h2 id="season">{season.title}, <em>already priced for the dates.</em></h2><p>{season.subtitle}</p></div>
-            <Link href={`/stays?in=${season.checkIn}&out=${season.checkOut}&adults=2&collection=${season.slug}`}>See the whole list</Link>
-          </div>
-          {sv.error ? <div className="notice warn" role="alert">{sv.error}</div> : <StaysFlow items={sv.cards} nights={sv.nights} checkedAt={sv.checkedAt} qs={`in=${season.checkIn}&out=${season.checkOut}&adults=2`} label={season.title} tabs={false} />}
-        </section>
-      )}
-
-      {destinations.length > 0 && (
-        <section aria-labelledby="dest" style={{ marginTop: 26 }}>
-          <h2 id="dest" style={{ fontSize: 24 }}>Where else I stayed</h2>
-          <p className="mute" style={{ margin: "4px 0 14px" }}>The same promise everywhere: a hotel I slept in, priced below the big sites, with the one tip I would give a friend.</p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 14 }}>
-            {destinations.map((c) => (
-              <Link key={c.id} href={`/stays?${qs}&collection=${c.slug}`} style={{ position: "relative", display: "block", aspectRatio: "4/3", borderRadius: "var(--r-lg)", overflow: "hidden", textDecoration: "none", color: "#fff", background: "#0b1020" }}>
-                {c.heroUrl && <img src={c.heroUrl} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} loading="lazy" />}
-                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,.75))" }} />
-                <div style={{ position: "absolute", left: 16, right: 16, bottom: 14 }}><div style={{ fontFamily: "var(--font-display)", fontSize: 24 }}>{c.title}</div><div className="small" style={{ opacity: .85 }}>{c.ebcIds.length} {c.ebcIds.length === 1 ? "hotel" : "hotels"}{c.subtitle ? `. ${c.subtitle}` : ""}</div></div>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
 
       <ExtrasRow />
 
-      <section className="panel" style={{ marginTop: 22 }}>
-        <h2 style={{ fontSize: 22 }}>How this works</h2>
-        <p className="mute" style={{ margin: "8px 0 0" }}>Nomadly buys these rooms at trade rates and adds a small fee. The price you see already includes it, and it still lands below the big sites on most dates; when it does not, we say so on the card. You pay Nomadly, Nomadly pays the hotel, and you can cancel free until the date shown on the rate.</p>
+      <section className="how" aria-labelledby="how-h">
+        <h2 id="how-h">How booking here works</h2>
+        <div className="how-cols">
+          <div><h3>The price is checked</h3><p>Each hotel is priced against Booking.com and Expedia for your exact dates and guests. If we are not cheaper, the card says so.</p></div>
+          <div><h3>You pay Nomadly</h3><p>Nomadly buys the room at trade rates and pays the hotel. Your confirmation and reference number arrive by email.</p></div>
+          <div><h3>Free cancellation is real</h3><p>Flexible rates cancel free until the date on the rate. The refund goes back to your card.</p></div>
+        </div>
       </section>
     </>
   );

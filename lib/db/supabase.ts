@@ -18,7 +18,7 @@ const must = <T>(r: { data: T | null; error: { message: string } | null }): T =>
 
 export function supabaseDb(): Db {
   const sb = client();
-  const hotelFrom = (r: Record<string, unknown>): Hotel => ({ ebcId: r.ebc_id as number, name: r.name as string, stars: (r.stars as number) ?? null, address: (r.address as string) ?? null, cityName: (r.city_name as string) ?? null, lat: (r.lat as number) ?? null, lng: (r.lng as number) ?? null, images: (r.images as Hotel["images"]) ?? [], rating: r.rating == null ? null : Number(r.rating), ratingCount: (r.rating_count as number) ?? null });
+  const hotelFrom = (r: Record<string, unknown>): Hotel => ({ ebcId: r.ebc_id as number, name: r.name as string, stars: (r.stars as number) ?? null, address: (r.address as string) ?? null, cityName: (r.city_name as string) ?? null, lat: (r.lat as number) ?? null, lng: (r.lng as number) ?? null, images: (r.images as Hotel["images"]) ?? [], rating: r.rating == null ? null : Number(r.rating), ratingCount: (r.rating_count as number) ?? null, destination: (r.destination_slug as string) ?? null });
   return {
     async creatorByUserId(userId) { const r = await sb.from("creators").select("id,user_id,display_name,email").eq("user_id", userId).maybeSingle(); return r.data ? fromRow<Creator>(r.data) : null; },
     async creatorByEmail(email) { const r = await sb.from("creators").select("id,user_id,display_name,email").ilike("email", email).maybeSingle(); return r.data ? fromRow<Creator>(r.data) : null; },

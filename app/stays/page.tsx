@@ -1,11 +1,12 @@
 import Link from "next/link";
 import SearchBar from "@/components/SearchBar";
 import { env } from "@/lib/env";
-import { fmtDate, usd } from "@/lib/format";
+import { checkedLabel, fmtDate, usd } from "@/lib/format";
 import { readDates } from "@/lib/dates";
-import { stayView } from "@/lib/storefront/data";
+import { destination, stayView, storefrontDestinations } from "@/lib/storefront/data";
 import { requireStorefront } from "@/lib/tenant";
 import { db } from "@/lib/db";
+import { photoSet, photoSrc } from "@/lib/media/photo";
 
 export const dynamic = "force-dynamic";
 
@@ -14,45 +15,54 @@ export default async function Stays({ searchParams }: { searchParams: Promise<Re
   const sp = await searchParams;
   const { checkIn, checkOut, adults, qs } = readDates(sp, env().EBC_MODE);
   const [pins, collections] = await Promise.all([db().pinnedHotels(sf.id), db().collections(sf.id)]);
-  const city = typeof sp.city === "string" ? sp.city : null;
+  const dests = storefrontDestinations(pins);
+  const d = typeof sp.d === "string" ? destination(sp.d) : null;
   const col = typeof sp.collection === "string" ? collections.find((c) => c.slug === sp.collection) ?? null : null;
-  const only = col ? col.ebcIds : city ? pins.filter((p) => p.cityName === city).map((p) => p.ebcId) : undefined;
+  const only = col ? col.ebcIds : d ? pins.filter((p) => p.destination === d.slug).map((p) => p.ebcId) : undefined;
   const v = await stayView(sf, checkIn, checkOut, adults, only);
-  const cities = [...new Set(pins.map((p) => p.cityName).filter((c): c is string => !!c))];
-  const title = col ? col.title : city ?? "Every stay";
+  const title = col ? col.title : d ? d.name : "Every hotel";
   const cards = [...v.cards].sort((a, b) => (b.saving ?? -1e9) - (a.saving ?? -1e9));
+  const chip = (href: string, label: string, on: boolean) => <Link key={href} className="filter" href={href} aria-current={on ? "page" : undefined}>{label}</Link>;
   return (
     <>
-      <div style={{ marginTop: 18 }}><SearchBar checkIn={checkIn} checkOut={checkOut} adults={adults} city={sf.cityName ?? ""} /></div>
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 18 }}>
-        <Link className="chip" href={`/stays?${qs}`} aria-current={!city && !col ? "page" : undefined} style={{ background: !city && !col ? "var(--navy)" : undefined, color: !city && !col ? "#fff" : undefined }}>All</Link>
-        {cities.map((c) => <Link key={c} className="chip" href={`/stays?${qs}&city=${encodeURIComponent(c)}`} style={{ background: city === c ? "var(--navy)" : undefined, color: city === c ? "#fff" : undefined }}>{c}</Link>)}
-        {collections.filter((c) => c.kind === "season").map((c) => <Link key={c.slug} className="chip" href={`/stays?in=${c.checkIn}&out=${c.checkOut}&adults=2&collection=${c.slug}`} style={{ background: col?.slug === c.slug ? "var(--navy)" : undefined, color: col?.slug === c.slug ? "#fff" : undefined }}>{c.title}</Link>)}
-      </div>
-      <h1 style={{ fontSize: 28, margin: "14px 0 6px" }}>{title}, {fmtDate(checkIn)} to {fmtDate(checkOut)}</h1>
-      <p className="mute" style={{ margin: 0 }}>{cards.length} {cards.length === 1 ? "hotel" : "hotels"} I stayed in. Prices are for {v.nights} {v.nights === 1 ? "night" : "nights"}, {adults} {adults === 1 ? "adult" : "adults"}, tax included.</p>
-      {v.error && <div className="notice warn" role="alert" style={{ marginTop: 14 }}>{v.error}</div>}
-      <div style={{ display: "grid", gap: 14, marginTop: 18 }}>
-        {cards.map((h) => (
-          <article key={h.ebcId} className="panel" style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr)", gap: 12 }}>
-            <div style={{ display: "grid", gridTemplateColumns: "140px 1fr auto", gap: 16, alignItems: "center" }}>
-              <Link href={`/hotel/${h.ebcId}?${qs}`} style={{ borderRadius: 12, overflow: "hidden", aspectRatio: "4/3", background: "var(--surface-2)" }}>{h.images[0] && <img src={h.images[0]} alt={h.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} loading="lazy" />}</Link>
-              <div>
-                <div className="small mute">{h.area}{h.city ? `, ${h.city}` : ""}</div>
-                <h2 style={{ fontSize: 20 }}><Link href={`/hotel/${h.ebcId}?${qs}`} style={{ textDecoration: "none" }}>{h.name}</Link></h2>
-                <div className="small mute">{h.stars} star{h.rating ? `, ${h.rating.toFixed(1)} from ${h.ratingCount?.toLocaleString("en-US")} reviews` : ""}{h.refundable && h.cancelDeadline ? `. Free cancellation until ${fmtDate(h.cancelDeadline)}` : ""}</div>
-                {h.saving !== null && h.lowestReference && <span className={`chip ${h.saving > 0 ? "chip-ok" : "chip-warn"}`} style={{ marginTop: 6 }}>{h.saving > 0 ? `${usd(h.saving, true)} less than ${h.lowestReference.source}` : `${usd(-h.saving, true)} above ${h.lowestReference.source}`}</span>}
+      <div className="page-search"><SearchBar checkIn={checkIn} checkOut={checkOut} adults={adults} dest={d?.slug ?? ""} destinations={dests.map((x) => ({ slug: x.slug, name: x.name }))} /></div>
+      <nav className="filters" aria-label="Destinations and seasons">
+        {chip(`/stays?${qs}`, "All", !d && !col)}
+        {collections.filter((c) => c.kind === "season").map((c) => chip(`/stays?in=${c.checkIn}&out=${c.checkOut}&adults=2&collection=${c.slug}`, c.title, col?.slug === c.slug))}
+        {dests.map((x) => chip(`/stays?d=${x.slug}&${qs}`, x.name, d?.slug === x.slug && !col))}
+      </nav>
+      <header className="list-head">
+        <h1>{title}</h1>
+        <p>{fmtDate(checkIn)} to {fmtDate(checkOut)}, {v.nights} {v.nights === 1 ? "night" : "nights"}, {adults} {adults === 1 ? "adult" : "adults"}. Total prices, tax included{v.checkedAt ? `; big site prices ${checkedLabel(v.checkedAt)}` : ""}.</p>
+      </header>
+      {v.error && <div className="notice warn" role="alert">{v.error} <Link href={`/stays?${qs}`}>Try again</Link></div>}
+      <ul className="list" role="list">
+        {cards.map((h) => {
+          const p = h.photos[0];
+          const href = `/hotel/${h.ebcId}?${checkIn === col?.checkIn ? `in=${checkIn}&out=${checkOut}&adults=${adults}` : qs}`;
+          return (
+            <li key={h.ebcId} className="stay">
+              <Link href={href} className="stay-pic" tabIndex={-1} aria-hidden="true">{p && <img src={photoSrc(p.url, 960, p.w)} srcSet={photoSet(p.url, p.w)} sizes="(max-width: 700px) 100vw, 320px" alt="" loading="lazy" />}</Link>
+              <div className="stay-main">
+                <div className="stay-where">{h.area}, {h.city}</div>
+                <h2><Link href={href}>{h.name}</Link></h2>
+                <div className="stay-facts">{h.stars} star{h.rating ? `, ${h.rating.toFixed(1)} from ${h.ratingCount?.toLocaleString("en-US")} reviews` : ""}{h.refundable && h.cancelDeadline ? `. Free cancellation until ${fmtDate(h.cancelDeadline)}` : ""}</div>
+                {h.tip && <p className="stay-tip">{h.tip}</p>}
               </div>
-              <div style={{ textAlign: "right" }}>
-                {h.saving && h.saving > 0 && <div className="small mute" style={{ textDecoration: "line-through" }}>{usd(h.lowestReference!.price, true)}</div>}
-                <div className="price">{usd(h.readerPrice, true)}</div>
-                <Link className="btn btn-brand" href={`/hotel/${h.ebcId}?${qs}`}>See rates</Link>
+              <div className="stay-price">
+                {h.saving !== null && h.lowestReference && (h.saving > 0
+                  ? <span className="save">{usd(h.saving, true)} less than {h.lowestReference.source}</span>
+                  : <span className="above">{usd(-h.saving, true)} above {h.lowestReference.source}</span>)}
+                {h.saving && h.saving > 0 ? <s>{usd(h.lowestReference!.price, true)}</s> : null}
+                <strong>{usd(h.readerPrice, true)}</strong>
+                <span className="per">{usd(h.readerPrice / v.nights, true)} a night</span>
+                <Link className="btn btn-brand" href={href}>See rooms</Link>
               </div>
-            </div>
-          </article>
-        ))}
-        {!cards.length && !v.error && <div className="panel"><p className="mute">No rooms at the pinned hotels for these dates. Try other dates.</p></div>}
-      </div>
+            </li>
+          );
+        })}
+      </ul>
+      {!cards.length && !v.error && <div className="empty"><p>No rooms at these hotels for these dates.</p><Link className="btn" href="/stays">Show every hotel</Link></div>}
     </>
   );
 }

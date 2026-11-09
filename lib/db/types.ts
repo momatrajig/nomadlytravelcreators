@@ -1,3 +1,4 @@
+import type { Photo } from "@/lib/media/photo";
 export interface Storefront {
   id: string; creatorId: string; slug: string; customDomain: string | null; brandName: string; brandColor: string; logoPath: string | null;
   template: "postcard" | "editorial" | "grid"; headline: string; cityId: number | null; cityName: string | null; currency: string;
@@ -5,7 +6,9 @@ export interface Storefront {
 }
 export interface Hotel {
   ebcId: number; name: string; stars: number | null; address: string | null; cityName: string | null; lat: number | null; lng: number | null;
-  images: Array<{ url: string; w?: number; h?: number }>; rating: number | null; ratingCount: number | null;
+  images: Photo[]; rating: number | null; ratingCount: number | null;
+  /** destination slug (lib/content/destinations) */
+  destination: string | null;
 }
 export interface PinnedHotel extends Hotel { position: number; tip: string | null; stayedWhen: string | null }
 /** A curated set shown as its own band: a season (Christmas and New Year) or a destination. Dates are the band's default search. */

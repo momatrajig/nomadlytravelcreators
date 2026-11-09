@@ -197,8 +197,10 @@ export function mount<T = any>(root: HTMLElement, opts: FlowOptions<T>): FlowHan
   stage.addEventListener('click', (e) => { if (moved > 6) { e.stopPropagation(); e.preventDefault(); moved = 0; return; }
     const target = e.target as HTMLElement; const card = target.closest('.nf-card') as HTMLElement | null; if (!card) return;
     const i = +card.dataset.i!;
+    // the Photos button opens the gallery from any card, active or not
+    if (target.closest('[data-nf-open]')) { e.preventDefault(); if (i !== cur) go(i); if (opts.onOpen) opts.onOpen(items[i] as T, i, card); return; }
     if (i !== cur) { go(i); return; }
-    if (target.closest('[data-nf-open]') || !target.closest('a,button')) { if (opts.onOpen) opts.onOpen(items[i] as T, i, card); }
+    if (!target.closest('a,button')) { if (opts.onOpen) opts.onOpen(items[i] as T, i, card); }
   }, true);
   // wheel: horizontal intent only
   let wheelAcc = 0, wheelT: ReturnType<typeof setTimeout> | undefined;

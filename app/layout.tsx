@@ -24,19 +24,20 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=Inter:wght@400;500;600;700&display=swap" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" />
       </head>
       <body>
         {sf ? (
           <>
+            {env().EBC_MODE === "mock" && <div className="demo" role="note">Preview. Hotel prices and big site prices are simulated until the live hotel connection is on, and cards are charged in Stripe test mode, so nothing here is a real booking.</div>}
             <header className="hdr"><div className="wrap">
               <Link href="/" className="logo"><span className="mark">{sf.brandName.slice(0, 1).toUpperCase()}</span><span>{sf.brandName}</span></Link>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}><nav className="nav" aria-label="Main"><Link href="/">Home</Link><Link href="/stays">Stays</Link><Link href="/booking">Your booking</Link></nav>{showCreator && <Link href="/dashboard" className="btn" style={{ minHeight: 36, padding: "7px 12px", fontSize: 13 }}>Creator dashboard</Link>}</div>
+              <div className="hdr-right"><nav className="nav" aria-label="Main"><Link href="/stays">Hotels</Link><Link href="/booking">Your booking</Link></nav>{showCreator && <Link href="/dashboard" className="btn btn-quiet">Creator dashboard</Link>}</div>
             </div></header>
             <main className="wrap">{children}</main>
             <footer className="wrap">
-              <p>{sf.brandName} is powered by Nomadly, a Veny Inc. company, New York. Bookings are made and charged by Nomadly; the hotel is paid by Nomadly. Prices on the big sites are checked every hour. Support 7 days a week, 08:00 to 22:00 Lisbon time.</p>
-              <p style={{ marginTop: 8 }}><Link href="/dashboard" style={{ color: "var(--mute)" }}>Creator dashboard</Link></p>
+              <p>{sf.brandName} runs on Nomadly, a Veny Inc. company. Nomadly takes the payment and pays the hotel. Support every day, 08:00 to 22:00 UTC.</p>
+              <p><Link href="/credits">Photo credits</Link><Link href="/booking">Find your booking</Link><Link href="/dashboard">Creator dashboard</Link></p>
             </footer>
             <BottomNav />
           </>

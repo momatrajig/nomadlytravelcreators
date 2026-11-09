@@ -1,0 +1,102 @@
+# key | hash | Commons file name (spaces as underscores) | author | license
+peninsula-paris|7/74|FaçadeThePeninsulaParis.jpg|Marketingppr|CC0
+peninsula-paris|4/40|Eiffel_Tower_Suite.jpg|Marketingppr|CC0
+peninsula-paris|b/b8|Swimming_Pool_Spa.jpg|Marketingppr|CC0
+peninsula-paris|5/50|Bar_Kleber.jpg|Marketingppr|CC0
+peninsula-paris|6/68|Junior_Suite_The_Peninsula_Paris.jpg|Marketingppr|CC0
+peninsula-paris|c/c6|Rooftop_Garden_Suite.jpg|Marketingppr|CC0
+peninsula-paris|9/9d|Lobby_Restaurant.jpg|Marketingppr|CC0
+peninsula-paris|1/1b|L'Oiseau_Blanc_Vue.jpg|Marketingppr|CC0
+peninsula-paris|7/7b|The_Peninsula_Paris_Facade.jpg|Marketingppr|CC0
+meurice|b/ba|Hôtel_Le_Meurice.jpg|Arthur Weidmann|CC BY-SA 4.0
+meurice|0/0d|SalonMeurice_Credit_Marianne_Haas_JPEGHD.jpg|Christophe robin paris|CC BY-SA 4.0
+meurice|0/08|Paris_75001_Rue_de_Rivoli_no_228_Le_Meurice_ext_20060528.jpg|lienyuan lee|CC BY 3.0
+meurice|2/25|Le_Meurice_005.jpg|Arnaud 25|CC BY-SA 4.0
+meurice|7/72|Le_Meurice_004.jpg|Arnaud 25|CC BY-SA 4.0
+meurice|3/30|Le_Meurice_006.jpg|Arnaud 25|CC BY-SA 4.0
+crillon|9/98|Hôtel_de_Crillon,_nuit,_Paris_8e_3.jpg|Polymagou|CC BY-SA 4.0
+crillon|4/44|Hôtel_de_Crillon_at_night_(142).jpg|Patrick Nouhailler|CC BY-SA 3.0
+crillon|2/29|Hôtel_de_Crillon_(30584638660).jpg|Maria Eklind|CC BY-SA 2.0
+crillon|9/98|Hôtels_Crillon_Cartier_Plessis_Bellière_Coislin_Paris_2.jpg|Chabe01|CC BY-SA 4.0
+athenee|5/58|Facade_of_the_Hôtel_Plaza_Athénée,_Paris_17_July_2017.jpg|Joe deSousa|CC0
+athenee|e/eb|Plaza_Athénée,_Paris_1_November_2016.jpg|Fred Romero|CC BY 2.0
+athenee|1/16|Palais_de_Plaza_Athénée.jpg|Monteclaire|CC BY-SA 4.0
+athenee|3/36|Paris_avenue_montaigne_plaza_athena.1.jpg|Ralf.treinen|CC BY-SA 3.0
+ritz-london|9/9f|Grande_entrance_to_The_Ritz_London_2023-12-06.jpg|Loco Steve|CC BY-SA 2.0
+ritz-london|1/1e|The_Ritz_Restaurant_-_medium_res.jpg|RT6HPU|CC BY-SA 4.0
+ritz-london|0/04|Afternoon_Tea_in_the_Queen_Elizabeth_Room.jpg|RT6HPU|CC BY-SA 4.0
+ritz-london|e/ea|Façade_gommage®_at_The_Ritz_Hotel,_Piccadilly,_London.jpg|TH gommage|CC BY-SA 4.0
+ritz-london|7/7f|Entrée_Ritz_Londres.jpg|CVB|CC BY-SA 4.0
+langham|c/cd|The_Langham,_London_FotoThalerTamas.jpg|Thaler Tamas|CC BY-SA 4.0
+langham|9/9c|The_Palm_Court_-_geograph.org.uk_-_5508954.jpg|Anthony O'Neil|CC BY-SA 2.0
+langham|4/46|Entrance_Hall_and_Lobby_(geograph_5508956).jpg|Anthony O'Neil|CC BY-SA 2.0
+langham|9/91|Tea_service_-_geograph.org.uk_-_7729197.jpg|Anthony O'Neil|CC BY-SA 2.0
+savoy|f/f3|Savoy_entrance_from_Victoria_Embankment_Gardens.jpg|Camerawalker|CC BY-SA 3.0
+savoy|0/0a|London_-_Savoy_Hotel_-_geograph.org.uk_-_5280283.jpg|Colin Smith|CC BY-SA 2.0
+savoy|2/20|Christmas_at_the_Savoy_Hotel_in_the_Strand_London_(23528517700).jpg|Loco Steve|CC BY-SA 2.0
+burj|5/5b|Burj_Al_Arab_and_the_beach_(Pexels_823696).jpg|Aleksandar Pasaric|CC0
+burj|2/2c|Dubai_in_January_2025_12.jpg|Renek78|CC0
+burj|6/6c|Burj_Al_Arab_3-Dubai_UAE-Andres_Larin.jpg|Saaremees|CC BY-SA 4.0
+burj|0/0f|Burj_Al_Arab_5-Dubai_UAE-Andres_Larin.jpg|Saaremees|CC BY-SA 4.0
+burj|4/48|Burj_Al_Arab_6-Dubai_UAE-Andres_Larin.jpg|Saaremees|CC BY-SA 4.0
+burj|2/20|Hotel_Burj_al_Arab_in_Dubay_2.jpg|Leon petrosyan|CC BY-SA 4.0
+atlantis|5/5a|Aquaventure_Beach-Dubai_UAE-Andres_Larin.jpg|Saaremees|CC BY-SA 4.0
+atlantis|8/86|Atlantis,_The_Palm_from_Le_Royal_Méridien_Beach_Resort_and_Spa_in_Dubai_2.jpg|CT Cooper|Public domain
+plaza-ny|e/e4|Midtown_Manhattan_November_2025_210.jpg|Kidfly182|CC BY 4.0
+plaza-ny|d/d1|Plaza_Hotel_chandeliers,_Sept_2017.jpg|Thomson200|CC0
+plaza-ny|3/36|Oak_Room_(Plaza_Hotel)_door,_Sept_2017.jpg|Thomson200|CC0
+mbs|a/a3|20190819_Marina_Bay_Sands-2.jpg|Balon Greyjoy|CC0
+mbs|d/db|At_Singapore_2023_114.jpg|Mike Peel|CC BY-SA 4.0
+mbs|c/ce|Building_-_panoramio_(48).jpg|XEON|CC BY 3.0
+mbs|d/d1|Building_with_a_ship_upside_from_near_sight_Meqqal_Singapore.jpg|Meqqal|CC BY-SA 4.0
+raffles|7/71|Hotel_Raffles,_Singapur,_2023-08-16,_DD_153-155_HDR.jpg|Diego Delso|CC BY-SA 4.0
+raffles|f/f3|(1887)_Raffles_Hotel1.jpg|Thank You (23 Millions+) views|CC BY 2.0
+raffles|8/88|(1887)_Raffles_Hotel.jpg|Thank You (23 Millions+) views|CC BY 2.0
+raffles|1/18|Inside_Singapore_Raffles_Long_Bar-1_(11861954616).jpg|Sheba_Also|CC BY-SA 2.0
+raffles|6/6f|Entrance_to_Singapore_Raffles_Hotel-1_(11861605264).jpg|Sheba_Also|CC BY-SA 2.0
+ciragan|9/97|Istanbul-çırağan_palace-bosphour_-_panoramio_-_HALUK_COMERTEL_(12).jpg|Haluk Comertel|CC BY 3.0
+ciragan|e/ee|Istanbul-çırağan_palace-bosphour_-_panoramio_-_HALUK_COMERTEL_(2).jpg|Haluk Comertel|CC BY 3.0
+ciragan|c/ca|Istanbul-çırağan_palace-bosphour_-_panoramio_-_HALUK_COMERTEL.jpg|Haluk Comertel|CC BY 3.0
+ciragan|a/a0|Istanbul-çırağan_palace-bosphour_-_panoramio_-_HALUK_COMERTEL_(13).jpg|Haluk Comertel|CC BY 3.0
+ciragan|a/a6|Istanbul-çırağan_palace-bosphour_-_panoramio_-_HALUK_COMERTEL_(3).jpg|Haluk Comertel|CC BY 3.0
+pera|9/91|Istanbul_asv2020-02_img42_Pera_Palace_Hotel.jpg|A.Savin|FAL
+pera|e/e3|Istanbul_Pera_Palace_Hotel_(54509340522).jpg|Jorge Franganillo|CC BY 2.0
+pera|0/05|Istanbul_Pera_Palace_Hotel_(54510474353).jpg|Jorge Franganillo|CC BY 2.0
+pera|f/f1|Pera_Palace_Hotel_Jumeirah_-_panoramio.jpg|qwesy qwesy|CC BY 3.0
+pera|8/8f|Istanbul_asv2020-02_img39_Pera_Palace_Hotel.jpg|A.Savin|FAL
+mamounia|9/93|La_Mamounia_outdoor_pool.jpg|Pi3.124|CC BY-SA 4.0
+mamounia|0/0a|La_Mamounia_indoor_pool.jpg|Pi3.124|CC BY-SA 4.0
+mamounia|6/6f|La_Mamounia_interior_II.jpg|Pi3.124|CC BY-SA 4.0
+mamounia|6/6d|La_Mamounia_interior.jpg|Pi3.124|CC BY-SA 4.0
+mamounia|f/f9|La_Mamounia_entrance.jpg|Pi3.124|CC BY-SA 4.0
+mamounia|e/e2|La_Mamounia_garden.jpg|Pi3.124|CC BY-SA 4.0
+amstel|d/d7|Intercontinental_Amstel,_Amsterdam_(25674398563).jpg|Tobias Niepel|CC BY 2.0
+amstel|0/0e|InterContinental_Hotel_Amstel_Amsterdam_-_panoramio_(1).jpg|qwesy qwesy|CC BY 3.0
+amstel|5/56|Amstel_Hotel_Amsterdam_12_2016_0170.jpg|Mariordo|CC BY-SA 4.0
+amstel|8/85|Amstelhotel_Amsterdam_-_panoramio.jpg|Rokus C|CC BY 3.0
+majestic|0/0b|Hotel_Majestic_-_20230324_193430.jpg|Pere López Brosa|CC BY-SA 4.0
+majestic|b/b2|060_Hotel_Majestic,_pg._de_Gràcia_68-72_-_c._València_251-259_(Barcelona),_façana_sud.jpg|Enric|CC BY 4.0
+majestic|5/5d|Hotel_Majestic_-_panoramio.jpg|Mister No|CC BY 3.0
+arts|9/94|008_Parc_de_les_Cascades_i_Hotel_Arts_(Barcelona),_al_fons_la_Torre_Mapfre.jpg|Enric|CC BY-SA 4.0
+arts|5/5f|20211114.Barcelona.-024.jpg|Christian Gebhardt|CC BY-SA 4.0
+wbcn|e/ef|Barcelona_(49260685343).jpg|Nicolas Vigier|CC0
+wbcn|d/d7|Barcelona_(51953121942).jpg|Nicolas Vigier|CC0
+wbcn|b/bb|20211114.Barcelona.-028.jpg|Christian Gebhardt|CC BY-SA 4.0
+wbcn|1/1b|202_Les_quatre_barres_de_la_senyera_catalana,_de_Ricard_Bofill,_i_Hotel_W_(Barcelona).jpg|Enric|CC BY-SA 4.0
+excelsior-rome|7/78|Italia_-_Roma_2013_-_panoramio_(77).jpg|randreu|CC BY 3.0
+excelsior-rome|1/11|Italia_-_Roma_2013_-_panoramio_(78).jpg|randreu|CC BY 3.0
+excelsior-rome|9/9e|On_the_way_to_Via_Vittorio_Veneto_-_panoramio.jpg|Patrick Nouhailler|CC BY-SA 3.0
+cip|5/54|Hotel_Copacabana_Palace,_Río_de_Janeiro_A74224720241122.jpg|Rjcastillo|CC BY 4.0
+cip|c/c7|Copacabana_Palace_-_panoramio.jpg|Pavel Špindler|CC BY 3.0
+cip|f/f5|Copacabana_Palace_-_RJ_-_panoramio_(1).jpg|Paulo JC Nogueira|CC BY-SA 3.0
+pestana|5/59|Palácio_Vale_Flor_(_Pestana_Palace_Hotel_)_-_Lisboa_-_Portugal_(52340637258).jpg|Vitor Oliveira|CC BY-SA 2.0
+pestana|3/3f|Interior_view_-_Hotel_Pestana_Palace_-_Lisbon,_Portugal_-_DSC07071.JPG|Daderot|CC0
+pestana|e/e6|Palácio_Vale_Flor_(_Pestana_Palace_Hotel_)_-_Lisboa_-_Portugal_(52340698569).jpg|Vitor Oliveira|CC BY-SA 2.0
+pestana|3/30|Lounge_in_red_(30057855996).jpg|Bosc d'Anjou|CC BY 2.0
+pestana|3/33|Lounge_in_blue_(29797458990).jpg|Bosc d'Anjou|CC BY 2.0
+pestana|c/c6|Palácio_Vale_Flor_(_Pestana_Palace_Hotel_)_-_Lisboa_-_Portugal_(52340698909).jpg|Vitor Oliveira|CC BY-SA 2.0
+reids|4/43|Funchal,_Belmond_Reid’s_Palace.jpg|Dr. Thomas Liptak|CC BY-SA 4.0
+reids|3/34|Funchal,_Reid’s_Palace_(from_Ribeiro_Seco).jpg|Dr. Thomas Liptak|CC BY-SA 4.0
+reids|f/f1|Reids_Hotel_Funchal_Seaside_2016.JPG|Stefan Bellini|CC0
+reids|2/2f|Funchal,_Madeira_-_2013-04-03_-_90144680.jpg|Sergey Ashmarin|CC BY-SA 3.0
+reids|b/ba|Reid's_Palace_Hotel,_September_2009.jpg|UggBoy UggGirl|CC BY 2.0

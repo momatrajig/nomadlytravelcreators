@@ -5,7 +5,9 @@
  */
 import lisbonFx from "./fixtures/lisbon.json";
 import portugalFx from "./fixtures/portugal.json";
-const lisbon = [...lisbonFx, ...portugalFx];
+import worldFx from "./fixtures/world.json";
+// order matters: reservation ids encode a hotel's position in this list, so new fixtures append
+const lisbon = [...lisbonFx, ...portugalFx, ...worldFx] as unknown as Array<(typeof lisbonFx)[number]>;
 import type { AvailabilityResponse, BookRequest, BookResponse, Offer, Reservation, SearchHotel, SearchResponse } from "./types";
 
 type Fixture = (typeof lisbonFx)[number];
@@ -60,7 +62,10 @@ function problem(status: number, title: string, detail?: string): Response {
 }
 
 function offerFor(h: Fixture, s: Session): Offer {
-  const price = (v: number) => ({ selling: { value: Math.round(v * s.nights * 100) / 100, currency: "USD" }, components: { supplier: { value: Math.round(v * s.nights * 100) / 100, currency: "USD" } } });
+  // hotels charge more over Christmas and New Year; the simulator follows the same curve
+  const md = s.checkIn.slice(5);
+  const festive = md >= "12-20" || md <= "01-03" ? 1.15 : 1;
+  const price = (v: number) => ({ selling: { value: Math.round(v * festive * s.nights * 100) / 100, currency: "USD" }, components: { supplier: { value: Math.round(v * festive * s.nights * 100) / 100, currency: "USD" } } });
   const rooms = [
     { index: `${h.slug}-flex`, name: "Superior room, flexible", status: (h.onRequest ? "RQ" : "OK") as "RQ" | "OK", boardBasis: "RO" as const, nonRefundable: false, price: price(h.supplierNet / 2), cancellationDeadline: { date: deadline(s.checkIn), charge: { value: h.penalty, currency: "USD" } } },
     { index: `${h.slug}-bb`, name: "Superior room, breakfast included", status: (h.onRequest ? "RQ" : "OK") as "RQ" | "OK", boardBasis: "BB" as const, nonRefundable: false, price: price((h.supplierNet + 28) / 2), cancellationDeadline: { date: deadline(s.checkIn), charge: { value: h.penalty, currency: "USD" } } },
@@ -180,7 +185,7 @@ export function mockTransport(now: () => number = Date.now): typeof fetch {
       const h = lisbon.find((x) => x.ebcId === Number(detMatch[1]));
       if (!h) return problem(404, "Not Found");
       if (detMatch[2] === "details") return json({ id: h.ebcId, name: h.name, stars: h.stars, address: h.area, geolocation: { latitude: h.lat, longitude: h.lng }, city: { id: 1, name: "Lisbon" }, country: { id: 1, name: "Portugal", iso: "PT" } });
-      return json({ images: [0, 1, 2, 3].map((i) => ({ id: i, hotelId: h.ebcId, url: `/img/${h.slug}_${i}.jpg`, source: "fixture" })) });
+      return json({ images: ((h as { images?: Array<{ url: string }> }).images ?? []).map((p, i) => ({ id: i, hotelId: h.ebcId, url: p.url, source: "fixture" })) });
     }
 
     return problem(404, "Not Found", path);
