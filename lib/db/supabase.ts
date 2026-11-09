@@ -21,6 +21,8 @@ export function supabaseDb(): Db {
   const hotelFrom = (r: Record<string, unknown>): Hotel => ({ ebcId: r.ebc_id as number, name: r.name as string, stars: (r.stars as number) ?? null, address: (r.address as string) ?? null, cityName: (r.city_name as string) ?? null, lat: (r.lat as number) ?? null, lng: (r.lng as number) ?? null, images: (r.images as Hotel["images"]) ?? [], rating: r.rating == null ? null : Number(r.rating), ratingCount: (r.rating_count as number) ?? null });
   return {
     async creatorByUserId(userId) { const r = await sb.from("creators").select("id,user_id,display_name,email").eq("user_id", userId).maybeSingle(); return r.data ? fromRow<Creator>(r.data) : null; },
+    async creatorByEmail(email) { const r = await sb.from("creators").select("id,user_id,display_name,email").ilike("email", email).maybeSingle(); return r.data ? fromRow<Creator>(r.data) : null; },
+    async linkCreatorUser(creatorId, userId) { must(await sb.from("creators").update({ user_id: userId }).eq("id", creatorId)); },
     async creator(id) { const r = await sb.from("creators").select("id,user_id,display_name,email").eq("id", id).maybeSingle(); return r.data ? fromRow<Creator>(r.data) : null; },
     async storefrontsForCreator(creatorId) { const rows = must(await sb.from("storefronts").select("*").eq("creator_id", creatorId)) as Array<Record<string, unknown>>; return rows.map((r) => fromRow<Storefront>(r)); },
     async updateStorefront(id, patch) { must(await sb.from("storefronts").update(toRow(patch)).eq("id", id)); },

@@ -38,6 +38,8 @@ export interface Creator { id: string; userId: string | null; displayName: strin
 export interface Db {
   creatorByUserId(userId: string): Promise<Creator | null>;
   creator(id: string): Promise<Creator | null>;
+  creatorByEmail(email: string): Promise<Creator | null>;
+  linkCreatorUser(creatorId: string, userId: string): Promise<void>;
   storefrontsForCreator(creatorId: string): Promise<Storefront[]>;
   updateStorefront(id: string, patch: Partial<Pick<Storefront, "brandName" | "brandColor" | "template" | "headline" | "creatorRate" | "flightFee" | "live">>): Promise<void>;
   updatePin(storefrontId: string, ebcId: number, patch: { tip?: string | null; stayedWhen?: string | null; position?: number }): Promise<void>;

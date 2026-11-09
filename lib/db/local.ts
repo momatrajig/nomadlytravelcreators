@@ -46,6 +46,8 @@ export function localDb(): Db {
 
   return {
     async creatorByUserId(userId) { return CREATOR.userId === userId ? CREATOR : null; },
+    async creatorByEmail(email) { return CREATOR.email.toLowerCase() === email.toLowerCase() ? CREATOR : null; },
+    async linkCreatorUser() { /* local creator is pre linked */ },
     async creator(id) { return CREATOR.id === id ? CREATOR : null; },
     async storefrontsForCreator(creatorId) { return creatorId === sf.creatorId ? [sf] : []; },
     async updateStorefront(id, patch) { if (id === sf.id) sf = { ...sf, ...patch }; },

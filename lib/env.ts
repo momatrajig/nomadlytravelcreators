@@ -11,7 +11,7 @@ const schema = z.object({
   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().optional(),
   PLATFORM_HOST: z.string().default("nomadly.app"),
   DATA_MODE: z.enum(["supabase", "local"]).optional(),
-  ALLOW_DEMO_DASHBOARD: z.string().optional(),
+  ALLOW_DEMO_DASHBOARD: z.string().optional(),   // "off" closes the demo dashboard
   DEFAULT_STOREFRONT: z.string().optional(),
   RESEND_API_KEY: z.string().optional(),
   EMAIL_FROM: z.string().default("Nomadly <bookings@nomadly.app>"),
