@@ -20,7 +20,13 @@ export type Env = z.infer<typeof schema> & { DATA_MODE: "supabase" | "local" };
 let cached: Env | null = null;
 export function env(): Env {
   if (!cached) {
-    const e = schema.parse(process.env);
+    // accept the names the Vercel Supabase integration writes as well as ours
+    const raw = { ...process.env };
+    raw.NEXT_PUBLIC_SUPABASE_URL ??= raw.SUPABASE_URL;
+    raw.NEXT_PUBLIC_SUPABASE_ANON_KEY ??= raw.SUPABASE_ANON_KEY;
+    raw.SUPABASE_SERVICE_ROLE_KEY ??= raw.SUPABASE_SERVICE_KEY;
+    raw.DATABASE_URL ??= raw.POSTGRES_URL_NON_POOLING ?? raw.POSTGRES_URL;
+    const e = schema.parse(raw);
     // the database is used the moment its keys exist; nothing else to flip
     cached = { ...e, DATA_MODE: e.DATA_MODE ?? (e.SUPABASE_SERVICE_ROLE_KEY && e.NEXT_PUBLIC_SUPABASE_URL ? "supabase" : "local") };
   }
