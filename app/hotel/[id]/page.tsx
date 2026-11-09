@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { Suspense } from "react";
+import type { Storefront } from "@/lib/db/types";
 import { notFound } from "next/navigation";
 import RateList from "@/components/RateList";
 import HotelMap from "@/components/StaticMap";
@@ -19,13 +21,10 @@ export default async function HotelPage({ params, searchParams }: { params: Prom
   const ebcId = Number(id);
   if (!Number.isInteger(ebcId)) notFound();
   const { checkIn, checkOut, adults, qs } = readDates(await searchParams, env().EBC_MODE);
-  const [hotel, v] = await Promise.all([db().hotel(ebcId), stayView(sf, checkIn, checkOut, adults, [ebcId])]);
+  const [hotel, pins] = await Promise.all([db().hotel(ebcId), db().pinnedHotels(sf.id)]);
   if (!hotel) notFound();
   const d = destination(hotel.destination);
-  const offer = v.offers.find((o) => o.ebcId === ebcId);
-  const card = v.cards.find((c) => c.ebcId === ebcId);
-  const pin = v.pins.find((p) => p.ebcId === ebcId);
-  const flex = offer?.rates.find((r) => r.refundable);
+  const pin = pins.find((p) => p.ebcId === ebcId);
   const first = sf.brandName.split(" ").pop();
   return (
     <>
@@ -40,6 +39,26 @@ export default async function HotelPage({ params, searchParams }: { params: Prom
           {pin?.tip && <blockquote className="tip"><p>{pin.tip}</p><footer>{first}{pin.stayedWhen ? `, stayed ${pin.stayedWhen}` : ""}</footer></blockquote>}
 
           <h2 className="rates-h">Rooms for {fmtDate(checkIn)} to {fmtDate(checkOut)}, {adults} {adults === 1 ? "adult" : "adults"}</h2>
+          <Suspense fallback={<div className="list-wait" role="status" aria-label="Loading live rates">{[0, 1, 2].map((k) => <div key={k} style={{ gridTemplateColumns: "1fr 200px" }}><div><div className="skel line" style={{ width: "60%", height: 22 }} /><div className="skel line" style={{ width: "80%" }} /></div><div className="skel line" style={{ height: 32 }} /></div>)}</div>}>
+            <Rates sf={sf} ebcId={ebcId} checkIn={checkIn} checkOut={checkOut} adults={adults} qs={qs} />
+          </Suspense>
+        </div>
+        <aside className="hotel-side">
+          {hotel.lat != null && hotel.lng != null && <HotelMap lat={hotel.lat} lng={hotel.lng} name={hotel.name} />}
+          {hotel.lat != null && hotel.lng != null && <TravelTimes destination={hotel.destination} lat={hotel.lat} lng={hotel.lng} />}
+        </aside>
+      </div>
+    </>
+  );
+}
+
+async function Rates({ sf, ebcId, checkIn, checkOut, adults, qs }: { sf: Storefront; ebcId: number; checkIn: string; checkOut: string; adults: number; qs: string }) {
+  const v = await stayView(sf, checkIn, checkOut, adults, [ebcId]);
+  const offer = v.offers.find((o) => o.ebcId === ebcId);
+  const card = v.cards.find((c) => c.ebcId === ebcId);
+  const flex = offer?.rates.find((r) => r.refundable);
+  return (
+    <>
           {card?.saving != null && card.lowestReference && (
             <div className={`proof ${card.saving > 0 ? "" : "warn"}`}>
               {card.saving > 0
@@ -48,16 +67,10 @@ export default async function HotelPage({ params, searchParams }: { params: Prom
             </div>
           )}
           {flex && <ul className="terms">
-            <li>Free cancellation until <b>{flex.cancelDeadline ? fmtDate(flex.cancelDeadline) : "check in"}</b> on flexible rates{flex.cancelCharge ? `, then ${usd(flex.cancelCharge)}` : ""}.</li>
+            <li>{flex.cancelDeadline ? <>Free cancellation until <b>{fmtDate(flex.cancelDeadline)}</b> on the cheapest flexible rate{flex.cancelCharge ? `, then ${usd(flex.cancelCharge)}` : ""}.</> : "Flexible rates are refundable; each one's exact deadline is shown at checkout, before you pay."}</li>
             <li>Taxes included. City tax, where there is one, is paid at the hotel.</li>
           </ul>}
           {v.error ? <div className="notice warn" role="alert">{v.error}</div> : offer ? <RateList ebcId={ebcId} rates={offer.rates} nights={v.nights} checkIn={checkIn} checkOut={checkOut} adults={adults} /> : <div className="empty"><p>No rooms for these dates.</p><Link className="btn" href={`/stays?${qs}`}>Try other dates</Link></div>}
-        </div>
-        <aside className="hotel-side">
-          {hotel.lat != null && hotel.lng != null && <HotelMap lat={hotel.lat} lng={hotel.lng} name={hotel.name} />}
-          {hotel.lat != null && hotel.lng != null && <TravelTimes destination={hotel.destination} lat={hotel.lat} lng={hotel.lng} />}
-        </aside>
-      </div>
     </>
   );
 }

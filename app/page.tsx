@@ -1,11 +1,13 @@
 import Link from "next/link";
+import { Suspense } from "react";
+import type { Collection, Storefront } from "@/lib/db/types";
 import SearchBar from "@/components/SearchBar";
 import StaysFlow from "@/components/StaysFlow";
 import ExtrasRow from "@/components/ExtrasRow";
 import HeroCycle from "@/components/HeroCycle";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
-import { checkedLabel, fmtDate, usd } from "@/lib/format";
+import { fmtDate, usd } from "@/lib/format";
 import { readDates } from "@/lib/dates";
 import { stayView, storefrontDestinations } from "@/lib/storefront/data";
 import { requireStorefront } from "@/lib/tenant";
@@ -19,18 +21,8 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
   const [pins, collections] = await Promise.all([db().pinnedHotels(sf.id), db().collections(sf.id)]);
   const seasons = collections.filter((c) => c.kind === "season" && c.checkIn && c.checkOut);
   const dests = storefrontDestinations(pins);
-  const [all, ...sv] = await Promise.all([
-    stayView(sf, checkIn, checkOut, adults),
-    ...seasons.map((s) => stayView(sf, s.checkIn!, s.checkOut!, 2, s.ebcIds)),
-  ]);
   const first = sf.brandName.split(" ").pop();
-  const fromPrice = (ids: number[]) => {
-    const prices = all.cards.filter((c) => ids.includes(c.ebcId)).map((c) => c.readerPrice / all.nights);
-    return prices.length ? Math.min(...prices) : null;
-  };
   const slides = ["paris", "dubai", "rio", "london", "istanbul"].map((s) => dests.find((d) => d.slug === s)).filter(Boolean).map((d) => ({ url: d!.hero, place: d!.name }));
-  const best = all.cards.filter((c) => (c.saving ?? 0) > 0).length;
-  const compared = all.cards.filter((c) => c.saving !== null).length;
   return (
     <>
       <section className="hero" aria-labelledby="hero-h">
@@ -49,14 +41,13 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
         </div>
         <ul className="rail" role="list">
           {dests.map((d) => {
-            const from = fromPrice(d.hotels);
             return (
               <li key={d.slug}>
                 <Link href={`/stays?d=${d.slug}&${qs}`} className="place">
                   <img src={photoSrc(d.hero, 800)} srcSet={photoSet(d.hero)} sizes="(max-width: 600px) 70vw, 280px" alt="" loading="lazy" />
                   <span className="place-text">
                     <span className="place-name">{d.name}</span>
-                    <span className="place-meta">{d.country}. {d.hotels.length} {d.hotels.length === 1 ? "hotel" : "hotels"}{from ? `, from ${usd(from, true)} a night` : ""}</span>
+                    <span className="place-meta">{d.country}. {d.hotels.length} {d.hotels.length === 1 ? "hotel" : "hotels"}<Suspense fallback={null}><FromPrice sf={sf} ids={d.hotels} checkIn={checkIn} checkOut={checkOut} adults={adults} /></Suspense></span>
                   </span>
                 </Link>
               </li>
@@ -65,27 +56,15 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
         </ul>
       </section>
 
-      {seasons.map((s, k) => {
-        const v = sv[k]!;
-        return (
-          <section key={s.slug} className="nf-section" style={{ ["--band" as string]: `url("${photoSrc(s.heroUrl ?? "", 1600)}")` }} aria-labelledby={`s-${s.slug}`}>
-            <div className="nf-head">
-              <div><h2 id={`s-${s.slug}`}>{s.title}</h2><p>{s.subtitle}{v.checkedAt ? ` Big site prices ${checkedLabel(v.checkedAt)}.` : ""}</p></div>
-              <Link href={`/stays?in=${s.checkIn}&out=${s.checkOut}&adults=2&collection=${s.slug}`}>All {s.ebcIds.length} hotels</Link>
-            </div>
-            {v.error ? <p className="nf-empty" role="alert">{v.error}</p> : <StaysFlow items={v.cards} nights={v.nights} checkedAt={v.checkedAt} qs={`in=${s.checkIn}&out=${s.checkOut}&adults=2`} label={s.title} tabs={false} />}
-          </section>
-        );
-      })}
+      {seasons.map((c) => (
+        <Suspense key={c.slug} fallback={<BandSkeleton title={c.title} sub={c.subtitle} hero={c.heroUrl} />}>
+          <SeasonBand sf={sf} c={c} />
+        </Suspense>
+      ))}
 
-      <section className="nf-section plain" aria-labelledby="picks">
-        <div className="nf-head">
-          <div><h2 id="picks">Every hotel, {fmtDate(checkIn)} to {fmtDate(checkOut)}</h2>
-            <p>{compared ? `${best} of ${compared} compared are below the big sites for these dates. ` : ""}{adults} {adults === 1 ? "adult" : "adults"}, {all.nights} {all.nights === 1 ? "night" : "nights"}, tax included.</p></div>
-          <Link href={`/stays?${qs}`}>See the list</Link>
-        </div>
-        {all.error ? <p className="nf-empty" role="alert">{all.error} <Link href={`/?${qs}`}>Try again</Link></p> : <StaysFlow items={all.cards} nights={all.nights} checkedAt={all.checkedAt} qs={qs} label="Every hotel" />}
-      </section>
+      <Suspense fallback={<BandSkeleton title={`Every hotel, ${fmtDate(checkIn)} to ${fmtDate(checkOut)}`} sub="Asking the hotels for live rates." />}>
+        <AllBand sf={sf} checkIn={checkIn} checkOut={checkOut} adults={adults} qs={qs} />
+      </Suspense>
 
       <ExtrasRow />
 
@@ -98,5 +77,51 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
         </div>
       </section>
     </>
+  );
+}
+
+/* Each price dependent part streams in on its own, so the page shows at once even when a live search takes seconds. */
+
+async function FromPrice({ sf, ids, checkIn, checkOut, adults }: { sf: Storefront; ids: number[]; checkIn: string; checkOut: string; adults: number }) {
+  const v = await stayView(sf, checkIn, checkOut, adults);
+  const prices = v.cards.filter((c) => ids.includes(c.ebcId)).map((c) => c.readerPrice / v.nights);
+  return prices.length ? <>, from {usd(Math.min(...prices), true)} a night</> : null;
+}
+
+function BandSkeleton({ title, sub, hero }: { title: string; sub?: string | null; hero?: string | null }) {
+  return (
+    <section className={`nf-section${hero ? "" : " plain"}`} style={hero ? { ["--band" as string]: `url("${photoSrc(hero, 1600)}")` } : undefined} aria-busy="true">
+      <div className="nf-head"><div><h2>{title}</h2>{sub && <p>{sub}</p>}</div></div>
+      <div className="band-wait" role="status"><span className="dot" /><span className="dot" /><span className="dot" /><span className="sr">Loading live rates</span></div>
+    </section>
+  );
+}
+
+async function SeasonBand({ sf, c }: { sf: Storefront; c: Collection }) {
+  const v = await stayView(sf, c.checkIn!, c.checkOut!, 2, c.ebcIds);
+  return (
+    <section className="nf-section" style={{ ["--band" as string]: `url("${photoSrc(c.heroUrl ?? "", 1600)}")` }} aria-labelledby={`s-${c.slug}`}>
+      <div className="nf-head">
+        <div><h2 id={`s-${c.slug}`}>{c.title}</h2><p>{c.subtitle}</p></div>
+        <Link href={`/stays?in=${c.checkIn}&out=${c.checkOut}&adults=2&collection=${c.slug}`}>All {c.ebcIds.length} hotels</Link>
+      </div>
+      {v.error ? <p className="nf-empty" role="alert">{v.error}</p> : v.cards.length ? <StaysFlow items={v.cards} nights={v.nights} checkedAt={v.checkedAt} qs={`in=${c.checkIn}&out=${c.checkOut}&adults=2`} label={c.title} tabs={false} /> : <p className="nf-empty">These hotels have no rooms left for these dates.</p>}
+    </section>
+  );
+}
+
+async function AllBand({ sf, checkIn, checkOut, adults, qs }: { sf: Storefront; checkIn: string; checkOut: string; adults: number; qs: string }) {
+  const all = await stayView(sf, checkIn, checkOut, adults);
+  const best = all.cards.filter((c) => (c.saving ?? 0) > 0).length;
+  const compared = all.cards.filter((c) => c.saving !== null).length;
+  return (
+    <section className="nf-section plain" aria-labelledby="picks">
+      <div className="nf-head">
+        <div><h2 id="picks">Every hotel, {fmtDate(checkIn)} to {fmtDate(checkOut)}</h2>
+          <p>{compared ? `${best} of ${compared} compared are below the big sites for these dates. ` : ""}{all.cards.length} with rooms. {adults} {adults === 1 ? "adult" : "adults"}, {all.nights} {all.nights === 1 ? "night" : "nights"}, tax included.</p></div>
+        <Link href={`/stays?${qs}`}>See the list</Link>
+      </div>
+      {all.error ? <p className="nf-empty" role="alert">{all.error} <Link href={`/?${qs}`}>Try again</Link></p> : <StaysFlow items={all.cards} nights={all.nights} checkedAt={all.checkedAt} qs={qs} label="Every hotel" />}
+    </section>
   );
 }

@@ -26,7 +26,7 @@ export default function RateList({ ebcId, rates, nights, checkIn, checkOut, adul
         <div className="rate" key={rt.packageCode}>
           <div>
             <h3 style={{ fontSize: 19 }}>{rt.roomName} {rt.refundable ? <span className="chip chip-ok">Free cancellation</span> : <span className="chip chip-bad">No refunds</span>}</h3>
-            <p className="small" style={{ margin: "6px 0 0", color: "var(--fg-2)" }}>{rt.refundable ? (rt.cancelDeadline ? `Cancel free until ${fmtDate(rt.cancelDeadline)}${rt.cancelCharge ? `, then ${usd(rt.cancelCharge)} is charged` : ""}.` : "Free cancellation.") : `No refund or change after booking. The full ${usd(rt.readerPrice, true)} is kept if plans change.`}</p>
+            <p className="small" style={{ margin: "6px 0 0", color: "var(--fg-2)" }}>{rt.refundable ? (rt.cancelDeadline ? `Cancel free until ${fmtDate(rt.cancelDeadline)}${rt.cancelCharge ? `, then ${usd(rt.cancelCharge)} is charged` : ""}.` : "Refundable. The hotel's exact cancellation deadline is shown at checkout, before you pay.") : `No refund or change after booking. The full ${usd(rt.readerPrice, true)} is kept if plans change.`}</p>
             <p className="small" style={{ margin: "4px 0 0", color: "var(--fg-2)" }}>{BOARD[rt.board] ?? rt.board}.{rt.onRequest ? " The hotel confirms within a few hours; nothing is charged until it does." : ""}</p>
           </div>
           <div className="side">

@@ -1,7 +1,10 @@
 import Link from "next/link";
+import { Suspense } from "react";
+import type { Storefront } from "@/lib/db/types";
 import SearchBar from "@/components/SearchBar";
 import { env } from "@/lib/env";
 import { checkedLabel, fmtDate, usd } from "@/lib/format";
+import { nights as nightsOf } from "@/lib/booking/service";
 import { readDates } from "@/lib/dates";
 import { destination, stayView, storefrontDestinations } from "@/lib/storefront/data";
 import { requireStorefront } from "@/lib/tenant";
@@ -19,9 +22,7 @@ export default async function Stays({ searchParams }: { searchParams: Promise<Re
   const d = typeof sp.d === "string" ? destination(sp.d) : null;
   const col = typeof sp.collection === "string" ? collections.find((c) => c.slug === sp.collection) ?? null : null;
   const only = col ? col.ebcIds : d ? pins.filter((p) => p.destination === d.slug).map((p) => p.ebcId) : undefined;
-  const v = await stayView(sf, checkIn, checkOut, adults, only);
   const title = col ? col.title : d ? d.name : "Every hotel";
-  const cards = [...v.cards].sort((a, b) => (b.saving ?? -1e9) - (a.saving ?? -1e9));
   const chip = (href: string, label: string, on: boolean) => <Link key={href} className="filter" href={href} aria-current={on ? "page" : undefined}>{label}</Link>;
   return (
     <>
@@ -33,13 +34,34 @@ export default async function Stays({ searchParams }: { searchParams: Promise<Re
       </nav>
       <header className="list-head">
         <h1>{title}</h1>
-        <p>{fmtDate(checkIn)} to {fmtDate(checkOut)}, {v.nights} {v.nights === 1 ? "night" : "nights"}, {adults} {adults === 1 ? "adult" : "adults"}. Total prices, tax included{v.checkedAt ? `; big site prices ${checkedLabel(v.checkedAt)}` : ""}.</p>
+        <p>{fmtDate(checkIn)} to {fmtDate(checkOut)}, {nightsOf(checkIn, checkOut)} {nightsOf(checkIn, checkOut) === 1 ? "night" : "nights"}, {adults} {adults === 1 ? "adult" : "adults"}. Total prices, tax included.</p>
       </header>
+      <Suspense key={`${checkIn}${checkOut}${adults}${only?.join(".")}`} fallback={<ListWait />}>
+        <StayList sf={sf} checkIn={checkIn} checkOut={checkOut} adults={adults} only={only} qs={qs} colIn={col?.checkIn ?? null} />
+      </Suspense>
+    </>
+  );
+}
+
+function ListWait() {
+  return (
+    <div className="list-wait" role="status" aria-label="Loading live rates">
+      {[0, 1, 2].map((k) => <div key={k}><div className="skel pic" /><div><div className="skel line" style={{ width: "40%" }} /><div className="skel line" style={{ width: "70%", height: 26 }} /><div className="skel line" style={{ width: "55%" }} /></div><div><div className="skel line" style={{ width: "80%", height: 30, marginLeft: "auto" }} /></div></div>)}
+    </div>
+  );
+}
+
+async function StayList({ sf, checkIn, checkOut, adults, only, qs, colIn }: { sf: Storefront; checkIn: string; checkOut: string; adults: number; only?: number[]; qs: string; colIn: string | null }) {
+  const v = await stayView(sf, checkIn, checkOut, adults, only);
+  const cards = [...v.cards].sort((a, b) => (b.saving ?? -1e9) - (a.saving ?? -1e9));
+  return (
+    <>
+      {v.checkedAt && <p className="mute small" style={{ marginTop: -8, marginBottom: 12 }}>Big site prices {checkedLabel(v.checkedAt)}.</p>}
       {v.error && <div className="notice warn" role="alert">{v.error} <Link href={`/stays?${qs}`}>Try again</Link></div>}
       <ul className="list" role="list">
         {cards.map((h) => {
           const p = h.photos[0];
-          const href = `/hotel/${h.ebcId}?${checkIn === col?.checkIn ? `in=${checkIn}&out=${checkOut}&adults=${adults}` : qs}`;
+          const href = `/hotel/${h.ebcId}?${checkIn === colIn ? `in=${checkIn}&out=${checkOut}&adults=${adults}` : qs}`;
           return (
             <li key={h.ebcId} className="stay">
               <Link href={href} className="stay-pic" tabIndex={-1} aria-hidden="true">{p && <img src={photoSrc(p.url, 960, p.w)} srcSet={photoSet(p.url, p.w)} sizes="(max-width: 700px) 100vw, 320px" alt="" loading="lazy" />}</Link>

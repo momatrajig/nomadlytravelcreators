@@ -71,27 +71,45 @@ export async function effectiveRate(sf: Storefront, hotelsNet: Array<{ ebcId: nu
   return { rate: Math.min(sf.creatorRate, ceiling), ceiling };
 }
 
-type StaysResult = { offers: StayOffer[]; rate: number; ceiling: number; checkedAt: string | null };
+type StaysResult = { offers: StayOffer[]; rate: number; ceiling: number; checkedAt: string | null; searchedAt?: string };
 const inflight = new Map<string, Promise<StaysResult>>();
-const SEARCH_TTL = 10 * 60; // seconds; supplier result tokens live for hours, prices move slower than this
+const FRESH_MS = 15 * 60_000;      // within this a cached search is served as is
+const KEEP_S = 6 * 3600;           // a stale search is still shown instantly while a new one runs in the background
 
 /**
- * Supplier search, priced and parity checked. A live search of twenty hotels takes 10 to 25 seconds,
- * so results are shared for ten minutes across every page and server (database cache), and
- * identical searches running at the same time wait for one call instead of repeating it.
+ * Supplier search, priced and parity checked. A live search of twenty hotels takes 10 to 30 seconds, so:
+ *  fresh (under 15 minutes): served from the shared cache.
+ *  stale (under 6 hours):    served instantly, and a background search replaces it for the next reader.
+ *  missing, or fresh asked:  searched now; identical searches running together share one supplier call.
+ * Displayed prices can be up to a few hours old; the price is re-checked with the hotel when a reader
+ * picks a rate (holdQuote), and a change is shown before any payment.
  */
-export async function searchStays(sf: Storefront, checkIn: string, checkOut: string, adults: number, childrenAges: number[] = [], only?: number[], leaderIso?: string): Promise<StaysResult> {
+export async function searchStays(sf: Storefront, checkIn: string, checkOut: string, adults: number, childrenAges: number[] = [], only?: number[], leaderIso?: string, opts: { fresh?: boolean } = {}): Promise<StaysResult> {
   nights(checkIn, checkOut);
-  const key = `stays:v3:${sf.id}:${checkIn}:${checkOut}:${adults}:${childrenAges.join(".")}:${(leaderIso ?? "").toUpperCase()}:${only ? [...only].sort((a, b) => a - b).join(".") : "all"}:${sf.creatorRate}`;
-  const hit = await db().cacheGet<StaysResult>(key).catch(() => null);
-  if (hit) return hit;
-  const running = inflight.get(key);
-  if (running) return running;
-  const p = searchStaysUncached(sf, checkIn, checkOut, adults, childrenAges, only, leaderIso)
-    .then(async (r) => { if (r.offers.length) await db().cacheSet(key, r, SEARCH_TTL).catch(() => undefined); return r; })
-    .finally(() => inflight.delete(key));
-  inflight.set(key, p);
-  return p;
+  const key = `stays:v4:${sf.id}:${checkIn}:${checkOut}:${adults}:${childrenAges.join(".")}:${(leaderIso ?? "").toUpperCase()}:${only ? [...only].sort((a, b) => a - b).join(".") : "all"}:${sf.creatorRate}`;
+  const run = () => {
+    const running = inflight.get(key);
+    if (running) return running;
+    const p = searchStaysUncached(sf, checkIn, checkOut, adults, childrenAges, only, leaderIso)
+      .then(async (r) => { const out = { ...r, searchedAt: new Date().toISOString() }; if (r.offers.length) await db().cacheSet(key, out, KEEP_S).catch(() => undefined); return out; })
+      .finally(() => inflight.delete(key));
+    inflight.set(key, p);
+    return p;
+  };
+  if (!opts.fresh) {
+    const hit = await db().cacheGet<StaysResult>(key).catch(() => null);
+    if (hit) {
+      if (Date.now() - Date.parse(hit.searchedAt ?? "1970-01-01") > FRESH_MS) refreshLater(run);
+      return hit;
+    }
+  }
+  return run();
+}
+
+/** Runs after the response is sent where the platform supports it (Vercel), inline otherwise. Errors only log. */
+function refreshLater(task: () => Promise<unknown>) {
+  const go = () => task().catch((e) => console.error("background search", e instanceof Error ? e.message : e));
+  import("next/server").then(({ after }) => { try { after(go); } catch { void go(); } }).catch(() => void go());
 }
 
 async function searchStaysUncached(sf: Storefront, checkIn: string, checkOut: string, adults: number, childrenAges: number[], only?: number[], leaderIso?: string): Promise<StaysResult> {
