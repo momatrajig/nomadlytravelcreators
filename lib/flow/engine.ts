@@ -224,7 +224,10 @@ export function mount<T = any>(root: HTMLElement, opts: FlowOptions<T>): FlowHan
   // the active card leans toward the pointer
   stage.addEventListener('pointermove', (e: PointerEvent) => {
     if (dragging || e.pointerType === 'touch') return;
-    const a = cards[cur]; if (!a) return; const r = a.getBoundingClientRect();
+    const a = cards[cur]; if (!a) return;
+    // no lean while the pointer is over the text and buttons: a tilting button moves away from the click
+    if ((e.target as HTMLElement).closest('.nf-body, .nf-top')) { tiltTX = 0; tiltTY = 0; touch(); return; }
+    const r = a.getBoundingClientRect();
     const nx = (e.clientX - (r.left + r.width / 2)) / (r.width / 2), ny = (e.clientY - (r.top + r.height / 2)) / (r.height / 2);
     if (Math.abs(nx) <= 1.3 && Math.abs(ny) <= 1.3) { tiltTX = Math.max(-1, Math.min(1, nx)); tiltTY = Math.max(-1, Math.min(1, ny)); } else { tiltTX = 0; tiltTY = 0; }
     touch(); wake();

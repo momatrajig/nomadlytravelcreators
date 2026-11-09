@@ -6,11 +6,13 @@ export const fmtTime = (iso: string) => new Date(iso).toLocaleTimeString("en-GB"
 export const plural = (n: number, s: string, p = `${s}s`) => `${n} ${n === 1 ? s : p}`;
 export const BOARD: Record<string, string> = { RO: "Room only", BB: "Breakfast included", HB: "Half board", FB: "Full board", AI: "All inclusive", SC: "Self catering", RD: "Room" };
 
-/** "checked at 19:12 today", "checked yesterday at 19:12", "checked Sun 8 Nov": never claims today for an older read. */
+/** "checked 25 minutes ago", "checked 3 hours ago", "checked yesterday": the same words in every time zone, never "today" for an older read. */
 export function checkedLabel(iso: string, now = Date.now()): string {
-  const d = new Date(iso), n = new Date(now);
-  const day = (x: Date) => x.toISOString().slice(0, 10);
-  if (day(d) === day(n)) return `checked at ${fmtTime(iso)} today`;
-  if (day(d) === day(new Date(now - 86_400_000))) return `checked yesterday at ${fmtTime(iso)}`;
-  return `checked ${fmtDate(iso)}`;
+  const min = Math.max(0, Math.round((now - Date.parse(iso)) / 60_000));
+  if (min < 2) return "checked just now";
+  if (min < 60) return `checked ${min} minutes ago`;
+  const h = Math.round(min / 60);
+  if (h < 24) return `checked ${h} ${h === 1 ? "hour" : "hours"} ago`;
+  const d = Math.round(h / 24);
+  return d === 1 ? "checked yesterday" : `checked ${d} days ago`;
 }

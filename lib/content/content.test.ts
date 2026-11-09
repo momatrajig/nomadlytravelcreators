@@ -38,12 +38,13 @@ describe("photo urls", () => {
   });
 });
 
-describe("checked label never says today for an older read", () => {
+describe("checked label reads the same in every time zone", () => {
   const now = Date.parse("2026-11-09T10:00:00Z");
   it("labels", () => {
-    expect(checkedLabel("2026-11-09T08:12:00Z", now)).toMatch(/today$/);
-    expect(checkedLabel("2026-11-08T17:12:00Z", now)).toMatch(/^checked yesterday at/);
-    expect(checkedLabel("2026-11-01T17:12:00Z", now)).toBe("checked Sun 1 Nov");
+    expect(checkedLabel("2026-11-09T09:35:00Z", now)).toBe("checked 25 minutes ago");
+    expect(checkedLabel("2026-11-09T07:10:00Z", now)).toBe("checked 3 hours ago");
+    expect(checkedLabel("2026-11-08T08:00:00Z", now)).toBe("checked yesterday");
+    expect(checkedLabel("2026-11-05T08:00:00Z", now)).toBe("checked 4 days ago");
   });
 });
 

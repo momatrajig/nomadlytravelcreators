@@ -14,7 +14,7 @@ export default function ExtrasRow() {
     <section className="block extras" aria-labelledby="extras">
       <div className="block-head">
         <h2 id="extras">Add the trip around the room</h2>
-        <p>Added at checkout, in the same payment, and cancelled with the stay.</p>
+        <p>Added at checkout, in the same payment, and canceled with the stay.</p>
       </div>
       <ul role="list">
         {EXTRAS.map((x) => (

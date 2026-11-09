@@ -25,7 +25,7 @@ export function profileFor(d: Destination): CityProfile {
     bands: [
       { key: "night", label: "Night", from: m(0), to: m(5, 30), hint: `Roads are empty. ${d.metro ? railNote : "Taxi only."}` },
       { key: "early", label: "Early morning", from: m(5, 30), to: m(7), hint: "Quiet roads, the fastest airport run of the day." },
-      { key: "amrush", label: "Morning rush", from: m(7), to: m(10), hint: `Heavy traffic into the centre. ${d.metro ? `${d.metro.label} is usually faster.` : "Allow extra time."}` },
+      { key: "amrush", label: "Morning rush", from: m(7), to: m(10), hint: `Heavy traffic into the center. ${d.metro ? `${d.metro.label} is usually faster.` : "Allow extra time."}` },
       { key: "midday", label: "Midday", from: m(10), to: m(16), hint: "Normal traffic." },
       { key: "pmrush", label: "Evening rush", from: m(16), to: m(19, 30), hint: "The slowest time to cross the city by car." },
       { key: "evening", label: "Evening", from: m(19, 30), to: m(23), hint: "Traffic eases." },
@@ -48,8 +48,10 @@ const hhmm = (min: number) => `${String(Math.floor(min / 60) % 24).padStart(2, "
 export function baseMinutes(mode: Mode, distKm: number, rideKmh = 28): number {
   const road = distKm * 1.35; // detour factor
   switch (mode) {
-    case "ride": return Math.round(4 + (road / rideKmh) * 60);
-    case "metro": return Math.round(10 + (road / 32) * 60); // includes the walk to and from stations and one change
+    // the first 5 km are city streets, the rest is ring road or motorway
+    case "ride": return Math.round(4 + (Math.min(road, 5) / rideKmh) * 60 + (Math.max(road - 5, 0) / 55) * 60);
+    // includes the walk to and from stations and one change; airport lines run faster outside the center
+    case "metro": return Math.round(10 + (Math.min(road, 5) / 22) * 60 + (Math.max(road - 5, 0) / 48) * 60);
     case "tram": return Math.round(7 + (road / 13) * 60);
     case "walk": return Math.round((road / 4.8) * 60);
   }

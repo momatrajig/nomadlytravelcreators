@@ -35,7 +35,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               <div className="hdr-right"><nav className="nav" aria-label="Main"><Link href="/stays">Hotels</Link><Link href="/booking">Your booking</Link></nav>{showCreator && <Link href="/dashboard" className="btn btn-quiet">Creator dashboard</Link>}</div>
             </div></header>
             <main className="wrap">{children}</main>
-            <footer className="wrap">
+            <footer className="wrap site-foot">
               <p>{sf.brandName} runs on Nomadly, a Veny Inc. company. Nomadly takes the payment and pays the hotel. Support every day, 08:00 to 22:00 UTC.</p>
               <p><Link href="/credits">Photo credits</Link><Link href="/booking">Find your booking</Link><Link href="/dashboard">Creator dashboard</Link></p>
             </footer>

@@ -702,7 +702,7 @@
   "deposit": "Pre authorization by card at check in",
   "onRequest": false,
   "bookingSoldOut": false,
-  "tip": "The infinity pool is for hotel guests only; go at seven in the morning. City view rooms beat the harbour side at night.",
+  "tip": "The infinity pool is for hotel guests only; go at seven in the morning. City view rooms beat the harbor side at night.",
   "images": [
    {
     "url": "https://upload.wikimedia.org/wikipedia/commons/a/a3/20190819_Marina_Bay_Sands-2.jpg",
