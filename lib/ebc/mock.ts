@@ -22,6 +22,32 @@ const reservations = new Map<number, Reservation>();
 let nextResId = 231821;
 
 const rid = () => Math.random().toString(36).slice(2, 10);
+// Tokens carry their own state (base64url JSON), so any server instance can serve the next call,
+// exactly like the real API. The maps below are only a per instance cache.
+const enc = (o: unknown) => Buffer.from(JSON.stringify(o)).toString("base64url");
+const dec = <T>(t: string | null | undefined, prefix: string): T | null => { if (!t || !t.startsWith(prefix)) return null; try { return JSON.parse(Buffer.from(t.slice(prefix.length), "base64url").toString()) as T; } catch { return null; } };
+interface SrkState { i: string; o: string; ids: number[]; t: number; n: string }
+interface AvState { h: number; p: string; price: number; nr: boolean; t: number; i: string; o: string; n: string }
+function sessionFromSrk(srk: string): Session | null {
+  const st = dec<SrkState>(srk, "srk.");
+  if (!st) return null;
+  return { srk, checkIn: st.i, checkOut: st.o, nights: nightsBetween(st.i, st.o), hotels: lisbon.filter((h) => st.ids.includes(h.ebcId)), issuedAt: st.t };
+}
+function availFromToken(token: string): (Avail & { checkIn: string; checkOut: string }) | null {
+  const cached = avails.get(token);
+  const st = dec<AvState>(token, "av.");
+  if (!st) return null;
+  const hotel = lisbon.find((h) => h.ebcId === st.h);
+  if (!hotel) return null;
+  return { token, hotel, nonRef: st.nr, price: st.price, issuedAt: st.t, used: cached?.used ?? false, checkIn: st.i, checkOut: st.o };
+}
+// Reservation ids encode hotel and price so a reservation can be rebuilt on any instance
+const RES_BASE = 231821;
+function syntheticReservation(id: number): Reservation | null {
+  const cached = reservations.get(id);
+  if (cached) return cached;
+  return null;
+}
 /** free cancellation closes 12 days before check in on the mock supplier */
 const deadline = (checkIn: string) => { const d = new Date(checkIn + 'T23:59:00Z'); d.setUTCDate(d.getUTCDate() - 12); return d.toISOString().slice(0, 19); };
 const nightsBetween = (a: string, b: string) => Math.max(1, Math.round((Date.parse(b) - Date.parse(a)) / 86_400_000));
@@ -67,7 +93,8 @@ export function mockTransport(now: () => number = Date.now): typeof fetch {
 
     if (path === "/api/hotels/v1/search/sync" && method === "POST") {
       const ids: number[] = body.accommodation;
-      const s: Session = { srk: `srk-${rid()}`, checkIn: body.checkIn, checkOut: body.checkOut, nights: nightsBetween(body.checkIn, body.checkOut), hotels: lisbon.filter((h) => ids.includes(h.ebcId)), issuedAt: now() };
+      const srk = "srk." + enc({ i: body.checkIn, o: body.checkOut, ids, t: now(), n: rid() } satisfies SrkState);
+      const s = sessionFromSrk(srk)!;
       sessions.set(s.srk, s);
       const res: SearchResponse = { srk: s.srk, tokens: { results: `res-${s.srk}` }, hotels: s.hotels.map((h) => hotelFor(h, s)) };
       return json(res);
@@ -75,7 +102,7 @@ export function mockTransport(now: () => number = Date.now): typeof fetch {
 
     if (srkMatch) {
       const [, srk, hotelIndex, offerIndex, , action] = srkMatch;
-      const s = sessions.get(srk!);
+      const s = sessions.get(srk!) ?? sessionFromSrk(srk!);
       if (!s || token !== `res-${srk}`) return problem(401, "Unauthorized", "search token invalid");
       if (now() - s.issuedAt > TOKEN_TTL_MS) return problem(401, "Unauthorized", "search token expired");
       const h = s.hotels.find((x) => x.ebcId === Number(hotelIndex));
@@ -86,7 +113,7 @@ export function mockTransport(now: () => number = Date.now): typeof fetch {
         const pkg = offer.packages.find((p) => p.packageToken === body.packageToken);
         if (!pkg) return problem(400, "Bad Request", "ROOM_UNAVAILABLE");
         const nonRef = pkg.packageCode.endsWith("-nr");
-        const a: Avail = { token: `av-${rid()}`, hotel: h, nonRef, price: pkg.price.selling.value, issuedAt: now(), used: false };
+        const a: Avail = { token: "av." + enc({ h: h.ebcId, p: pkg.packageCode, price: pkg.price.selling.value, nr: nonRef, t: now(), i: s.checkIn, o: s.checkOut, n: rid() } satisfies AvState), hotel: h, nonRef, price: pkg.price.selling.value, issuedAt: now(), used: false };
         avails.set(a.token, a);
         const res: AvailabilityResponse = {
           availabilityToken: a.token, serviceDates: { startDate: s.checkIn, endDate: s.checkOut, duration: s.nights, type: "nights" }, system: offer.system,
@@ -102,19 +129,20 @@ export function mockTransport(now: () => number = Date.now): typeof fetch {
         return json(res);
       }
       if (action === "double-booking-verification") {
-        const a = avails.get(body.availabilityToken);
+        const a = availFromToken(body.availabilityToken);
         if (!a) return problem(400, "Bad Request", "AVAILABILITY_TOKEN_EXPIRED");
         return json({ hasDoubleBookings: false, count: 0, reservations: [] });
       }
       if (action === "book") {
         const req = body as BookRequest;
-        const a = avails.get(req.availabilityToken);
+        const a = availFromToken(req.availabilityToken);
         if (!a || a.used) return problem(400, "Bad Request", "AVAILABILITY_TOKEN_EXPIRED");
         if (now() - a.issuedAt > AVAIL_TTL_MS) return problem(400, "Bad Request", "AVAILABILITY_TOKEN_EXPIRED");
         if (req.payment.method !== "credit") return problem(400, "Bad Request", "PAYMENT_ORDER_INVALID");
         if ([...reservations.values()].some((r) => r.clientRef === req.clientRef)) return problem(400, "Bad Request", "clientRef must be unique");
-        a.used = true;
-        const id = nextResId++;
+        avails.set(a.token, { ...a, used: true });
+        // id = base + hotel position * 100000 + price cents mod 100000 keeps it numeric and rebuildable; collisions only matter in the simulator
+        const id = RES_BASE + (lisbon.findIndex((x) => x.ebcId === a.hotel.ebcId) + 1) * 1_000_000 + (Math.round(a.price * 100) % 1_000_000) + (nextResId++ - RES_BASE) * 0;
         const status = a.hotel.onRequest ? "RQ" : "OK";
         const r: Reservation = {
           id, clientRef: req.clientRef, hotelConfirmationNumber: status === "OK" ? `HB${id}X` : undefined,
@@ -133,8 +161,9 @@ export function mockTransport(now: () => number = Date.now): typeof fetch {
 
     const resMatch = /^\/api\/reservationsApi\/v1\/reservations\/(\d+)(\/(sync-status|documents|webhooks))?$/.exec(path);
     if (resMatch) {
-      const r = reservations.get(Number(resMatch[1]));
+      const r = syntheticReservation(Number(resMatch[1])) ?? rebuildReservation(Number(resMatch[1]));
       if (!r) return problem(404, "Not Found");
+      reservations.set(r.id, r);
       if (method === "DELETE") { r.service.status = "XX"; r.prices.total = { supplier: 0, selling: 0 }; return json(r); }
       if (resMatch[3] === "documents") return json({ documents: [{ code: "voucher", name: "Voucher", documents: [{ filename: `voucher-${r.id}.pdf`, token: `doc-${r.id}` }] }] });
       if (resMatch[3] === "webhooks") return json({ id: 1, url: body?.url, isActive: true });
@@ -155,6 +184,23 @@ export function mockTransport(now: () => number = Date.now): typeof fetch {
     }
 
     return problem(404, "Not Found", path);
+  };
+}
+
+/** Rebuild a reservation booked on another instance from its id (hotel position and price are encoded in it). */
+function rebuildReservation(id: number): Reservation | null {
+  const rest = id - RES_BASE;
+  const pos = Math.floor(rest / 1_000_000) - 1;
+  const h = lisbon[pos];
+  if (!h) return null;
+  const price = (rest % 1_000_000) / 100;
+  return {
+    id, clientRef: `rebuilt-${id}`, hotelConfirmationNumber: h.onRequest ? undefined : `HB${id}X`,
+    service: { status: h.onRequest ? "RQ" : "OK" }, payment: { status: "OK", type: "credit" },
+    prices: { currency: "USD", issue: { supplier: price, selling: price }, total: { supplier: price, selling: price } },
+    serviceDates: { startDate: "", endDate: "", duration: 0, type: "nights" },
+    hotel: { id: h.ebcId, cityId: 1, countryId: 1, name: h.name, stars: h.stars },
+    rooms: [{ id: "1", name: "Superior room", boardBasis: "RO" }],
   };
 }
 

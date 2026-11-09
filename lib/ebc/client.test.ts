@@ -79,3 +79,22 @@ describe("ebc client against the mock transport (full booking path)", () => {
     expect(err.code).toBe("OFFER_RECONFIGURED");
   });
 });
+
+describe("simulator is stateless across server instances", () => {
+  it("books and reads back on a fresh instance with no shared memory", async () => {
+    resetMock();
+    const a = new EbcClient(cfg);
+    const s = await a.searchSync({ accommodation: [515886], checkIn: "2026-12-03", checkOut: "2026-12-05", occupancy: { rooms: [{ adults: 1, childrenAges: [] }] } });
+    const h = s.hotels[0]!, o = h.offers[0]!, p = o.packages[0]!;
+    const av = await a.availability(s.srk, h.index, o.id, s.tokens.results, { packageToken: p.packageToken, roomTokens: [p.packageRooms[0]!.roomReferences[0]!.roomToken] });
+    resetMock(); // simulate the next request landing on a different server
+    const b = new EbcClient(cfg);
+    const res = await b.book(s.srk, h.index, o.id, s.tokens.results, { availabilityToken: av.availabilityToken, clientRef: "nomadly-cross-1", rooms: [{ packageRoomToken: p.packageRooms[0]!.packageRoomCode, travelers: [{ reference: "t1", type: "adult", lead: true, title: "ms", firstName: "A", lastName: "B" }] }], payment: { method: "credit" } });
+    expect(res.status).toBe("OK");
+    resetMock();
+    const r = await new EbcClient(cfg).reservation(res.id);
+    expect(r.hotel.id).toBe(515886);
+    expect(r.hotelConfirmationNumber).toMatch(/^HB/);
+    expect((await new EbcClient(cfg).cancel(res.id)).service.status).toBe("XX");
+  });
+});

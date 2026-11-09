@@ -29,7 +29,7 @@ describe("booking service end to end on fixtures", () => {
     const ic = r.offers.find((o) => o.ebcId === 515886)!;
     const flex = ic.rates.find((x) => x.refundable && x.board === "RO")!;
     const q = await holdQuote(sf, ic, flex.packageCode, "2026-12-03", "2026-12-05", [{ adults: 1, childrenAges: [] }]);
-    expect(q.availabilityToken).toMatch(/^av-/);
+    expect(q.availabilityToken).toMatch(/^av\./);
     expect(q.readerPrice).toBe(379.59);
     expect(q.cancelDeadline).toBe("2026-11-21T23:59:00");
     // stored as the database enum code, never the display label
