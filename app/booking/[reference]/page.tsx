@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
 import { chargedTotal, confirmPaid, penaltyNow } from "@/lib/booking/service";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
+import { stripe } from "@/lib/stripe";
 import { BOARD, fmtDate, usd } from "@/lib/format";
 import { requireStorefront } from "@/lib/tenant";
 import CancelButton from "@/components/CancelButton";
@@ -27,6 +29,20 @@ export default async function BookingPage({ params, searchParams }: { params: Pr
   let b = await db().bookingByReference(decodeURIComponent(reference));
   if (!b || b.storefrontId !== sf.id || b.leadEmail !== email) notFound();
   // development without Stripe: the dev flag completes the booking inline so the flow can be walked end to end
+  // The reader returns here from Stripe. Ask Stripe whether the charge succeeded and finish the hotel booking now;
+  // the webhook does the same thing and whichever arrives first wins (confirmPaid is idempotent).
+  if (b.status === "paying" && b.stripePaymentIntent && env().STRIPE_SECRET_KEY) {
+    try {
+      const pi = await stripe().paymentIntents.retrieve(b.stripePaymentIntent);
+      if (pi.status === "succeeded") {
+        const h = await headers();
+        const base = `${h.get("x-forwarded-proto") ?? "https"}://${h.get("x-forwarded-host") ?? h.get("host")}`;
+        b = await confirmPaid(b.id, pi.id, base);
+      } else if (pi.status === "canceled" || pi.status === "requires_payment_method") {
+        // card declined or abandoned: nothing charged; the booking stays open so the reader can retry from checkout
+      }
+    } catch { b = (await db().booking(b.id))!; }
+  }
   if (sp.dev === "1" && !env().STRIPE_SECRET_KEY && b.status === "paying") {
     try { b = await confirmPaid(b.id, "pi_dev", ""); } catch { b = (await db().booking(b.id))!; }
   }
