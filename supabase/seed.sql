@@ -48,8 +48,12 @@ insert into destinations (slug, name, country, country_iso, tz, lat, lng, blurb,
   ('bali', 'Bali', 'Indonesia', 'ID', 'Asia/Makassar', -8.4095, 115.1889, 'Rice terraces, cliff edges and villas with their own pools.', 9),
   ('marrakech', 'Marrakech', 'Morocco', 'MA', 'Africa/Casablanca', 31.6295, -7.9811, 'Riads, palm groves and the Atlas behind them.', 10),
   ('madeira', 'Madeira', 'Portugal', 'PT', 'Atlantic/Madeira', 32.6669, -16.9241, 'Cliff hotels above the Atlantic, spring all year.', 11),
-  ('new-york', 'New York', 'United States', 'US', 'America/New_York', 40.7128, -74.006, 'The city that needs no blurb.', 12);
+  ('new-york', 'New York', 'United States', 'US', 'America/New_York', 40.7128, -74.006, 'The city that needs no blurb.', 12),
+  ('algarve', 'Algarve and Comporta', 'Portugal', 'PT', 'Europe/Lisbon', 37.0179, -7.9304, 'Cliffs, coves and the quietest beaches in Europe.', 13);
+update hotels h set destination_slug = d.slug from destinations d where h.destination_slug is null and lower(h.city_name) = lower(d.name);
+update hotels set destination_slug = 'algarve' where destination_slug is null and city_name in ('Algarve', 'Comporta');
 update hotels set destination_slug = 'lisbon' where destination_slug is null;
+update collections set destination_slug = slug where kind = 'destination' and slug in (select slug from destinations);
 insert into services (key, name, blurb, price, elsewhere, commission, unit) values
   ('ride', 'Airport ride', 'A driver waiting at arrivals with your name, fixed price, flight tracked.', 29, 47, 9, 'per ride'),
   ('esim', 'Travel eSIM, 10 GB', 'Data the moment you land. Installed from a QR code before you fly.', 12, 18, 4, 'per trip'),
