@@ -62,6 +62,9 @@ DEST_EXTRA = [
  ("rio", "Rio de Janeiro", "Brazil", "BR", "America/Sao_Paulo", -22.9068, -43.1729, "Copacabana at New Year, two million people in white.", 15),
 ]
 U = lambda i: f"https://images.unsplash.com/{i}"
+# photos are copied into our Supabase Storage at fixed sizes (scripts: browser copy, 9 Nov 2026); the url is the base, sizes are suffixes
+MEDIA = "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos"
+PLACE = lambda slug: f"{MEDIA}/p/{slug}"
 HERO = {"paris": "photo-1502602898657-3e91760cbb34", "london": "photo-1529655683826-aba9b3e77383", "dubai": "photo-1518684079-3c830dcef090",
         "new-york": "photo-1767342976245-b34c150bddf9", "singapore": "photo-1525625293386-3f8f99389edd", "istanbul": "photo-1636537511494-c3e558e0702b",
         "marrakech": "photo-1770970389629-86cac3ef3e12", "amsterdam": "photo-1459679749680-18eb1eb37418", "barcelona": "photo-1539037116277-4db20889f2d4",
@@ -69,13 +72,16 @@ HERO = {"paris": "photo-1502602898657-3e91760cbb34", "london": "photo-1529655683
         "rio": "photo-1483729558449-99ef09a8c325"}
 SEASON_HERO = {"christmas": "photo-1514729797186-944d57303199", "new-year": "photo-1549534077-1b4f31dd59ea"}
 
+def stored(eid, imgs):
+    return [{**p, "url": f"{MEDIA}/h/{eid}/{k}", "origin": p["url"]} for k, p in enumerate(imgs)]
+
 world = []
 for (slug, eid, name, area, dest, city, iso, stars, lat, lng, net, b, e, rating, votes, tip) in H:
     assert slug in photos, slug
     world.append({"slug": slug, "ebcId": eid, "ebcIdVerified": True, "name": name, "area": area, "city": city, "destination": dest, "countryIso": iso,
                   "stars": stars, "rating": rating, "votes": votes, "supplierNet": float(net), "supplierNetNonRef": round(net * 0.9, 2), "penalty": round(net / 2, 2),
                   "refs": [{"source": "Booking.com", "price": b}, {"source": "Expedia", "price": e}], "booked": 0, "lat": lat, "lng": lng,
-                  "deposit": "Pre authorization by card at check in", "onRequest": False, "bookingSoldOut": False, "tip": tip, "images": photos[slug]})
+                  "deposit": "Pre authorization by card at check in", "onRequest": False, "bookingSoldOut": False, "tip": tip, "images": stored(eid, photos[slug])})
 (ROOT / "lib/ebc/fixtures/world.json").write_text(json.dumps(world, ensure_ascii=False, indent=1) + "\n")
 
 # Portugal hotels that have licensed high resolution photos keep them; the rest leave the storefront.
@@ -87,11 +93,11 @@ for h in pt:
         h["ebcId"], h["ebcIdVerified"] = PT_REAL[h["slug"]], True
 for h in pt:
     if h["slug"] in photos:
-        h["images"] = photos[h["slug"]]
+        h["images"] = stored(h["ebcId"], photos[h["slug"]])
 (ROOT / "lib/ebc/fixtures/portugal.json").write_text(json.dumps(pt, ensure_ascii=False, indent=2) + "\n")
 PT_KEEP = [h for h in pt if h["slug"] in photos]
 
-media = {"destinations": {k: U(v) for k, v in HERO.items()}, "seasons": {k: U(v) for k, v in SEASON_HERO.items()}}
+media = {"destinations": {k: PLACE(k) for k in HERO}, "seasons": {k: PLACE(k) for k in SEASON_HERO}}
 (ROOT / "lib/content/media.json").parent.mkdir(exist_ok=True)
 (ROOT / "lib/content/media.json").write_text(json.dumps(media, indent=1) + "\n")
 
@@ -101,19 +107,20 @@ sql = ["-- World inventory: 21 hotels in 12 destinations, licensed high resoluti
 for (slug, name, country, iso, tz, lat, lng, blurb, pos) in DEST_EXTRA:
     sql.append(f"insert into destinations (slug, name, country, country_iso, tz, lat, lng, blurb, position) values ({q(slug)}, {q(name)}, {q(country)}, {q(iso)}, {q(tz)}, {lat}, {lng}, {q(blurb)}, {pos}) on conflict (slug) do nothing;")
 for k, v in HERO.items():
-    sql.append(f"update destinations set hero_image = {q(U(v))} where slug = {q(k)};")
+    sql.append(f"update destinations set hero_image = {q(PLACE(k))} where slug = {q(k)};")
 sql.append("")
 photo_rows = []
 for h in world + PT_KEEP:
     for k, p in enumerate(h["images"]):
-        tail = p["url"].split("/commons/")[1]
+        tail = p["origin"].split("/commons/")[1]
         photo_rows.append(f"({h['ebcId']},{k},{q(tail)},{p['w']},{q(p['credit'])},{q(p['license'])})")
 PT_DEST = {"Madeira": "madeira", "Lisbon": "lisbon"}
 hotel_rows = [f"({h['ebcId']},{q(h['name'])},{h['stars']},{q(h['area'])},{q(h['city'])},{q(h.get('countryIso', 'PT'))},{h['lat']},{h['lng']},{h['rating']},{h['votes']},{q(h.get('destination') or PT_DEST[h['city']])},{q(h['slug'])},{round(h['supplierNet']/2, 2)})" for h in world + PT_KEEP]
 sql.append("insert into hotels (ebc_id, name, stars, address, city_name, country_iso, lat, lng, rating, rating_count, destination_slug, slug, nightly_net_sample, ebc_id_verified) select v.*, true from (values " + ",".join(hotel_rows) + ") as v "
            "on conflict (ebc_id) do update set name = excluded.name, address = excluded.address, city_name = excluded.city_name, destination_slug = excluded.destination_slug, lat = excluded.lat, lng = excluded.lng, rating = excluded.rating, rating_count = excluded.rating_count;")
 sql.append("with p(e, k, f, w, c, l) as (values " + ",".join(photo_rows) + ") "
-           "update hotels h set images = x.j from (select e, jsonb_agg(jsonb_build_object('url', 'https://upload.wikimedia.org/wikipedia/commons/' || f, 'w', w, 'credit', c, 'license', l, 'source', 'https://commons.wikimedia.org/wiki/File:' || split_part(f, '/', 3)) order by k) j from p group by e) x where h.ebc_id = x.e;")
+           f"update hotels h set images = x.j from (select e, jsonb_agg(jsonb_build_object('url', '{MEDIA}/h/' || e || '/' || k, 'origin', 'https://upload.wikimedia.org/wikipedia/commons/' || f, 'w', w,"
+           " 'credit', c, 'license', l, 'source', 'https://commons.wikimedia.org/wiki/File:' || split_part(f, '/', 3)) order by k) j from p group by e) x where h.ebc_id = x.e;")
 sql.append("")
 SF = "(select id from storefronts where slug = 'lina')"
 sql.append(f"delete from storefront_hotels where storefront_id = {SF};")
@@ -144,12 +151,12 @@ season = [
 slug2id = {h["slug"]: h["ebcId"] for h in pins}
 pos = 0
 for (slug, title, sub, ci, co, hs) in season:
-    sql.append(f"insert into collections (storefront_id, slug, kind, title, subtitle, check_in, check_out, ebc_ids, position, hero_url) values ({SF}, {q(slug)}, 'season', {q(title)}, {q(sub)}, '{ci}', '{co}', {ids([slug2id[s] for s in hs])}, {pos}, {q(U(SEASON_HERO['new-year' if slug == 'new-year' else 'christmas']))});")
+    sql.append(f"insert into collections (storefront_id, slug, kind, title, subtitle, check_in, check_out, ebc_ids, position, hero_url) values ({SF}, {q(slug)}, 'season', {q(title)}, {q(sub)}, '{ci}', '{co}', {ids([slug2id[s] for s in hs])}, {pos}, {q(PLACE(slug))});")
     pos += 1
 for d, xs in by_dest.items():
     sql.append(f"insert into collections (storefront_id, slug, kind, title, subtitle, ebc_ids, position, hero_url, destination_slug) select {SF}, {q(d)}, 'destination', name, blurb, {ids(xs)}, {pos} + position, hero_image, slug from destinations where slug = {q(d)};")
 plan = {"pins": [{"ebcId": h["ebcId"], "tip": h["tip"]} for h in pins],
-        "collections": [{"slug": sl, "kind": "season", "title": t, "subtitle": su, "checkIn": ci, "checkOut": co, "ebcIds": [slug2id[x] for x in hs], "heroUrl": U(SEASON_HERO['new-year' if sl == 'new-year' else 'christmas'])} for (sl, t, su, ci, co, hs) in season]
+        "collections": [{"slug": sl, "kind": "season", "title": t, "subtitle": su, "checkIn": ci, "checkOut": co, "ebcIds": [slug2id[x] for x in hs], "heroUrl": PLACE(sl)} for (sl, t, su, ci, co, hs) in season]
         + [{"slug": d, "kind": "destination", "ebcIds": xs} for d, xs in by_dest.items()],
         "priceDates": [{"checkIn": ci, "checkOut": co, "adults": ad, "factor": f} for (ci, co, ad, f) in DATES]}
 (ROOT / "lib/content/lina.json").write_text(json.dumps(plan, ensure_ascii=False, indent=1) + "\n")

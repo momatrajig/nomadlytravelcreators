@@ -10,7 +10,7 @@ describe("world content", () => {
   it("every pinned world hotel has licensed high resolution photos and a known destination", () => {
     for (const h of world) {
       expect(h.images.length, h.name).toBeGreaterThanOrEqual(2);
-      for (const p of h.images) { expect(p.url).toMatch(/^https:\/\/upload\.wikimedia\.org\/wikipedia\/commons\/[0-9a-f]\/[0-9a-f]{2}\//); expect(p.license).toBeTruthy(); expect(p.credit).toBeTruthy(); expect(p.w).toBeGreaterThanOrEqual(1280); }
+      for (const [k, p] of h.images.entries()) { expect(p.url).toBe(`https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/${h.ebcId}/${k}`); expect(p.origin).toMatch(/^https:\/\/upload\.wikimedia\.org\/wikipedia\/commons\/[0-9a-f]\/[0-9a-f]{2}\//); expect(p.license).toBeTruthy(); expect(p.credit).toBeTruthy(); expect(p.w).toBeGreaterThanOrEqual(1280); }
       expect(destination(h.destination), h.name).not.toBeNull();
     }
     expect(plan.pins.length).toBe(23);
@@ -20,7 +20,7 @@ describe("world content", () => {
     for (const c of plan.collections) for (const id of c.ebcIds) expect(pinned.has(id)).toBe(true);
   });
   it("every destination has a hero photo and an airport", () => {
-    for (const d of DESTINATIONS) { expect(d.hero).toMatch(/^https:\/\/images\.unsplash\.com\/photo-/); expect(d.airport.code).toMatch(/^[A-Z]{3}$/); }
+    for (const d of DESTINATIONS) { expect(d.hero).toMatch(/\/storage\/v1\/object\/public\/media\/photos\/p\/[a-z-]+$/); expect(d.airport.code).toMatch(/^[A-Z]{3}$/); }
   });
 });
 
@@ -58,5 +58,17 @@ describe("travel times outside Lisbon", () => {
   });
   it("Marrakech has no rail, taxi only to the airport", () => {
     expect(travelTable("marrakech", 31.6215, -7.9988, 600)!.rows[0]!.legs.map((l) => l.mode)).toEqual(["ride"]);
+  });
+});
+
+describe("photos in our storage", () => {
+  const h = "https://x.supabase.co/storage/v1/object/public/media/photos/h/483658/0";
+  const p = "https://x.supabase.co/storage/v1/object/public/media/photos/p/paris";
+  it("picks the stored size for the slot", () => {
+    expect(photoSrc(h, 700)).toBe(`${h}-960.jpg`);
+    expect(photoSrc(h, 1600)).toBe(`${h}-1920.jpg`);
+    expect(photoThumb(h)).toBe(`${h}-330.jpg`);
+    expect(photoSet(h, 1280)).toBe(`${h}-960.jpg 960w, ${h}-1920.jpg 1280w`);
+    expect(photoSrc(p, 1600)).toBe(`${p}-1600.jpg`);
   });
 });

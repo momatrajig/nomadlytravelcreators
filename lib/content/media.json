@@ -1,21 +1,21 @@
 {
  "destinations": {
-  "paris": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34",
-  "london": "https://images.unsplash.com/photo-1529655683826-aba9b3e77383",
-  "dubai": "https://images.unsplash.com/photo-1518684079-3c830dcef090",
-  "new-york": "https://images.unsplash.com/photo-1767342976245-b34c150bddf9",
-  "singapore": "https://images.unsplash.com/photo-1525625293386-3f8f99389edd",
-  "istanbul": "https://images.unsplash.com/photo-1636537511494-c3e558e0702b",
-  "marrakech": "https://images.unsplash.com/photo-1770970389629-86cac3ef3e12",
-  "amsterdam": "https://images.unsplash.com/photo-1459679749680-18eb1eb37418",
-  "barcelona": "https://images.unsplash.com/photo-1539037116277-4db20889f2d4",
-  "lisbon": "https://images.unsplash.com/photo-1558102400-72da9fdbecae",
-  "madeira": "https://images.unsplash.com/photo-1628413283166-a7666966d26b",
-  "rome": "https://images.unsplash.com/photo-1552832230-c0197dd311b5",
-  "rio": "https://images.unsplash.com/photo-1483729558449-99ef09a8c325"
+  "paris": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/p/paris",
+  "london": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/p/london",
+  "dubai": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/p/dubai",
+  "new-york": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/p/new-york",
+  "singapore": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/p/singapore",
+  "istanbul": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/p/istanbul",
+  "marrakech": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/p/marrakech",
+  "amsterdam": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/p/amsterdam",
+  "barcelona": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/p/barcelona",
+  "lisbon": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/p/lisbon",
+  "madeira": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/p/madeira",
+  "rome": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/p/rome",
+  "rio": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/p/rio"
  },
  "seasons": {
-  "christmas": "https://images.unsplash.com/photo-1514729797186-944d57303199",
-  "new-year": "https://images.unsplash.com/photo-1549534077-1b4f31dd59ea"
+  "christmas": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/p/christmas",
+  "new-year": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/p/new-year"
  }
 }

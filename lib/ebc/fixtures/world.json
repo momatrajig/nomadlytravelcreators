@@ -33,67 +33,76 @@
   "tip": "Ask for a sixth floor room on the Kléber side. The rooftop bar has the Eiffel Tower straight ahead and is open to hotel guests first.",
   "images": [
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/7/74/Fa%C3%A7adeThePeninsulaParis.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/483658/0",
     "w": 1920,
     "credit": "Marketingppr",
     "license": "CC0",
-    "source": "https://commons.wikimedia.org/wiki/File:Fa%C3%A7adeThePeninsulaParis.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Fa%C3%A7adeThePeninsulaParis.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/7/74/Fa%C3%A7adeThePeninsulaParis.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/4/40/Eiffel_Tower_Suite.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/483658/1",
     "w": 1920,
     "credit": "Marketingppr",
     "license": "CC0",
-    "source": "https://commons.wikimedia.org/wiki/File:Eiffel_Tower_Suite.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Eiffel_Tower_Suite.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/4/40/Eiffel_Tower_Suite.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/b/b8/Swimming_Pool_Spa.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/483658/2",
     "w": 1920,
     "credit": "Marketingppr",
     "license": "CC0",
-    "source": "https://commons.wikimedia.org/wiki/File:Swimming_Pool_Spa.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Swimming_Pool_Spa.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/b/b8/Swimming_Pool_Spa.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/5/50/Bar_Kleber.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/483658/3",
     "w": 1920,
     "credit": "Marketingppr",
     "license": "CC0",
-    "source": "https://commons.wikimedia.org/wiki/File:Bar_Kleber.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Bar_Kleber.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/5/50/Bar_Kleber.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/6/68/Junior_Suite_The_Peninsula_Paris.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/483658/4",
     "w": 1920,
     "credit": "Marketingppr",
     "license": "CC0",
-    "source": "https://commons.wikimedia.org/wiki/File:Junior_Suite_The_Peninsula_Paris.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Junior_Suite_The_Peninsula_Paris.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/6/68/Junior_Suite_The_Peninsula_Paris.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/c/c6/Rooftop_Garden_Suite.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/483658/5",
     "w": 1920,
     "credit": "Marketingppr",
     "license": "CC0",
-    "source": "https://commons.wikimedia.org/wiki/File:Rooftop_Garden_Suite.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Rooftop_Garden_Suite.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/c/c6/Rooftop_Garden_Suite.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/9/9d/Lobby_Restaurant.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/483658/6",
     "w": 1280,
     "credit": "Marketingppr",
     "license": "CC0",
-    "source": "https://commons.wikimedia.org/wiki/File:Lobby_Restaurant.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Lobby_Restaurant.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/9/9d/Lobby_Restaurant.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/1/1b/L'Oiseau_Blanc_Vue.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/483658/7",
     "w": 1280,
     "credit": "Marketingppr",
     "license": "CC0",
-    "source": "https://commons.wikimedia.org/wiki/File:L'Oiseau_Blanc_Vue.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:L'Oiseau_Blanc_Vue.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/1/1b/L'Oiseau_Blanc_Vue.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/7/7b/The_Peninsula_Paris_Facade.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/483658/8",
     "w": 1920,
     "credit": "Marketingppr",
     "license": "CC0",
-    "source": "https://commons.wikimedia.org/wiki/File:The_Peninsula_Paris_Facade.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:The_Peninsula_Paris_Facade.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/7/7b/The_Peninsula_Paris_Facade.jpg"
    }
   ]
  },
@@ -131,46 +140,52 @@
   "tip": "Rooms facing the Tuileries are worth the difference. Have the pastries at Le Dalí once, even if you skip breakfast.",
   "images": [
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/b/ba/H%C3%B4tel_Le_Meurice.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/284785/0",
     "w": 1920,
     "credit": "Arthur Weidmann",
     "license": "CC BY-SA 4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:H%C3%B4tel_Le_Meurice.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:H%C3%B4tel_Le_Meurice.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/b/ba/H%C3%B4tel_Le_Meurice.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/0/0d/SalonMeurice_Credit_Marianne_Haas_JPEGHD.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/284785/1",
     "w": 1920,
     "credit": "Christophe robin paris",
     "license": "CC BY-SA 4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:SalonMeurice_Credit_Marianne_Haas_JPEGHD.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:SalonMeurice_Credit_Marianne_Haas_JPEGHD.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/0/0d/SalonMeurice_Credit_Marianne_Haas_JPEGHD.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/0/08/Paris_75001_Rue_de_Rivoli_no_228_Le_Meurice_ext_20060528.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/284785/2",
     "w": 1920,
     "credit": "lienyuan lee",
     "license": "CC BY 3.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Paris_75001_Rue_de_Rivoli_no_228_Le_Meurice_ext_20060528.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Paris_75001_Rue_de_Rivoli_no_228_Le_Meurice_ext_20060528.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/0/08/Paris_75001_Rue_de_Rivoli_no_228_Le_Meurice_ext_20060528.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/2/25/Le_Meurice_005.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/284785/3",
     "w": 1280,
     "credit": "Arnaud 25",
     "license": "CC BY-SA 4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Le_Meurice_005.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Le_Meurice_005.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/2/25/Le_Meurice_005.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/7/72/Le_Meurice_004.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/284785/4",
     "w": 1280,
     "credit": "Arnaud 25",
     "license": "CC BY-SA 4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Le_Meurice_004.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Le_Meurice_004.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/7/72/Le_Meurice_004.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/3/30/Le_Meurice_006.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/284785/5",
     "w": 1280,
     "credit": "Arnaud 25",
     "license": "CC BY-SA 4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Le_Meurice_006.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Le_Meurice_006.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/3/30/Le_Meurice_006.jpg"
    }
   ]
  },
@@ -208,32 +223,36 @@
   "tip": "The Concorde facing rooms are the reason to stay here. The pool in the basement is quiet before ten.",
   "images": [
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/9/98/H%C3%B4tel_de_Crillon,_nuit,_Paris_8e_3.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/284440/0",
     "w": 1920,
     "credit": "Polymagou",
     "license": "CC BY-SA 4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:H%C3%B4tel_de_Crillon,_nuit,_Paris_8e_3.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:H%C3%B4tel_de_Crillon,_nuit,_Paris_8e_3.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/9/98/H%C3%B4tel_de_Crillon,_nuit,_Paris_8e_3.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/4/44/H%C3%B4tel_de_Crillon_at_night_(142).jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/284440/1",
     "w": 1920,
     "credit": "Patrick Nouhailler",
     "license": "CC BY-SA 3.0",
-    "source": "https://commons.wikimedia.org/wiki/File:H%C3%B4tel_de_Crillon_at_night_(142).jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:H%C3%B4tel_de_Crillon_at_night_(142).jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/4/44/H%C3%B4tel_de_Crillon_at_night_(142).jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/2/29/H%C3%B4tel_de_Crillon_(30584638660).jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/284440/2",
     "w": 1920,
     "credit": "Maria Eklind",
     "license": "CC BY-SA 2.0",
-    "source": "https://commons.wikimedia.org/wiki/File:H%C3%B4tel_de_Crillon_(30584638660).jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:H%C3%B4tel_de_Crillon_(30584638660).jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/2/29/H%C3%B4tel_de_Crillon_(30584638660).jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/9/98/H%C3%B4tels_Crillon_Cartier_Plessis_Belli%C3%A8re_Coislin_Paris_2.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/284440/3",
     "w": 1920,
     "credit": "Chabe01",
     "license": "CC BY-SA 4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:H%C3%B4tels_Crillon_Cartier_Plessis_Belli%C3%A8re_Coislin_Paris_2.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:H%C3%B4tels_Crillon_Cartier_Plessis_Belli%C3%A8re_Coislin_Paris_2.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/9/98/H%C3%B4tels_Crillon_Cartier_Plessis_Belli%C3%A8re_Coislin_Paris_2.jpg"
    }
   ]
  },
@@ -271,32 +290,36 @@
   "tip": "Courtyard rooms are quieter than the avenue side. The bar turns into the best people watching in Paris after nine.",
   "images": [
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/5/58/Facade_of_the_H%C3%B4tel_Plaza_Ath%C3%A9n%C3%A9e,_Paris_17_July_2017.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/285550/0",
     "w": 1920,
     "credit": "Joe deSousa",
     "license": "CC0",
-    "source": "https://commons.wikimedia.org/wiki/File:Facade_of_the_H%C3%B4tel_Plaza_Ath%C3%A9n%C3%A9e,_Paris_17_July_2017.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Facade_of_the_H%C3%B4tel_Plaza_Ath%C3%A9n%C3%A9e,_Paris_17_July_2017.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/5/58/Facade_of_the_H%C3%B4tel_Plaza_Ath%C3%A9n%C3%A9e,_Paris_17_July_2017.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/e/eb/Plaza_Ath%C3%A9n%C3%A9e,_Paris_1_November_2016.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/285550/1",
     "w": 1920,
     "credit": "Fred Romero",
     "license": "CC BY 2.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Plaza_Ath%C3%A9n%C3%A9e,_Paris_1_November_2016.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Plaza_Ath%C3%A9n%C3%A9e,_Paris_1_November_2016.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/e/eb/Plaza_Ath%C3%A9n%C3%A9e,_Paris_1_November_2016.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/1/16/Palais_de_Plaza_Ath%C3%A9n%C3%A9e.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/285550/2",
     "w": 1920,
     "credit": "Monteclaire",
     "license": "CC BY-SA 4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Palais_de_Plaza_Ath%C3%A9n%C3%A9e.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Palais_de_Plaza_Ath%C3%A9n%C3%A9e.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/1/16/Palais_de_Plaza_Ath%C3%A9n%C3%A9e.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/3/36/Paris_avenue_montaigne_plaza_athena.1.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/285550/3",
     "w": 1920,
     "credit": "Ralf.treinen",
     "license": "CC BY-SA 3.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Paris_avenue_montaigne_plaza_athena.1.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Paris_avenue_montaigne_plaza_athena.1.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/3/36/Paris_avenue_montaigne_plaza_athena.1.jpg"
    }
   ]
  },
@@ -334,39 +357,44 @@
   "tip": "Book afternoon tea when you book the room; it fills weeks ahead. Green Park side rooms get the morning light.",
   "images": [
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/9/9f/Grande_entrance_to_The_Ritz_London_2023-12-06.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/303974/0",
     "w": 1920,
     "credit": "Loco Steve",
     "license": "CC BY-SA 2.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Grande_entrance_to_The_Ritz_London_2023-12-06.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Grande_entrance_to_The_Ritz_London_2023-12-06.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/9/9f/Grande_entrance_to_The_Ritz_London_2023-12-06.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/1/1e/The_Ritz_Restaurant_-_medium_res.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/303974/1",
     "w": 1920,
     "credit": "RT6HPU",
     "license": "CC BY-SA 4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:The_Ritz_Restaurant_-_medium_res.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:The_Ritz_Restaurant_-_medium_res.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/1/1e/The_Ritz_Restaurant_-_medium_res.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/0/04/Afternoon_Tea_in_the_Queen_Elizabeth_Room.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/303974/2",
     "w": 1920,
     "credit": "RT6HPU",
     "license": "CC BY-SA 4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Afternoon_Tea_in_the_Queen_Elizabeth_Room.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Afternoon_Tea_in_the_Queen_Elizabeth_Room.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/0/04/Afternoon_Tea_in_the_Queen_Elizabeth_Room.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/e/ea/Fa%C3%A7ade_gommage%C2%AE_at_The_Ritz_Hotel,_Piccadilly,_London.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/303974/3",
     "w": 1280,
     "credit": "TH gommage",
     "license": "CC BY-SA 4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Fa%C3%A7ade_gommage%C2%AE_at_The_Ritz_Hotel,_Piccadilly,_London.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Fa%C3%A7ade_gommage%C2%AE_at_The_Ritz_Hotel,_Piccadilly,_London.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/e/ea/Fa%C3%A7ade_gommage%C2%AE_at_The_Ritz_Hotel,_Piccadilly,_London.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/7/7f/Entr%C3%A9e_Ritz_Londres.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/303974/4",
     "w": 1920,
     "credit": "CVB",
     "license": "CC BY-SA 4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Entr%C3%A9e_Ritz_Londres.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Entr%C3%A9e_Ritz_Londres.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/7/7f/Entr%C3%A9e_Ritz_Londres.jpg"
    }
   ]
  },
@@ -404,32 +432,36 @@
   "tip": "Ten minutes on foot to Oxford Circus and still quiet at night. Tea in the Palm Court is the one to book.",
   "images": [
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/c/cd/The_Langham,_London_FotoThalerTamas.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/287987/0",
     "w": 1920,
     "credit": "Thaler Tamas",
     "license": "CC BY-SA 4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:The_Langham,_London_FotoThalerTamas.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:The_Langham,_London_FotoThalerTamas.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/c/cd/The_Langham,_London_FotoThalerTamas.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/9/9c/The_Palm_Court_-_geograph.org.uk_-_5508954.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/287987/1",
     "w": 1920,
     "credit": "Anthony O'Neil",
     "license": "CC BY-SA 2.0",
-    "source": "https://commons.wikimedia.org/wiki/File:The_Palm_Court_-_geograph.org.uk_-_5508954.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:The_Palm_Court_-_geograph.org.uk_-_5508954.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/9/9c/The_Palm_Court_-_geograph.org.uk_-_5508954.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/4/46/Entrance_Hall_and_Lobby_(geograph_5508956).jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/287987/2",
     "w": 1920,
     "credit": "Anthony O'Neil",
     "license": "CC BY-SA 2.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Entrance_Hall_and_Lobby_(geograph_5508956).jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Entrance_Hall_and_Lobby_(geograph_5508956).jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/4/46/Entrance_Hall_and_Lobby_(geograph_5508956).jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/9/91/Tea_service_-_geograph.org.uk_-_7729197.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/287987/3",
     "w": 1920,
     "credit": "Anthony O'Neil",
     "license": "CC BY-SA 2.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Tea_service_-_geograph.org.uk_-_7729197.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Tea_service_-_geograph.org.uk_-_7729197.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/9/91/Tea_service_-_geograph.org.uk_-_7729197.jpg"
    }
   ]
  },
@@ -467,25 +499,28 @@
   "tip": "River view rooms are worth it at Christmas. The American Bar opens at noon and you will not need a reservation then.",
   "images": [
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/f/f3/Savoy_entrance_from_Victoria_Embankment_Gardens.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/1919916/0",
     "w": 1920,
     "credit": "Camerawalker",
     "license": "CC BY-SA 3.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Savoy_entrance_from_Victoria_Embankment_Gardens.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Savoy_entrance_from_Victoria_Embankment_Gardens.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/f/f3/Savoy_entrance_from_Victoria_Embankment_Gardens.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/0/0a/London_-_Savoy_Hotel_-_geograph.org.uk_-_5280283.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/1919916/1",
     "w": 1920,
     "credit": "Colin Smith",
     "license": "CC BY-SA 2.0",
-    "source": "https://commons.wikimedia.org/wiki/File:London_-_Savoy_Hotel_-_geograph.org.uk_-_5280283.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:London_-_Savoy_Hotel_-_geograph.org.uk_-_5280283.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/0/0a/London_-_Savoy_Hotel_-_geograph.org.uk_-_5280283.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/2/20/Christmas_at_the_Savoy_Hotel_in_the_Strand_London_(23528517700).jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/1919916/2",
     "w": 1920,
     "credit": "Loco Steve",
     "license": "CC BY-SA 2.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Christmas_at_the_Savoy_Hotel_in_the_Strand_London_(23528517700).jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Christmas_at_the_Savoy_Hotel_in_the_Strand_London_(23528517700).jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/2/20/Christmas_at_the_Savoy_Hotel_in_the_Strand_London_(23528517700).jpg"
    }
   ]
  },
@@ -523,46 +558,52 @@
   "tip": "Every room is a duplex suite. Book the beach cabana early in December; the terrace pool is calmer than the main one.",
   "images": [
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/5/5b/Burj_Al_Arab_and_the_beach_(Pexels_823696).jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/288903/0",
     "w": 1920,
     "credit": "Aleksandar Pasaric",
     "license": "CC0",
-    "source": "https://commons.wikimedia.org/wiki/File:Burj_Al_Arab_and_the_beach_(Pexels_823696).jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Burj_Al_Arab_and_the_beach_(Pexels_823696).jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/5/5b/Burj_Al_Arab_and_the_beach_(Pexels_823696).jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/2/2c/Dubai_in_January_2025_12.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/288903/1",
     "w": 1920,
     "credit": "Renek78",
     "license": "CC0",
-    "source": "https://commons.wikimedia.org/wiki/File:Dubai_in_January_2025_12.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Dubai_in_January_2025_12.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/2/2c/Dubai_in_January_2025_12.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/6/6c/Burj_Al_Arab_3-Dubai_UAE-Andres_Larin.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/288903/2",
     "w": 1920,
     "credit": "Saaremees",
     "license": "CC BY-SA 4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Burj_Al_Arab_3-Dubai_UAE-Andres_Larin.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Burj_Al_Arab_3-Dubai_UAE-Andres_Larin.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/6/6c/Burj_Al_Arab_3-Dubai_UAE-Andres_Larin.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/0/0f/Burj_Al_Arab_5-Dubai_UAE-Andres_Larin.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/288903/3",
     "w": 1920,
     "credit": "Saaremees",
     "license": "CC BY-SA 4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Burj_Al_Arab_5-Dubai_UAE-Andres_Larin.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Burj_Al_Arab_5-Dubai_UAE-Andres_Larin.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/0/0f/Burj_Al_Arab_5-Dubai_UAE-Andres_Larin.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/4/48/Burj_Al_Arab_6-Dubai_UAE-Andres_Larin.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/288903/4",
     "w": 1920,
     "credit": "Saaremees",
     "license": "CC BY-SA 4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Burj_Al_Arab_6-Dubai_UAE-Andres_Larin.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Burj_Al_Arab_6-Dubai_UAE-Andres_Larin.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/4/48/Burj_Al_Arab_6-Dubai_UAE-Andres_Larin.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/2/20/Hotel_Burj_al_Arab_in_Dubay_2.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/288903/5",
     "w": 1920,
     "credit": "Leon petrosyan",
     "license": "CC BY-SA 4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Hotel_Burj_al_Arab_in_Dubay_2.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Hotel_Burj_al_Arab_in_Dubay_2.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/2/20/Hotel_Burj_al_Arab_in_Dubay_2.jpg"
    }
   ]
  },
@@ -600,18 +641,20 @@
   "tip": "Water park entry is included with the room; go in the first hour. Ask for the Palm side for the skyline at night.",
   "images": [
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/5/5a/Aquaventure_Beach-Dubai_UAE-Andres_Larin.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/210858/0",
     "w": 1920,
     "credit": "Saaremees",
     "license": "CC BY-SA 4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Aquaventure_Beach-Dubai_UAE-Andres_Larin.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Aquaventure_Beach-Dubai_UAE-Andres_Larin.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/5/5a/Aquaventure_Beach-Dubai_UAE-Andres_Larin.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/8/86/Atlantis,_The_Palm_from_Le_Royal_M%C3%A9ridien_Beach_Resort_and_Spa_in_Dubai_2.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/210858/1",
     "w": 1920,
     "credit": "CT Cooper",
     "license": "Public domain",
-    "source": "https://commons.wikimedia.org/wiki/File:Atlantis,_The_Palm_from_Le_Royal_M%C3%A9ridien_Beach_Resort_and_Spa_in_Dubai_2.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Atlantis,_The_Palm_from_Le_Royal_M%C3%A9ridien_Beach_Resort_and_Spa_in_Dubai_2.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/8/86/Atlantis,_The_Palm_from_Le_Royal_M%C3%A9ridien_Beach_Resort_and_Spa_in_Dubai_2.jpg"
    }
   ]
  },
@@ -649,25 +692,28 @@
   "tip": "Park view rooms on a high floor, or do not bother upgrading. The food hall downstairs is open until late.",
   "images": [
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/e/e4/Midtown_Manhattan_November_2025_210.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/805571/0",
     "w": 1920,
     "credit": "Kidfly182",
     "license": "CC BY 4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Midtown_Manhattan_November_2025_210.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Midtown_Manhattan_November_2025_210.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/e/e4/Midtown_Manhattan_November_2025_210.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/d/d1/Plaza_Hotel_chandeliers,_Sept_2017.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/805571/1",
     "w": 1920,
     "credit": "Thomson200",
     "license": "CC0",
-    "source": "https://commons.wikimedia.org/wiki/File:Plaza_Hotel_chandeliers,_Sept_2017.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Plaza_Hotel_chandeliers,_Sept_2017.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/d/d1/Plaza_Hotel_chandeliers,_Sept_2017.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/3/36/Oak_Room_(Plaza_Hotel)_door,_Sept_2017.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/805571/2",
     "w": 1920,
     "credit": "Thomson200",
     "license": "CC0",
-    "source": "https://commons.wikimedia.org/wiki/File:Oak_Room_(Plaza_Hotel)_door,_Sept_2017.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Oak_Room_(Plaza_Hotel)_door,_Sept_2017.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/3/36/Oak_Room_(Plaza_Hotel)_door,_Sept_2017.jpg"
    }
   ]
  },
@@ -705,32 +751,36 @@
   "tip": "The infinity pool is for hotel guests only; go at seven in the morning. City view rooms beat the harbor side at night.",
   "images": [
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/a/a3/20190819_Marina_Bay_Sands-2.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/421077/0",
     "w": 1920,
     "credit": "Balon Greyjoy",
     "license": "CC0",
-    "source": "https://commons.wikimedia.org/wiki/File:20190819_Marina_Bay_Sands-2.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:20190819_Marina_Bay_Sands-2.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/a/a3/20190819_Marina_Bay_Sands-2.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/d/db/At_Singapore_2023_114.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/421077/1",
     "w": 1920,
     "credit": "Mike Peel",
     "license": "CC BY-SA 4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:At_Singapore_2023_114.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:At_Singapore_2023_114.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/d/db/At_Singapore_2023_114.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/c/ce/Building_-_panoramio_(48).jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/421077/2",
     "w": 1920,
     "credit": "XEON",
     "license": "CC BY 3.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Building_-_panoramio_(48).jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Building_-_panoramio_(48).jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/c/ce/Building_-_panoramio_(48).jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/d/d1/Building_with_a_ship_upside_from_near_sight_Meqqal_Singapore.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/421077/3",
     "w": 1920,
     "credit": "Meqqal",
     "license": "CC BY-SA 4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Building_with_a_ship_upside_from_near_sight_Meqqal_Singapore.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Building_with_a_ship_upside_from_near_sight_Meqqal_Singapore.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/d/d1/Building_with_a_ship_upside_from_near_sight_Meqqal_Singapore.jpg"
    }
   ]
  },
@@ -768,39 +818,44 @@
   "tip": "Every room is a suite with a butler. Skip the queue at the Long Bar by going before five.",
   "images": [
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/7/71/Hotel_Raffles,_Singapur,_2023-08-16,_DD_153-155_HDR.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/421119/0",
     "w": 1920,
     "credit": "Diego Delso",
     "license": "CC BY-SA 4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Hotel_Raffles,_Singapur,_2023-08-16,_DD_153-155_HDR.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Hotel_Raffles,_Singapur,_2023-08-16,_DD_153-155_HDR.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/7/71/Hotel_Raffles,_Singapur,_2023-08-16,_DD_153-155_HDR.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/f/f3/(1887)_Raffles_Hotel1.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/421119/1",
     "w": 1920,
     "credit": "Thank You (23 Millions+) views",
     "license": "CC BY 2.0",
-    "source": "https://commons.wikimedia.org/wiki/File:(1887)_Raffles_Hotel1.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:(1887)_Raffles_Hotel1.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/f/f3/(1887)_Raffles_Hotel1.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/8/88/(1887)_Raffles_Hotel.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/421119/2",
     "w": 1920,
     "credit": "Thank You (23 Millions+) views",
     "license": "CC BY 2.0",
-    "source": "https://commons.wikimedia.org/wiki/File:(1887)_Raffles_Hotel.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:(1887)_Raffles_Hotel.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/8/88/(1887)_Raffles_Hotel.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/1/18/Inside_Singapore_Raffles_Long_Bar-1_(11861954616).jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/421119/3",
     "w": 1280,
     "credit": "Sheba_Also",
     "license": "CC BY-SA 2.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Inside_Singapore_Raffles_Long_Bar-1_(11861954616).jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Inside_Singapore_Raffles_Long_Bar-1_(11861954616).jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/1/18/Inside_Singapore_Raffles_Long_Bar-1_(11861954616).jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/6/6f/Entrance_to_Singapore_Raffles_Hotel-1_(11861605264).jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/421119/4",
     "w": 1280,
     "credit": "Sheba_Also",
     "license": "CC BY-SA 2.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Entrance_to_Singapore_Raffles_Hotel-1_(11861605264).jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Entrance_to_Singapore_Raffles_Hotel-1_(11861605264).jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/6/6f/Entrance_to_Singapore_Raffles_Hotel-1_(11861605264).jpg"
    }
   ]
  },
@@ -838,39 +893,44 @@
   "tip": "Pay for the Bosphorus view; the garden side looks at a wall. The heated infinity pool is open all winter.",
   "images": [
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/9/97/Istanbul-%C3%A7%C4%B1ra%C4%9Fan_palace-bosphour_-_panoramio_-_HALUK_COMERTEL_(12).jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/4865/0",
     "w": 1280,
     "credit": "Haluk Comertel",
     "license": "CC BY 3.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Istanbul-%C3%A7%C4%B1ra%C4%9Fan_palace-bosphour_-_panoramio_-_HALUK_COMERTEL_(12).jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Istanbul-%C3%A7%C4%B1ra%C4%9Fan_palace-bosphour_-_panoramio_-_HALUK_COMERTEL_(12).jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/9/97/Istanbul-%C3%A7%C4%B1ra%C4%9Fan_palace-bosphour_-_panoramio_-_HALUK_COMERTEL_(12).jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/e/ee/Istanbul-%C3%A7%C4%B1ra%C4%9Fan_palace-bosphour_-_panoramio_-_HALUK_COMERTEL_(2).jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/4865/1",
     "w": 1280,
     "credit": "Haluk Comertel",
     "license": "CC BY 3.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Istanbul-%C3%A7%C4%B1ra%C4%9Fan_palace-bosphour_-_panoramio_-_HALUK_COMERTEL_(2).jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Istanbul-%C3%A7%C4%B1ra%C4%9Fan_palace-bosphour_-_panoramio_-_HALUK_COMERTEL_(2).jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/e/ee/Istanbul-%C3%A7%C4%B1ra%C4%9Fan_palace-bosphour_-_panoramio_-_HALUK_COMERTEL_(2).jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/c/ca/Istanbul-%C3%A7%C4%B1ra%C4%9Fan_palace-bosphour_-_panoramio_-_HALUK_COMERTEL.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/4865/2",
     "w": 1280,
     "credit": "Haluk Comertel",
     "license": "CC BY 3.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Istanbul-%C3%A7%C4%B1ra%C4%9Fan_palace-bosphour_-_panoramio_-_HALUK_COMERTEL.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Istanbul-%C3%A7%C4%B1ra%C4%9Fan_palace-bosphour_-_panoramio_-_HALUK_COMERTEL.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/c/ca/Istanbul-%C3%A7%C4%B1ra%C4%9Fan_palace-bosphour_-_panoramio_-_HALUK_COMERTEL.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/a/a0/Istanbul-%C3%A7%C4%B1ra%C4%9Fan_palace-bosphour_-_panoramio_-_HALUK_COMERTEL_(13).jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/4865/3",
     "w": 1280,
     "credit": "Haluk Comertel",
     "license": "CC BY 3.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Istanbul-%C3%A7%C4%B1ra%C4%9Fan_palace-bosphour_-_panoramio_-_HALUK_COMERTEL_(13).jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Istanbul-%C3%A7%C4%B1ra%C4%9Fan_palace-bosphour_-_panoramio_-_HALUK_COMERTEL_(13).jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/a/a0/Istanbul-%C3%A7%C4%B1ra%C4%9Fan_palace-bosphour_-_panoramio_-_HALUK_COMERTEL_(13).jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/a/a6/Istanbul-%C3%A7%C4%B1ra%C4%9Fan_palace-bosphour_-_panoramio_-_HALUK_COMERTEL_(3).jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/4865/4",
     "w": 1280,
     "credit": "Haluk Comertel",
     "license": "CC BY 3.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Istanbul-%C3%A7%C4%B1ra%C4%9Fan_palace-bosphour_-_panoramio_-_HALUK_COMERTEL_(3).jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Istanbul-%C3%A7%C4%B1ra%C4%9Fan_palace-bosphour_-_panoramio_-_HALUK_COMERTEL_(3).jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/a/a6/Istanbul-%C3%A7%C4%B1ra%C4%9Fan_palace-bosphour_-_panoramio_-_HALUK_COMERTEL_(3).jpg"
    }
   ]
  },
@@ -908,39 +968,44 @@
   "tip": "Room 411 is the Agatha Christie room if you ask early. Five minutes on foot to İstiklal, and the bar is from 1892.",
   "images": [
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/9/91/Istanbul_asv2020-02_img42_Pera_Palace_Hotel.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/283296/0",
     "w": 1920,
     "credit": "A.Savin",
     "license": "FAL",
-    "source": "https://commons.wikimedia.org/wiki/File:Istanbul_asv2020-02_img42_Pera_Palace_Hotel.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Istanbul_asv2020-02_img42_Pera_Palace_Hotel.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/9/91/Istanbul_asv2020-02_img42_Pera_Palace_Hotel.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/e/e3/Istanbul_Pera_Palace_Hotel_(54509340522).jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/283296/1",
     "w": 1920,
     "credit": "Jorge Franganillo",
     "license": "CC BY 2.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Istanbul_Pera_Palace_Hotel_(54509340522).jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Istanbul_Pera_Palace_Hotel_(54509340522).jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/e/e3/Istanbul_Pera_Palace_Hotel_(54509340522).jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/0/05/Istanbul_Pera_Palace_Hotel_(54510474353).jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/283296/2",
     "w": 1920,
     "credit": "Jorge Franganillo",
     "license": "CC BY 2.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Istanbul_Pera_Palace_Hotel_(54510474353).jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Istanbul_Pera_Palace_Hotel_(54510474353).jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/0/05/Istanbul_Pera_Palace_Hotel_(54510474353).jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/f/f1/Pera_Palace_Hotel_Jumeirah_-_panoramio.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/283296/3",
     "w": 1920,
     "credit": "qwesy qwesy",
     "license": "CC BY 3.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Pera_Palace_Hotel_Jumeirah_-_panoramio.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Pera_Palace_Hotel_Jumeirah_-_panoramio.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/f/f1/Pera_Palace_Hotel_Jumeirah_-_panoramio.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/8/8f/Istanbul_asv2020-02_img39_Pera_Palace_Hotel.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/283296/4",
     "w": 1920,
     "credit": "A.Savin",
     "license": "FAL",
-    "source": "https://commons.wikimedia.org/wiki/File:Istanbul_asv2020-02_img39_Pera_Palace_Hotel.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Istanbul_asv2020-02_img39_Pera_Palace_Hotel.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/8/8f/Istanbul_asv2020-02_img39_Pera_Palace_Hotel.jpg"
    }
   ]
  },
@@ -978,46 +1043,52 @@
   "tip": "Garden view rooms face the Atlas on a clear morning. The gardens are the reason to stay; breakfast out there in winter sun.",
   "images": [
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/9/93/La_Mamounia_outdoor_pool.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/308854/0",
     "w": 1920,
     "credit": "Pi3.124",
     "license": "CC BY-SA 4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:La_Mamounia_outdoor_pool.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:La_Mamounia_outdoor_pool.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/9/93/La_Mamounia_outdoor_pool.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/0/0a/La_Mamounia_indoor_pool.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/308854/1",
     "w": 1920,
     "credit": "Pi3.124",
     "license": "CC BY-SA 4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:La_Mamounia_indoor_pool.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:La_Mamounia_indoor_pool.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/0/0a/La_Mamounia_indoor_pool.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/6/6f/La_Mamounia_interior_II.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/308854/2",
     "w": 1920,
     "credit": "Pi3.124",
     "license": "CC BY-SA 4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:La_Mamounia_interior_II.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:La_Mamounia_interior_II.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/6/6f/La_Mamounia_interior_II.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/6/6d/La_Mamounia_interior.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/308854/3",
     "w": 1920,
     "credit": "Pi3.124",
     "license": "CC BY-SA 4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:La_Mamounia_interior.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:La_Mamounia_interior.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/6/6d/La_Mamounia_interior.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/f/f9/La_Mamounia_entrance.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/308854/4",
     "w": 1920,
     "credit": "Pi3.124",
     "license": "CC BY-SA 4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:La_Mamounia_entrance.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:La_Mamounia_entrance.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/f/f9/La_Mamounia_entrance.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/e/e2/La_Mamounia_garden.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/308854/5",
     "w": 1920,
     "credit": "Pi3.124",
     "license": "CC BY-SA 4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:La_Mamounia_garden.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:La_Mamounia_garden.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/e/e2/La_Mamounia_garden.jpg"
    }
   ]
  },
@@ -1055,32 +1126,36 @@
   "tip": "River view rooms only. The hotel boat goes to the Rijksmuseum, which is the best way into the city in winter.",
   "images": [
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/d/d7/Intercontinental_Amstel,_Amsterdam_(25674398563).jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/324773/0",
     "w": 1920,
     "credit": "Tobias Niepel",
     "license": "CC BY 2.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Intercontinental_Amstel,_Amsterdam_(25674398563).jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Intercontinental_Amstel,_Amsterdam_(25674398563).jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/d/d7/Intercontinental_Amstel,_Amsterdam_(25674398563).jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/0/0e/InterContinental_Hotel_Amstel_Amsterdam_-_panoramio_(1).jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/324773/1",
     "w": 1920,
     "credit": "qwesy qwesy",
     "license": "CC BY 3.0",
-    "source": "https://commons.wikimedia.org/wiki/File:InterContinental_Hotel_Amstel_Amsterdam_-_panoramio_(1).jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:InterContinental_Hotel_Amstel_Amsterdam_-_panoramio_(1).jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/0/0e/InterContinental_Hotel_Amstel_Amsterdam_-_panoramio_(1).jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/5/56/Amstel_Hotel_Amsterdam_12_2016_0170.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/324773/2",
     "w": 1920,
     "credit": "Mariordo",
     "license": "CC BY-SA 4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Amstel_Hotel_Amsterdam_12_2016_0170.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Amstel_Hotel_Amsterdam_12_2016_0170.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/5/56/Amstel_Hotel_Amsterdam_12_2016_0170.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/8/85/Amstelhotel_Amsterdam_-_panoramio.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/324773/3",
     "w": 1920,
     "credit": "Rokus C",
     "license": "CC BY 3.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Amstelhotel_Amsterdam_-_panoramio.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Amstelhotel_Amsterdam_-_panoramio.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/8/85/Amstelhotel_Amsterdam_-_panoramio.jpg"
    }
   ]
  },
@@ -1118,25 +1193,28 @@
   "tip": "The rooftop pool looks at Sagrada Família. Casa Batlló is a three minute walk; book the first slot of the day.",
   "images": [
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/0/0b/Hotel_Majestic_-_20230324_193430.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/309521/0",
     "w": 1920,
     "credit": "Pere López Brosa",
     "license": "CC BY-SA 4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Hotel_Majestic_-_20230324_193430.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Hotel_Majestic_-_20230324_193430.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/0/0b/Hotel_Majestic_-_20230324_193430.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/b/b2/060_Hotel_Majestic,_pg._de_Gr%C3%A0cia_68-72_-_c._Val%C3%A8ncia_251-259_(Barcelona),_fa%C3%A7ana_sud.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/309521/1",
     "w": 1920,
     "credit": "Enric",
     "license": "CC BY 4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:060_Hotel_Majestic,_pg._de_Gr%C3%A0cia_68-72_-_c._Val%C3%A8ncia_251-259_(Barcelona),_fa%C3%A7ana_sud.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:060_Hotel_Majestic,_pg._de_Gr%C3%A0cia_68-72_-_c._Val%C3%A8ncia_251-259_(Barcelona),_fa%C3%A7ana_sud.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/b/b2/060_Hotel_Majestic,_pg._de_Gr%C3%A0cia_68-72_-_c._Val%C3%A8ncia_251-259_(Barcelona),_fa%C3%A7ana_sud.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/5/5d/Hotel_Majestic_-_panoramio.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/309521/2",
     "w": 1920,
     "credit": "Mister No",
     "license": "CC BY 3.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Hotel_Majestic_-_panoramio.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Hotel_Majestic_-_panoramio.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/5/5d/Hotel_Majestic_-_panoramio.jpg"
    }
   ]
  },
@@ -1174,18 +1252,20 @@
   "tip": "Sea view above the 20th floor. The beach is across the road, the old town a ten minute taxi.",
   "images": [
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/9/94/008_Parc_de_les_Cascades_i_Hotel_Arts_(Barcelona),_al_fons_la_Torre_Mapfre.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/309165/0",
     "w": 1920,
     "credit": "Enric",
     "license": "CC BY-SA 4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:008_Parc_de_les_Cascades_i_Hotel_Arts_(Barcelona),_al_fons_la_Torre_Mapfre.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:008_Parc_de_les_Cascades_i_Hotel_Arts_(Barcelona),_al_fons_la_Torre_Mapfre.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/9/94/008_Parc_de_les_Cascades_i_Hotel_Arts_(Barcelona),_al_fons_la_Torre_Mapfre.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/5/5f/20211114.Barcelona.-024.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/309165/1",
     "w": 1920,
     "credit": "Christian Gebhardt",
     "license": "CC BY-SA 4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:20211114.Barcelona.-024.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:20211114.Barcelona.-024.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/5/5f/20211114.Barcelona.-024.jpg"
    }
   ]
  },
@@ -1223,32 +1303,36 @@
   "tip": "The sail is on the beach, so every room sees the sea. Eclipse bar on the 26th floor for sunset.",
   "images": [
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/e/ef/Barcelona_(49260685343).jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/72202/0",
     "w": 1920,
     "credit": "Nicolas Vigier",
     "license": "CC0",
-    "source": "https://commons.wikimedia.org/wiki/File:Barcelona_(49260685343).jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Barcelona_(49260685343).jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/e/ef/Barcelona_(49260685343).jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/d/d7/Barcelona_(51953121942).jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/72202/1",
     "w": 1920,
     "credit": "Nicolas Vigier",
     "license": "CC0",
-    "source": "https://commons.wikimedia.org/wiki/File:Barcelona_(51953121942).jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Barcelona_(51953121942).jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/d/d7/Barcelona_(51953121942).jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/b/bb/20211114.Barcelona.-028.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/72202/2",
     "w": 1920,
     "credit": "Christian Gebhardt",
     "license": "CC BY-SA 4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:20211114.Barcelona.-028.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:20211114.Barcelona.-028.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/b/bb/20211114.Barcelona.-028.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/1/1b/202_Les_quatre_barres_de_la_senyera_catalana,_de_Ricard_Bofill,_i_Hotel_W_(Barcelona).jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/72202/3",
     "w": 1920,
     "credit": "Enric",
     "license": "CC BY-SA 4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:202_Les_quatre_barres_de_la_senyera_catalana,_de_Ricard_Bofill,_i_Hotel_W_(Barcelona).jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:202_Les_quatre_barres_de_la_senyera_catalana,_de_Ricard_Bofill,_i_Hotel_W_(Barcelona).jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/1/1b/202_Les_quatre_barres_de_la_senyera_catalana,_de_Ricard_Bofill,_i_Hotel_W_(Barcelona).jpg"
    }
   ]
  },
@@ -1286,25 +1370,28 @@
   "tip": "Via Veneto is quiet at night and Villa Borghese is at the end of the street. Corner rooms under the dome have the view.",
   "images": [
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/7/78/Italia_-_Roma_2013_-_panoramio_(77).jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/356072/0",
     "w": 1920,
     "credit": "randreu",
     "license": "CC BY 3.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Italia_-_Roma_2013_-_panoramio_(77).jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Italia_-_Roma_2013_-_panoramio_(77).jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/7/78/Italia_-_Roma_2013_-_panoramio_(77).jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/1/11/Italia_-_Roma_2013_-_panoramio_(78).jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/356072/1",
     "w": 1920,
     "credit": "randreu",
     "license": "CC BY 3.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Italia_-_Roma_2013_-_panoramio_(78).jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Italia_-_Roma_2013_-_panoramio_(78).jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/1/11/Italia_-_Roma_2013_-_panoramio_(78).jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/9/9e/On_the_way_to_Via_Vittorio_Veneto_-_panoramio.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/356072/2",
     "w": 1920,
     "credit": "Patrick Nouhailler",
     "license": "CC BY-SA 3.0",
-    "source": "https://commons.wikimedia.org/wiki/File:On_the_way_to_Via_Vittorio_Veneto_-_panoramio.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:On_the_way_to_Via_Vittorio_Veneto_-_panoramio.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/9/9e/On_the_way_to_Via_Vittorio_Veneto_-_panoramio.jpg"
    }
   ]
  },
@@ -1342,25 +1429,28 @@
   "tip": "The New Year fireworks are right in front of the hotel. Book the beach side; the pool deck is the best seat in Rio.",
   "images": [
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/5/54/Hotel_Copacabana_Palace,_R%C3%ADo_de_Janeiro_A74224720241122.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/393287/0",
     "w": 1920,
     "credit": "Rjcastillo",
     "license": "CC BY 4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Hotel_Copacabana_Palace,_R%C3%ADo_de_Janeiro_A74224720241122.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Hotel_Copacabana_Palace,_R%C3%ADo_de_Janeiro_A74224720241122.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/5/54/Hotel_Copacabana_Palace,_R%C3%ADo_de_Janeiro_A74224720241122.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/c/c7/Copacabana_Palace_-_panoramio.jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/393287/1",
     "w": 1920,
     "credit": "Pavel Špindler",
     "license": "CC BY 3.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Copacabana_Palace_-_panoramio.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Copacabana_Palace_-_panoramio.jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/c/c7/Copacabana_Palace_-_panoramio.jpg"
    },
    {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/f/f5/Copacabana_Palace_-_RJ_-_panoramio_(1).jpg",
+    "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/393287/2",
     "w": 1920,
     "credit": "Paulo JC Nogueira",
     "license": "CC BY-SA 3.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Copacabana_Palace_-_RJ_-_panoramio_(1).jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Copacabana_Palace_-_RJ_-_panoramio_(1).jpg",
+    "origin": "https://upload.wikimedia.org/wikipedia/commons/f/f5/Copacabana_Palace_-_RJ_-_panoramio_(1).jpg"
    }
   ]
  }
