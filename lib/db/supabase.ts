@@ -71,7 +71,15 @@ export function supabaseDb(): Db {
     async quote(id) { const r = await sb.from("quotes").select("*").eq("id", id).maybeSingle(); return r.data ? fromRow<Quote>(r.data) : null; },
     async updateQuote(id, patch) { must(await sb.from("quotes").update(toRow(patch)).eq("id", id)); },
     async promo(storefrontId, code) { const r = await sb.from("promo_codes").select("*").eq("storefront_id", storefrontId).ilike("code", code).maybeSingle(); return r.data ? fromRow<PromoCode>(r.data) : null; },
-    async createBooking(b) { return fromRow<Booking>(must(await sb.from("bookings").insert(toRow(b)).select("*").single())); },
+    async createBooking(b) {
+      // a reference collision is one in 900,000; retry with a fresh one rather than fail the reader's checkout
+      for (let i = 0; i < 3; i++) {
+        const r = await sb.from("bookings").insert(toRow(i ? { ...b, reference: `NMD ${100000 + Math.floor(Math.random() * 900000)}` } : b)).select("*").single();
+        if (!r.error) return fromRow<Booking>(r.data);
+        if (!/bookings_reference_key/.test(r.error.message)) throw new Error(r.error.message);
+      }
+      throw new Error("could not allocate a booking reference");
+    },
     async booking(id) { const r = await sb.from("bookings").select("*").eq("id", id).maybeSingle(); return r.data ? fromRow<Booking>(r.data) : null; },
     async bookingByReference(ref) { const r = await sb.from("bookings").select("*").eq("reference", ref).maybeSingle(); return r.data ? fromRow<Booking>(r.data) : null; },
     async bookingByPaymentIntent(pi) { const r = await sb.from("bookings").select("*").eq("stripe_payment_intent", pi).maybeSingle(); return r.data ? fromRow<Booking>(r.data) : null; },

@@ -32,6 +32,8 @@ describe("booking service end to end on fixtures", () => {
     expect(q.availabilityToken).toMatch(/^av-/);
     expect(q.readerPrice).toBe(379.59);
     expect(q.cancelDeadline).toBe("2026-11-21T23:59:00");
+    // stored as the database enum code, never the display label
+    expect(["booking", "expedia", "agoda", "tripcom", "hotel", null]).toContain(q.lowestReferenceSource);
     const { booking, amount } = await startPayment(sf, q, { firstName: "Lina", lastName: "Reader", email: "L@Example.com" }, "LISBON10");
     expect(amount).toBe(369.59); // promo comes out of the creator share
     expect(booking.status).toBe("paying");

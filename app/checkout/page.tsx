@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { env } from "@/lib/env";
 import { BOARD, fmtDate, usd } from "@/lib/format";
 import { requireStorefront } from "@/lib/tenant";
+import { sourceLabel } from "@/lib/booking/service";
 
 export const dynamic = "force-dynamic";
 
@@ -32,7 +33,7 @@ export default async function Checkout({ searchParams }: { searchParams: Promise
           <p className="small mute" style={{ margin: "4px 0 12px" }}>{fmtDate(quote.checkIn)} to {fmtDate(quote.checkOut)}, {nights} {nights === 1 ? "night" : "nights"}, {quote.occupancy[0]?.adults} {quote.occupancy[0]?.adults === 1 ? "adult" : "adults"}. {BOARD[quote.board ?? "RO"]}.</p>
           <ul>
             <li><span>Room, {nights} nights, tax included</span><span>{usd(quote.readerPrice)}</span></li>
-            {quote.lowestReference && quote.lowestReference > quote.readerPrice && <li className="small" style={{ color: "var(--ok)" }}><span>{quote.lowestReferenceSource} showed</span><span>{usd(quote.lowestReference)}</span></li>}
+            {quote.lowestReference && quote.lowestReference > quote.readerPrice && <li className="small" style={{ color: "var(--ok)" }}><span>{sourceLabel(quote.lowestReferenceSource)} showed</span><span>{usd(quote.lowestReference)}</span></li>}
             <li className="total"><span>You pay now</span><span>{usd(quote.readerPrice)}</span></li>
             <li className="small mute"><span>At the hotel, city tax</span><span>per person per night</span></li>
           </ul>

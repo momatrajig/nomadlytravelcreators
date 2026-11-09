@@ -23,7 +23,11 @@ export class BookingError extends Error {
   }
 }
 
-const SOURCE_LABEL: Record<PriceCheck["source"], string> = { booking: "Booking.com", expedia: "Expedia", agoda: "Agoda", tripcom: "Trip.com", hotel: "the hotel's own site" };
+export const SOURCE_LABEL: Record<PriceCheck["source"], string> = { booking: "Booking.com", expedia: "Expedia", agoda: "Agoda", tripcom: "Trip.com", hotel: "the hotel's own site" };
+/** Display label back to the stored code (the database column is an enum of codes). */
+export const sourceCode = (label: string | null | undefined): PriceCheck["source"] | null =>
+  label ? ((Object.entries(SOURCE_LABEL).find(([, v]) => v === label)?.[0] as PriceCheck["source"] | undefined) ?? (label in SOURCE_LABEL ? (label as PriceCheck["source"]) : null)) : null;
+export const sourceLabel = (code: string | null | undefined): string => (code && code in SOURCE_LABEL ? SOURCE_LABEL[code as PriceCheck["source"]] : code ?? "");
 
 export interface StayOffer {
   ebcId: number; name: string; stars: number;
@@ -116,9 +120,15 @@ export async function holdQuote(sf: Storefront, offer: StayOffer, packageCode: s
     packageCode, packageToken: rate.packageToken, roomTokens: rate.roomTokens, board: rate.board, refundable: rate.refundable && !(av.rooms[0]?.nonRefundable ?? false),
     cancelDeadline: dl?.date ?? null, cancelCharge: dl?.charge ?? null,
     supplierNet: l.supplierNet, currency: av.price.selling.currency, creatorRate: l.creatorRate, nomadlyNet: l.nomadlyNet, creatorShare: l.creatorShare, readerPrice: l.readerPrice,
-    lowestReference: offer.lowestReference?.price ?? null, lowestReferenceSource: offer.lowestReference?.source ?? null,
+    lowestReference: offer.lowestReference?.price ?? null, lowestReferenceSource: sourceCode(offer.lowestReference?.source),
     availabilityToken: av.availabilityToken, availabilityAt: new Date(now).toISOString(), autocancelAt: av.autocancelDate ?? null, expiresAt: new Date(now + 20 * 60_000).toISOString(),
   });
+}
+
+/** Reader facing reference: NMD plus 6 digits, unambiguous to read over the phone. Unique index in the database backs it. */
+export function newReference(): string {
+  const n = 100000 + Math.floor(Math.random() * 900000);
+  return `NMD ${n}`;
 }
 
 export interface GuestInput { firstName: string; lastName: string; email: string; phone?: string; title?: "mr" | "mrs" | "ms"; country?: string }
@@ -137,7 +147,7 @@ export async function startPayment(sf: Storefront, quote: Quote, guest: GuestInp
   const extras = [...new Set(extraKinds)].map((k) => extraByKind(k)).filter((x): x is NonNullable<typeof x> => !!x).map((x) => { const l = extraLedger(x.price, x.commission); return { kind: x.kind, name: x.name, price: l.price, commission: l.nomadlyCommission, creatorShare: l.creatorShare }; });
   const seq = Date.now().toString(36);
   const booking = await db().createBooking({
-    reference: "", clientRef: `nomadly-${seq}`.toLowerCase(), storefrontId: sf.id, creatorId: sf.creatorId, quoteId: quote.id, ebcId: quote.ebcId, ebcReservationId: null, hotelConfirmation: null,
+    reference: newReference(), clientRef: `nomadly-${seq}`.toLowerCase(), storefrontId: sf.id, creatorId: sf.creatorId, quoteId: quote.id, ebcId: quote.ebcId, ebcReservationId: null, hotelConfirmation: null,
     status: "paying", checkIn: quote.checkIn, checkOut: quote.checkOut, nights: n,
     guests: [{ firstName: guest.firstName.trim(), lastName: guest.lastName.trim(), type: "adult", lead: true }], leadEmail: guest.email.trim().toLowerCase(), leadPhone: guest.phone ?? null,
     roomName: null, board: quote.board, refundable: quote.refundable, cancelDeadline: quote.cancelDeadline, cancelCharge: quote.cancelCharge, currency: quote.currency,
