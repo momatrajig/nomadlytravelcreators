@@ -7,6 +7,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { headers } from "next/headers";
 import { env } from "@/lib/env";
 import { signedInUser } from "@/lib/auth";
+import { bookingClosedReason } from "@/lib/booking/guard";
 
 export async function generateMetadata(): Promise<Metadata> {
   const sf = await currentStorefront();
@@ -29,7 +30,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body>
         {sf ? (
           <>
-            {env().EBC_MODE === "mock" && <div className="demo" role="note">Preview: prices are simulated and cards run in Stripe test mode, so nothing here is a real booking.</div>}
+            {env().EBC_MODE === "mock" ? <div className="demo" role="note">Preview: prices are simulated and cards run in Stripe test mode, so nothing here is a real booking.</div>
+              : bookingClosedReason() ? <div className="demo" role="note">Live hotel prices. Booking opens when card payments go live; nothing can be charged yet.</div> : null}
             <header className="hdr"><div className="wrap">
               <Link href="/" className="logo"><span className="mark">{sf.brandName.slice(0, 1).toUpperCase()}</span><span>{sf.brandName}</span></Link>
               <div className="hdr-right"><nav className="nav" aria-label="Main"><Link href="/stays">Hotels</Link><Link href="/booking">Your booking</Link></nav>{showCreator && <Link href="/dashboard" className="btn btn-quiet"><span className="hide-sm">Creator dashboard</span><span className="show-sm">Dashboard</span></Link>}</div>
