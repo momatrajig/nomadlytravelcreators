@@ -1,3 +1,4 @@
+import { headers } from "next/headers";
 /** Server side composition of what the storefront pages show. */
 import { searchStays, type StayOffer } from "@/lib/booking/service";
 import { db } from "@/lib/db";
@@ -13,7 +14,9 @@ export async function stayView(sf: Storefront, checkIn: string, checkOut: string
   const pins = only ? allPins.filter((p) => only.includes(p.ebcId)) : allPins;
   const n = nightsOf(checkIn, checkOut);
   try {
-    const r = await searchStays(sf, checkIn, checkOut, adults, [], only);
+    // hotels price by the lead guest's nationality; the reader's country (from the edge) is the best guess before checkout
+    const country = (await headers()).get("x-vercel-ip-country") ?? undefined;
+    const r = await searchStays(sf, checkIn, checkOut, adults, [], only, country);
     const booked = await db().bookedCountsByHotel(sf.id, new Date(Date.now() - 30 * 86_400_000).toISOString());
     const cards: StayCardData[] = r.offers.map((o) => {
       const pin = pins.find((p) => p.ebcId === o.ebcId);

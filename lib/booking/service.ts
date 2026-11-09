@@ -69,13 +69,13 @@ export async function effectiveRate(sf: Storefront, hotelsNet: Array<{ ebcId: nu
   return { rate: Math.min(sf.creatorRate, ceiling), ceiling };
 }
 
-export async function searchStays(sf: Storefront, checkIn: string, checkOut: string, adults: number, childrenAges: number[] = [], only?: number[]): Promise<{ offers: StayOffer[]; rate: number; ceiling: number; checkedAt: string | null }> {
+export async function searchStays(sf: Storefront, checkIn: string, checkOut: string, adults: number, childrenAges: number[] = [], only?: number[], leaderIso?: string): Promise<{ offers: StayOffer[]; rate: number; ceiling: number; checkedAt: string | null }> {
   nights(checkIn, checkOut);
   const all = await db().pinnedHotels(sf.id);
   const pins = only ? all.filter((p) => only.includes(p.ebcId)) : all;
   if (!pins.length) return { offers: [], rate: sf.creatorRate, ceiling: sf.creatorRate, checkedAt: null };
   const [res, checks] = await Promise.all([
-    ebc().searchSync({ accommodation: pins.map((p) => p.ebcId), checkIn, checkOut, occupancy: { rooms: [{ adults, childrenAges }] } }),
+    ebc().searchSync({ accommodation: pins.map((p) => p.ebcId), checkIn, checkOut, occupancy: { rooms: [{ adults, childrenAges }], leaderIso } }),
     db().latestPriceChecks(pins.map((p) => p.ebcId), checkIn, checkOut, adults),
   ]);
   // the cheapest refundable rate per hotel drives the parity guard

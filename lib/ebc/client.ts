@@ -32,6 +32,7 @@ export interface EbcConfig {
   clientSecret: string;
   scopes: string;
   leaderNationalityId: number;
+  defaultNationalityIso?: string;
   sellingChannel: "B2B" | "B2C";
   fetch?: typeof fetch;
   now?: () => number;
@@ -41,7 +42,7 @@ export interface EbcConfig {
 export function configFromEnv(env: NodeJS.ProcessEnv = process.env): EbcConfig {
   const mode = env.EBC_MODE === "live" ? "live" : "mock";
   if (mode === "live") {
-    for (const k of ["EBC_CLIENT_ID", "EBC_CLIENT_SECRET", "EBC_LEADER_NATIONALITY_ID"]) {
+    for (const k of ["EBC_CLIENT_ID", "EBC_CLIENT_SECRET"]) {
       if (!env[k]) throw new Error(`${k} is required when EBC_MODE=live`);
     }
   }
@@ -51,7 +52,9 @@ export function configFromEnv(env: NodeJS.ProcessEnv = process.env): EbcConfig {
     clientId: env.EBC_CLIENT_ID ?? "",
     clientSecret: env.EBC_CLIENT_SECRET ?? "",
     scopes: env.EBC_SCOPES ?? "read:hotels-search write:hotels-book read:mapping read:reservations write:reservations read:reservations-documents read:resellerCredit",
+    // 0 means: resolve from the mapping API by ISO code (EBC_DEFAULT_NATIONALITY_ISO, default US) on first use
     leaderNationalityId: Number(env.EBC_LEADER_NATIONALITY_ID ?? 0),
+    defaultNationalityIso: (env.EBC_DEFAULT_NATIONALITY_ISO ?? "US").toUpperCase(),
     sellingChannel: env.EBC_SELLING_CHANNEL === "B2B" ? "B2B" : "B2C",
   };
 }
@@ -130,14 +133,39 @@ export class EbcClient {
   hotelDetails(id: number) { return this.request<HotelDetails>("GET", `/mapping/v1/hotels/${id}/details`); }
   hotelImages(id: number) { return this.request<{ _embedded?: { images?: HotelImage[] }; images?: HotelImage[] }>("GET", `/mapping/v1/hotels/${id}/images`).then((r) => r.images ?? r._embedded?.images ?? []); }
 
+  // ---------- nationalities ----------
+  private nationalities: { at: number; byIso: Map<string, number> } | null = null;
+  /** Mapping nationality ID for an ISO code (the leaderNationality search field). Cached 48 hours, as the API guide asks. */
+  async nationalityId(iso: string): Promise<number> {
+    if (!this.nationalities || this.now() - this.nationalities.at > 48 * 3_600_000) {
+      const byIso = new Map<string, number>();
+      for (let page = 1, pages = 1; page <= pages && page <= 20; page++) {
+        const r = await this.request<{ _page_count?: number; _embedded?: { nationalities?: Array<{ id: number; iso: string }> } }>("GET", "/mapping/v1/nationalities", { query: { page, limit: 500 } });
+        pages = r._page_count ?? 1;
+        for (const n of r._embedded?.nationalities ?? []) if (n.iso) byIso.set(n.iso.toUpperCase(), n.id);
+      }
+      this.nationalities = { at: this.now(), byIso };
+    }
+    const id = this.nationalities.byIso.get(iso.toUpperCase());
+    if (!id) throw new EbcError({ title: "unknown nationality", status: 400, detail: `no mapping nationality for ISO ${iso}` });
+    return id;
+  }
+
   // ---------- search ----------
-  /** Synchronous search by hotel IDs (max 200). */
-  searchSync(req: Omit<SearchRequest, "sellingChannel" | "occupancy"> & { occupancy: { rooms: SearchRequest["occupancy"]["rooms"]; leaderNationality?: number } }) {
+  /** Synchronous search by hotel IDs (max 200). leaderNationality: an ID, or leaderIso to resolve one (the reader's country). */
+  async searchSync(req: Omit<SearchRequest, "sellingChannel" | "occupancy"> & { occupancy: { rooms: SearchRequest["occupancy"]["rooms"]; leaderNationality?: number; leaderIso?: string } }) {
     if (req.accommodation.length === 0 || req.accommodation.length > 200) throw new RangeError("accommodation must hold 1 to 200 hotel ids");
+    let leader = req.occupancy.leaderNationality ?? 0;
+    if (!leader && this.cfg.mode === "live") {
+      const iso = req.occupancy.leaderIso ?? this.cfg.defaultNationalityIso ?? "US";
+      leader = this.cfg.leaderNationalityId && !req.occupancy.leaderIso ? this.cfg.leaderNationalityId : await this.nationalityId(iso).catch(() => this.cfg.leaderNationalityId || this.nationalityId(this.cfg.defaultNationalityIso ?? "US"));
+    }
+    if (!leader) leader = this.cfg.leaderNationalityId || 158; // simulator ignores it
+    const { occupancy, ...rest } = req;
     const body: SearchRequest = {
       language: "en_GB", timeout: 20, availableOnly: true, cancellationDeadline: true,
-      ...req,
-      occupancy: { leaderNationality: req.occupancy.leaderNationality ?? this.cfg.leaderNationalityId, rooms: req.occupancy.rooms },
+      ...rest,
+      occupancy: { leaderNationality: leader, rooms: occupancy.rooms },
       sellingChannel: this.cfg.sellingChannel,
     };
     return this.request<SearchResponse>("POST", "/hotels/v1/search/sync", { body });

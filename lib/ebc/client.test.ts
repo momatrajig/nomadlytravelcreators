@@ -47,7 +47,7 @@ describe("ebc client against the mock transport (full booking path)", () => {
     const base = { availabilityToken: "a", clientRef: "ok-1", rooms: [{ packageRoomToken: "p", travelers: [{ reference: "t1", type: "adult" as const, lead: false, title: "mr" as const, firstName: "A", lastName: "B" }] }], payment: { method: "credit" as const } };
     expect(() => c.book("s", 1, "o", "t", base)).toThrow(/lead/);
     expect(() => c.book("s", 1, "o", "t", { ...base, clientRef: "bad ref!" })).toThrow(/clientRef/);
-    expect(() => c.searchSync({ accommodation: [], checkIn: "2026-12-03", checkOut: "2026-12-05", occupancy: { rooms: [] } })).toThrow(RangeError);
+    await expect(c.searchSync({ accommodation: [], checkIn: "2026-12-03", checkOut: "2026-12-05", occupancy: { rooms: [] } })).rejects.toThrow(RangeError);
   });
 
   it("retries 429 and 5xx with backoff, refreshes on 401, surfaces rate limit headers", async () => {
@@ -77,6 +77,24 @@ describe("ebc client against the mock transport (full booking path)", () => {
     const err = await c.credit().catch((e) => e);
     expect(err).toBeInstanceOf(EbcError);
     expect(err.code).toBe("OFFER_RECONFIGURED");
+  });
+});
+
+describe("leader nationality in live mode", () => {
+  it("resolves the ID from the mapping API by ISO and caches it", async () => {
+    let natCalls = 0; let sent: unknown = null;
+    const f: typeof fetch = async (input, init) => {
+      const u = String(input instanceof Request ? input.url : input);
+      if (u.endsWith("/oauth2/token")) return new Response(JSON.stringify({ access_token: "t", expires_in: 3600 }));
+      if (u.includes("/mapping/v1/nationalities")) { natCalls++; return new Response(JSON.stringify({ _page_count: 1, _embedded: { nationalities: [{ id: 7, iso: "LB" }, { id: 231, iso: "US" }] } })); }
+      sent = JSON.parse(String(init?.body)); return new Response(JSON.stringify({ srk: "s", tokens: { results: "r" }, hotels: [] }));
+    };
+    const c = new EbcClient({ ...cfg, mode: "live", leaderNationalityId: 0, defaultNationalityIso: "US", fetch: f });
+    await c.searchSync({ accommodation: [1], checkIn: "2026-12-03", checkOut: "2026-12-05", occupancy: { rooms: [{ adults: 1, childrenAges: [] }], leaderIso: "lb" } });
+    expect((sent as { occupancy: { leaderNationality: number } }).occupancy.leaderNationality).toBe(7);
+    await c.searchSync({ accommodation: [1], checkIn: "2026-12-03", checkOut: "2026-12-05", occupancy: { rooms: [{ adults: 1, childrenAges: [] }] } });
+    expect((sent as { occupancy: { leaderNationality: number } }).occupancy.leaderNationality).toBe(231);
+    expect(natCalls).toBe(1);
   });
 });
 
