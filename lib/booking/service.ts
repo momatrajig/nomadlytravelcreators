@@ -34,6 +34,8 @@ export interface StayOffer {
   ebcId: number; name: string; stars: number;
   hotelIndex: number; offerIndex: string; srk: string; resultsToken: string;
   rates: Array<{
+    /** the supplier offer this package belongs to (a hotel returns one offer per wholesaler) */
+    offerIndex?: string;
     packageCode: string; packageToken: string; roomTokens: string[]; roomName: string; board: string; refundable: boolean; onRequest: boolean;
     cancelDeadline: string | null; cancelCharge: number | null;
     supplierNet: number; readerPrice: number; creatorShare: number; nomadlyNet: number; creatorRate: number;
@@ -80,7 +82,7 @@ const SEARCH_TTL = 10 * 60; // seconds; supplier result tokens live for hours, p
  */
 export async function searchStays(sf: Storefront, checkIn: string, checkOut: string, adults: number, childrenAges: number[] = [], only?: number[], leaderIso?: string): Promise<StaysResult> {
   nights(checkIn, checkOut);
-  const key = `stays:v2:${sf.id}:${checkIn}:${checkOut}:${adults}:${childrenAges.join(".")}:${(leaderIso ?? "").toUpperCase()}:${only ? [...only].sort((a, b) => a - b).join(".") : "all"}:${sf.creatorRate}`;
+  const key = `stays:v3:${sf.id}:${checkIn}:${checkOut}:${adults}:${childrenAges.join(".")}:${(leaderIso ?? "").toUpperCase()}:${only ? [...only].sort((a, b) => a - b).join(".") : "all"}:${sf.creatorRate}`;
   const hit = await db().cacheGet<StaysResult>(key).catch(() => null);
   if (hit) return hit;
   const running = inflight.get(key);
@@ -102,8 +104,7 @@ async function searchStaysUncached(sf: Storefront, checkIn: string, checkOut: st
   ]);
   // the cheapest refundable rate per hotel drives the parity guard
   const nets = res.hotels.map((h) => {
-    const o = h.offers[0];
-    const cheapest = o ? Math.min(...o.packages.filter((p) => p.complete).map((p) => p.price.components?.supplier?.value ?? p.price.selling.value)) : Infinity;
+    const cheapest = Math.min(...h.offers.flatMap((o) => o.packages.filter((p) => p.complete).map((p) => p.price.components?.supplier?.value ?? p.price.selling.value)));
     return { ebcId: Number(h.index), supplierNet: cheapest };
   }).filter((n) => Number.isFinite(n.supplierNet));
   const { rate, ceiling } = await effectiveRate(sf, nets, checks);
@@ -112,9 +113,13 @@ async function searchStaysUncached(sf: Storefront, checkIn: string, checkOut: st
     const refs = checks.filter((c) => Number(c.ebcId) === Number(h.index)).map((c) => ({ source: SOURCE_LABEL[c.source], price: c.price, checkedAt: c.checkedAt }));
     // a five star hotel can return two hundred packages; the reader compares a handful: keep the cheapest
     // eight, making sure the cheapest refundable and cheapest with breakfast are among them
-    const all = packagesToRates(o.packages, o.rooms, rate).sort((a, b) => a.readerPrice - b.readerPrice);
+    // every wholesaler's offer, then the cheapest of each room, board and refund combination
+    const merged = h.offers.flatMap((of) => packagesToRates(of.packages, of.rooms, rate).map((r) => ({ ...r, offerIndex: of.id })));
+    const best = new Map<string, (typeof merged)[number]>();
+    for (const r of merged) { const k = `${r.roomName.toLowerCase()}|${r.board}|${r.refundable}`; const cur = best.get(k); if (!cur || r.readerPrice < cur.readerPrice) best.set(k, r); }
+    const all = [...best.values()].sort((a, b) => a.readerPrice - b.readerPrice);
     const must = [all.find((x) => x.refundable), all.find((x) => x.board !== "RO")].filter((x): x is NonNullable<typeof x> => !!x);
-    const rates = [...new Set([...all.slice(0, 8), ...must])].sort((a, b) => a.readerPrice - b.readerPrice);
+    const rates = [...new Set([...all.slice(0, 8), ...must])].sort((a, b) => Number(b.refundable) - Number(a.refundable) || a.readerPrice - b.readerPrice);
     const low = lowestReference(refs);
     const cheapestFlex = rates.find((r) => r.refundable) ?? rates[0];
     // the live API returns the hotel index as a string; our IDs are numbers
@@ -132,7 +137,7 @@ export async function holdQuote(sf: Storefront, offer: StayOffer, packageCode: s
   if (!rate) throw new BookingError("NOT_FOUND", "rate not in this offer");
   let av;
   try {
-    av = await ebc().availability(offer.srk, offer.hotelIndex, offer.offerIndex, offer.resultsToken, { packageToken: rate.packageToken, roomTokens: rate.roomTokens });
+    av = await ebc().availability(offer.srk, offer.hotelIndex, rate.offerIndex ?? offer.offerIndex, offer.resultsToken, { packageToken: rate.packageToken, roomTokens: rate.roomTokens });
   } catch (e) {
     if (e instanceof EbcError && (e.code === "ROOM_UNAVAILABLE" || e.code === "OFFER_RECONFIGURED")) throw new BookingError("NO_AVAILABILITY", "This rate is no longer available. Pick another.", e.problem);
     throw new BookingError("SUPPLIER", "The hotel system did not answer. Try again in a moment.", e instanceof EbcError ? e.problem : String(e));
@@ -146,7 +151,7 @@ export async function holdQuote(sf: Storefront, offer: StayOffer, packageCode: s
   const dl = cancellationDeadline(av.cancellationPolicy);
   const now = Date.now();
   return db().saveQuote({
-    storefrontId: sf.id, ebcId: offer.ebcId, checkIn, checkOut, occupancy, srk: offer.srk, resultsToken: offer.resultsToken, hotelIndex: offer.hotelIndex, offerIndex: offer.offerIndex,
+    storefrontId: sf.id, ebcId: offer.ebcId, checkIn, checkOut, occupancy, srk: offer.srk, resultsToken: offer.resultsToken, hotelIndex: offer.hotelIndex, offerIndex: rate.offerIndex ?? offer.offerIndex,
     packageCode, packageToken: rate.packageToken, roomTokens: rate.roomTokens, board: rate.board, refundable: rate.refundable && !(av.rooms[0]?.nonRefundable ?? false),
     cancelDeadline: dl?.date ?? null, cancelCharge: dl?.charge ?? null,
     supplierNet: l.supplierNet, currency: av.price.selling.currency, creatorRate: l.creatorRate, nomadlyNet: l.nomadlyNet, creatorShare: l.creatorShare, readerPrice: l.readerPrice,
