@@ -494,3 +494,4 @@ p { margin: 0; }
 .price { font: 700 28px/1.1 var(--font-body); letter-spacing: -0.02em; }
 .stay-price strong { font-family: var(--font-body); font-weight: 700; letter-spacing: -0.02em; font-size: 28px; }
 .hdr-right { display: flex; align-items: center; gap: 14px; } .hdr-creators { min-height: 38px; padding: 7px 14px; font-size: 14px; } @media (max-width: 760px) { .hdr-creators { display: none; } }
+.co .field { align-content: start; }

@@ -28,6 +28,7 @@ export default function CheckoutForm(p: Props) {
   const t = dict(p.f.lang);
   const co = coDict(p.f.lang);
   const P = (v: number, whole = false) => price(p.f, v, whole);
+  // names come from Intl, whose data differs between server and browser: option text may differ on hydration
   const countries = useMemo(() => countryList(p.f.lang), [p.f.lang]);
   const [guest, setGuest] = useState<Person & { email: string; country: string; dial: string; phone: string }>({ firstName: "", lastName: "", email: "", country: p.country && DIAL[p.country] ? p.country : "", dial: p.country && DIAL[p.country] ? DIAL[p.country]! : "", phone: "" });
   const [forWhom, setForWhom] = useState<"self" | "other">("self");
@@ -131,7 +132,7 @@ export default function CheckoutForm(p: Props) {
               <div className="field">
                 <label htmlFor="f-country">{co.country} <span className="req">*</span></label>
                 <select id="f-country" value={guest.country} disabled={locked} aria-invalid={!!errs.country} autoComplete="country" onChange={(e) => setGuest({ ...guest, country: e.target.value, dial: DIAL[e.target.value] ?? guest.dial })}>
-                  <option value="">…</option>{countries.map((c) => <option key={c.code} value={c.code}>{c.name}</option>)}
+                  <option value="">…</option>{countries.map((c) => <option key={c.code} value={c.code} suppressHydrationWarning>{c.name}</option>)}
                 </select>{errs.country && <span className="err">{errs.country}</span>}
               </div>
               <div className="field">
@@ -184,7 +185,7 @@ export default function CheckoutForm(p: Props) {
               <div className="pay-head"><h2 id="pay-h">{co.payH}</h2><button type="button" className="linkish" onClick={() => setServer(null)}>{co.change}</button></div>
               <p className="co-sub">{co.paySub}</p>
               {server.clientSecret && stripePromise
-                ? <Elements stripe={stripePromise} options={{ clientSecret: server.clientSecret, appearance, locale: p.f.lang === "cs" ? "cs" : "en" }}><PayStep co={co} amount={server.amount} currency={p.currency} reference={server.reference} email={guest.email} f={p.f} /></Elements>
+                ? <Elements stripe={stripePromise} options={{ clientSecret: server.clientSecret, appearance, locale: p.f.lang === "cs" ? "cs" : "en" }}><PayStep co={co} amount={server.amount} currency={p.currency} reference={server.reference} email={guest.email} f={p.f} billing={{ name: `${(forWhom === "other" ? booker : guest).firstName} ${(forWhom === "other" ? booker : guest).lastName}`.trim(), email: guest.email.trim(), phone: `+${guest.dial}${guest.phone.replace(/\D/g, "")}`, country: guest.country }} /></Elements>
                 : <div className="notice">{t.noPayConfig}</div>}
             </div>
           )}
@@ -219,8 +220,8 @@ function Summary({ co, p, lines, total, P, mobile }: { co: Co; p: Props; lines: 
         <div><h3>{p.hotel.name}</h3>{p.hotel.stars ? <p className="stars" aria-label={`${p.hotel.stars} stars`}>{"★".repeat(p.hotel.stars)}</p> : null}{p.hotel.address && <p className="small mute">{p.hotel.address}</p>}</div>
       </div>
       <div className="sum-dates">
-        <div><span>{co.checkIn}</span><b>{day(p.checkIn)}</b></div>
-        <div><span>{co.checkOut}</span><b>{day(p.checkOut)}</b></div>
+        <div><span>{co.checkIn}</span><b suppressHydrationWarning>{day(p.checkIn)}</b></div>
+        <div><span>{co.checkOut}</span><b suppressHydrationWarning>{day(p.checkOut)}</b></div>
       </div>
       <p className="sum-stay">{co.stay(p.nights, p.adults)}</p>
       <div className="sum-room">
@@ -240,7 +241,7 @@ function Summary({ co, p, lines, total, P, mobile }: { co: Co; p: Props; lines: 
   return <aside className="sum sum-side" aria-label={co.summaryH}><h2>{co.summaryH}</h2>{body}</aside>;
 }
 
-function PayStep({ co, amount, currency, reference, email, f }: { co: Co; amount: number; currency: string; reference: string; email: string; f: ReaderFmt }) {
+function PayStep({ co, amount, currency, reference, email, f, billing }: { co: Co; amount: number; currency: string; reference: string; email: string; f: ReaderFmt; billing: { name: string; email: string; phone: string; country: string } }) {
   const t = dict(f.lang);
   const stripe = useStripe(), elements = useElements();
   const [busy, setBusy] = useState(false), [err, setErr] = useState<string | null>(null);
@@ -252,7 +253,7 @@ function PayStep({ co, amount, currency, reference, email, f }: { co: Co; amount
   };
   return (
     <>
-      <PaymentElement options={{ layout: { type: "accordion", defaultCollapsed: false, radios: "always", spacedAccordionItems: true }, wallets: { applePay: "auto", googlePay: "auto" } }} />
+      <PaymentElement options={{ layout: { type: "accordion", defaultCollapsed: false, radios: "always", spacedAccordionItems: true }, wallets: { applePay: "auto", googlePay: "auto" }, defaultValues: { billingDetails: { name: billing.name, email: billing.email, phone: billing.phone, address: { country: billing.country } } } }} />
       {err && <div className="notice bad" role="alert" style={{ marginTop: 12 }}>{err}</div>}
       <button className="btn btn-brand btn-lg pay-btn" type="button" onClick={pay} disabled={busy || !stripe}>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 11V8a5 5 0 0110 0v3M6 11h12v9H6z" /></svg>{busy ? co.paying : co.pay(money(amount, { lang: f.lang, currency }))}
