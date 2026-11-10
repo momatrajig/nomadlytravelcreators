@@ -22,7 +22,7 @@ export async function stayView(sf: Storefront, checkIn: string, checkOut: string
       const pin = pins.find((p) => p.ebcId === o.ebcId);
       const cheapestFlex = o.rates.find((x) => x.refundable) ?? o.rates[0]!;
       return {
-        ebcId: o.ebcId, name: o.name, stars: o.stars, area: pin?.address ?? null, city: pin?.cityName ?? null, rating: pin?.rating ?? null, ratingCount: pin?.ratingCount ?? null,
+        ebcId: o.ebcId, name: o.name, stars: o.stars, area: pin?.address && pin.address.length <= 28 ? pin.address : null, city: pin?.cityName ?? null, rating: pin?.rating ?? null, ratingCount: pin?.ratingCount ?? null,
         photos: pin?.images ?? [],
         readerPrice: cheapestFlex.readerPrice, refundable: cheapestFlex.refundable, board: cheapestFlex.board, cancelDeadline: cheapestFlex.cancelDeadline, cancelCharge: cheapestFlex.cancelCharge, onRequest: cheapestFlex.onRequest,
         lowestReference: o.lowestReference ? { source: o.lowestReference.source, price: o.lowestReference.price } : null, saving: o.saving, booked: booked.get(o.ebcId) ?? 0, tip: pin?.tip ?? null,
