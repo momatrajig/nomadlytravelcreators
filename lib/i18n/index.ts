@@ -27,8 +27,12 @@ export function approx(v: number, rate: number | null | undefined, currency: str
   return `${lang === "cs" ? "asi" : "about"} ${money(Math.round(x / step) * step, { lang, currency, whole: true })}`;
 }
 
+/**
+ * A day as the hotel wrote it. Deadlines arrive as timestamps in the hotel's local time; the date part is the day
+ * that applies there, whoever reads it and wherever the page renders (server in UTC, reader anywhere).
+ */
 export function fmtDay(iso: string, lang: Lang): string {
-  return new Date(iso.length === 10 ? `${iso}T12:00:00` : iso).toLocaleDateString(lang === "cs" ? "cs-CZ" : "en-GB", { weekday: "short", day: "numeric", month: "short" });
+  return new Date(`${iso.slice(0, 10)}T12:00:00Z`).toLocaleDateString(lang === "cs" ? "cs-CZ" : "en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
 }
 
 const en = {
