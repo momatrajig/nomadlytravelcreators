@@ -130,6 +130,10 @@ export function supabaseDb(): Db {
       }
       return out;
     },
+    async directoryNear(lat, lng, dLat, dLng, limit = 300) {
+      const rows = must(await sb.from("hotel_directory").select("*").gte("lat", lat - dLat).lte("lat", lat + dLat).gte("lng", lng - dLng).lte("lng", lng + dLng).limit(limit)) as Array<Record<string, unknown>>;
+      return rows.map((r) => fromRow<DirectoryHotel>(r));
+    },
     async bookingsForCreator(creatorId, limit = 50) { const rows = must(await sb.from("bookings").select("*").eq("creator_id", creatorId).order("created_at", { ascending: false }).limit(limit)) as Array<Record<string, unknown>>; return rows.map((r) => fromRow<Booking>(r)); },
   };
 }

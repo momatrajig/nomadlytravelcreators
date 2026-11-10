@@ -4,6 +4,7 @@ import "./globals.css";
 import "./flow.css";
 import { currentStorefront } from "@/lib/tenant";
 import { BottomNav } from "@/components/BottomNav";
+import CreatorTabs from "@/components/CreatorTabs";
 import { headers } from "next/headers";
 import { env } from "@/lib/env";
 import { signedInUser } from "@/lib/auth";
@@ -36,18 +37,19 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <>
             {env().EBC_MODE === "mock" ? <div className="demo" role="note">{t.bannerMock}</div>
               : bookingClosedReason() ? <div className="demo" role="note">{t.bannerDemo}</div> : null}
+            <CreatorTabs signedIn={showCreator} labels={{ view: "Creator view", dashboard: "Dashboard", storefront: "My storefront", platform: "Booking platform" }} />
             <header className="hdr"><div className="wrap">
               <Link href="/" className="logo cobrand" aria-label={`Nomadly with ${sf.brandName}, home`}>
                 <img className="nm" src="/brand/nomadly.png" alt="Nomadly" width={118} height={36} />
                 <span className="x" aria-hidden="true">×</span>
                 {sf.logoPath ? <img className="cl" src={sf.logoPath} alt={sf.brandName} /> : <><span className="mark">{sf.brandName.slice(0, 1).toUpperCase()}</span><span className="bn">{sf.brandName}</span></>}
               </Link>
-              <div className="hdr-right"><nav className="nav" aria-label="Main"><Link href="/stays">{t.hotels}</Link><Link href="/booking">{t.yourBooking}</Link></nav>{showCreator && <Link href="/dashboard" className="btn btn-quiet"><span className="hide-sm">{t.creatorDashboard}</span><span className="show-sm">{t.dashboard}</span></Link>}</div>
+              <div className="hdr-right"><nav className="nav" aria-label="Main"><Link href="/picks">{t.theirPicks(sf.brandName)}</Link><Link href="/stays">{t.hotels}</Link><Link href="/booking">{t.yourBooking}</Link></nav></div>
             </div></header>
             <main className="wrap">{children}</main>
             <footer className="wrap site-foot">
               <p>{t.footRuns(sf.brandName)}</p>
-              <p>{sf.siteUrl && <a href={sf.siteUrl}>{sf.siteUrl.replace(/^https?:\/\//, "").replace(/\/$/, "")}</a>}<Link href="/credits">{t.photoCredits}</Link><Link href="/booking">{t.findBooking}</Link>{showCreator && <Link href="/dashboard">{t.creatorDashboard}</Link>}</p>
+              <p>{sf.siteUrl && <a href={sf.siteUrl}>{sf.siteUrl.replace(/^https?:\/\//, "").replace(/\/$/, "")}</a>}<Link href="/credits">{t.photoCredits}</Link><Link href="/booking">{t.findBooking}</Link></p>
             </footer>
             <BottomNav labels={[t.home, t.hotels, t.yourBooking]} />
           </>

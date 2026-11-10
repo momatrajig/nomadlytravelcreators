@@ -11,6 +11,8 @@ export interface StayCardData {
   ebcId: number; name: string; stars: number; area: string | null; city: string | null; rating: number | null; ratingCount: number | null; photos: Photo[];
   readerPrice: number; refundable: boolean; board: string; cancelDeadline: string | null; cancelCharge: number | null; onRequest: boolean;
   lowestReference: { source: string; price: number } | null; saving: number | null; booked: number; tip: string | null;
+  /** on the creator's own list (shown with the Recommended by badge) */
+  creatorPick?: boolean;
 }
 const EN_FMT: ReaderFmt = { lang: "en", currency: "USD", disp: null, rate: null };
 interface Props { items: StayCardData[]; nights: number; checkedAt: string | null; qs: string; label: string; tabs?: boolean; f?: ReaderFmt }

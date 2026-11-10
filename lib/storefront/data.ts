@@ -2,7 +2,7 @@ import { headers } from "next/headers";
 /** Server side composition of what the storefront pages show. */
 import { searchStays, type StayOffer } from "@/lib/booking/service";
 import { db } from "@/lib/db";
-import type { PinnedHotel, Storefront } from "@/lib/db/types";
+import type { Hotel, PinnedHotel, Storefront } from "@/lib/db/types";
 export type { PinnedHotel };
 import type { StayCardData } from "@/components/StaysFlow";
 import { nights as nightsOf } from "@/lib/booking/service";
@@ -12,6 +12,8 @@ export interface StayView { cards: StayCardData[]; offers: StayOffer[]; pins: Pi
 export async function stayView(sf: Storefront, checkIn: string, checkOut: string, adults: number, only?: number[]): Promise<StayView> {
   const allPins = await db().pinnedHotels(sf.id);
   const pins = only ? allPins.filter((p) => only.includes(p.ebcId)) : allPins;
+  // hotels asked for by ID that the creator has not picked (the similar stays under a pick)
+  const others = only ? (await Promise.all(only.filter((id) => !pins.some((p) => p.ebcId === id)).map((id) => db().hotel(id).catch(() => null)))).filter((h): h is Hotel => !!h) : [];
   const n = nightsOf(checkIn, checkOut);
   try {
     // hotels price by the lead guest's nationality; the reader's country (from the edge) is the best guess before checkout
@@ -19,13 +21,14 @@ export async function stayView(sf: Storefront, checkIn: string, checkOut: string
     const r = await searchStays(sf, checkIn, checkOut, adults, [], only, country);
     const booked = await db().bookedCountsByHotel(sf.id, new Date(Date.now() - 30 * 86_400_000).toISOString());
     const cards: StayCardData[] = r.offers.map((o) => {
-      const pin = pins.find((p) => p.ebcId === o.ebcId);
+      const pinned = pins.find((p) => p.ebcId === o.ebcId);
+      const pin = pinned ?? others.find((p) => p.ebcId === o.ebcId);
       const cheapestFlex = o.rates.find((x) => x.refundable) ?? o.rates[0]!;
       return {
         ebcId: o.ebcId, name: o.name, stars: o.stars, area: pin?.address && pin.address.length <= 28 ? pin.address : null, city: pin?.cityName ?? null, rating: pin?.rating ?? null, ratingCount: pin?.ratingCount ?? null,
         photos: pin?.images ?? [],
         readerPrice: cheapestFlex.readerPrice, refundable: cheapestFlex.refundable, board: cheapestFlex.board, cancelDeadline: cheapestFlex.cancelDeadline, cancelCharge: cheapestFlex.cancelCharge, onRequest: cheapestFlex.onRequest,
-        lowestReference: o.lowestReference ? { source: o.lowestReference.source, price: o.lowestReference.price } : null, saving: o.saving, booked: booked.get(o.ebcId) ?? 0, tip: pin?.tip ?? null,
+        lowestReference: o.lowestReference ? { source: o.lowestReference.source, price: o.lowestReference.price } : null, saving: o.saving, booked: booked.get(o.ebcId) ?? 0, tip: pinned?.tip ?? null, creatorPick: !!pinned,
       };
     });
     return { cards, offers: r.offers, pins, nights: n, checkedAt: r.checkedAt, rate: r.rate, error: null };

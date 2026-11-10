@@ -107,4 +107,6 @@ export interface Db {
   saveDirectoryCity(c: { cityId: number; name: string; pages: number; pagesDone: number; total: number; finishedAt: string | null }): Promise<void>;
   saveDirectoryHotels(rows: DirectoryHotel[]): Promise<void>;
   directoryHotels(cityId: number): Promise<DirectoryHotel[]>;
+  /** directory hotels inside a box around a point (degrees), any city */
+  directoryNear(lat: number, lng: number, dLat: number, dLng: number, limit?: number): Promise<DirectoryHotel[]>;
 }

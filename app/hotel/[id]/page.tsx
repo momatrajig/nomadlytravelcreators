@@ -6,6 +6,7 @@ import RateList from "@/components/RateList";
 import HotelMap from "@/components/StaticMap";
 import TravelTimes from "@/components/TravelTimes";
 import GalleryOpener from "@/components/GalleryOpener";
+import CreatorMark from "@/components/CreatorMark";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
 import { checkedLabel } from "@/lib/format";
@@ -32,11 +33,12 @@ export default async function HotelPage({ params, searchParams }: { params: Prom
   const first = f.lang === "cs" ? sf.brandName : sf.brandName.split(" ").pop();
   return (
     <>
-      <nav className="crumbs" aria-label="Breadcrumb"><Link href={`/stays?${qs}`}>{t.allHotels}</Link>{d && <><span aria-hidden="true">/</span><Link href={`/stays?d=${d.slug}&${qs}`}>{placeName(d.slug, d.name, f.lang)}</Link></>}<span aria-hidden="true">/</span><span aria-current="page">{hotel.name}</span></nav>
+      <nav className="crumbs" aria-label="Breadcrumb"><Link href={pin ? `/stays?pick=${ebcId}&${qs}` : `/stays?${qs}`}>{pin && d ? t.stayingIn(placeName(d.slug, d.name, f.lang)) : t.allHotels}</Link>{d && !pin && <><span aria-hidden="true">/</span><Link href={`/stays?d=${d.slug}&${qs}`}>{placeName(d.slug, d.name, f.lang)}</Link></>}<span aria-hidden="true">/</span><span aria-current="page">{hotel.name}</span></nav>
       <GalleryOpener lang={f.lang} photos={hotel.images} name={hotel.name} />
       <div className="hotel">
         <div className="hotel-main">
           <header className="hotel-head">
+            {pin && <div className="also-pick" style={{ fontSize: 14 }}><CreatorMark sf={sf} size={20} /><span>{t.recommendedBy(sf.brandName)}</span></div>}
             <h1>{hotel.name}</h1>
             <p>{[hotel.address, hotel.address?.includes(hotel.cityName ?? "\u0000") ? null : hotel.cityName].filter(Boolean).join(", ")}.{hotel.stars ? ` ${t.star(hotel.stars)}` : ""}{hotel.rating ? t.ratedBy(hotel.rating.toFixed(1), hotel.ratingCount?.toLocaleString(f.lang === "cs" ? "cs-CZ" : "en-US") ?? "") : ""}{hotel.stars || hotel.rating ? "." : ""}</p>
           </header>

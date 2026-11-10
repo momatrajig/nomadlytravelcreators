@@ -100,5 +100,6 @@ export function localDb(): Db {
     async saveDirectoryCity(c) { dirCities.set(c.cityId, c); },
     async saveDirectoryHotels(rows) { for (const r of rows) dir.set(r.ebcId, r); },
     async directoryHotels(cityId) { return [...dir.values()].filter((d) => d.cityId === cityId); },
+    async directoryNear(lat, lng, dLat, dLng, limit = 300) { return [...dir.values()].filter((d) => d.lat != null && d.lng != null && Math.abs(d.lat - lat) <= dLat && Math.abs(d.lng - lng) <= dLng).slice(0, limit); },
   };
 }

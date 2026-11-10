@@ -6,7 +6,8 @@
  *   /go?city=paris&src=…                                      a destination's hotels
  *   optional: in=YYYY-MM-DD&out=YYYY-MM-DD&adults=2
  *
- * Every click is logged, the reader gets the attribution cookie, and lands on the page. A hotel named but not on
+ * Every click is logged, the reader gets the attribution cookie, and lands: a hotel link on results with that hotel
+ * first (Recommended by the creator) and similar stays below, a destination on its results, else the home page. A hotel named but not on
  * the storefront yet is matched in the supplier's list, imported and pinned, so an article can link to any hotel.
  * When a name cannot be matched within a moment the reader still lands (on the destination, else the home page)
  * and the match finishes in the background for the next reader.
@@ -89,7 +90,9 @@ export async function handleGo(req: NextRequest, slug: string | null): Promise<N
   const adults = Number(q.get("adults"));
   if (adults >= 1 && adults <= 6) qs.set("adults", String(adults));
   if (dest) qs.set("d", dest);
-  const path = ebcId ? `/hotel/${ebcId}` : dest ? "/stays" : "/";
+  // a hotel link opens results with the creator's hotel on top ("Recommended by") and similar stays below
+  if (ebcId) qs.set("pick", String(ebcId));
+  const path = ebcId || dest ? "/stays" : "/";
   const to = new URL(path + (qs.size ? `?${qs}` : ""), req.url);
 
   const query: Record<string, string> = {};

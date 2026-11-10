@@ -35,6 +35,9 @@ const en = {
   lang: "en" as Lang,
   // header, footer, nav
   hotels: "Hotels", yourBooking: "Your booking", home: "Home", creatorDashboard: "Creator dashboard", dashboard: "Dashboard",
+  recommendedBy: (b: string) => `Recommended by ${b}`, alsoPick: (b: string) => `Also a ${b} pick`, similarNearby: "Similar stays nearby", similarSub: "Same class of hotel, closest first, priced for your dates.",
+  kmAway: (km: number) => km < 1 ? `${Math.round(km * 1000 / 50) * 50} m away` : `${km.toFixed(1)} km away`, pickGone: "Your pick has no rooms on these dates. Try other dates, or one of the stays below.",
+  stayingIn: (p: string) => `Stays in ${p}`, theirPicks: (b: string) => `${b}'s picks`, seePicks: "See all picks", picksSub: (n: number, p: number) => `${n} ${n === 1 ? "hotel" : "hotels"} in ${p} ${p === 1 ? "place" : "places"}, each chosen and stayed in.`,
   footRuns: (brand: string) => `${brand} runs on Nomadly, a Veny Inc. company. Nomadly takes the payment and pays the hotel. Support every day, 08:00 to 22:00 UTC.`,
   photoCredits: "Photo credits", findBooking: "Find your booking",
   bannerMock: "Preview: prices are simulated and cards run in Stripe test mode, so nothing here is a real booking.",
@@ -111,6 +114,9 @@ export type Dict = typeof en;
 const cs: Dict = {
   lang: "cs",
   hotels: "Hotely", yourBooking: "Moje rezervace", home: "Domů", creatorDashboard: "Přehled pro autory", dashboard: "Přehled",
+  recommendedBy: (b) => `Doporučuje ${b}`, alsoPick: (b) => `Také tip: ${b}`, similarNearby: "Podobná ubytování poblíž", similarSub: "Hotely stejné třídy, od nejbližšího, s cenou na vaše termíny.",
+  kmAway: (km) => km < 1 ? `${Math.round(km * 1000 / 50) * 50} m odsud` : `${km.toFixed(1).replace(".", ",")} km odsud`, pickGone: "Doporučený hotel nemá na tyto termíny volné pokoje. Zkuste jiné termíny nebo ubytování níže.",
+  stayingIn: (p) => `Ubytování: ${p}`, theirPicks: (b) => `Tipy: ${b}`, seePicks: "Všechny tipy", picksSub: (n, p) => `${n} ${plural("cs", n, "hotel", "hotely", "hotelů")} v ${p} ${plural("cs", p, "místě", "místech", "místech")}, všechny vybrané a vyzkoušené.`,
   footRuns: (brand) => `${brand} běží na platformě Nomadly (Veny Inc.). Nomadly přijímá platbu a platí hotelu. Podpora každý den 08:00 až 22:00 UTC.`,
   photoCredits: "Autoři fotografií", findBooking: "Najít rezervaci",
   bannerMock: "Náhled: ceny jsou simulované a karty běží v testovacím režimu Stripe, nejde o skutečnou rezervaci.",

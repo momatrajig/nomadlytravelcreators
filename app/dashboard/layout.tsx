@@ -6,6 +6,7 @@ import { AS_COOKIE, dashContext } from "@/lib/dashboard/context";
 import { signedInUser } from "@/lib/auth";
 import { isAdminEmail } from "@/lib/admin";
 import { db } from "@/lib/db";
+import CreatorTabs from "@/components/CreatorTabs";
 import "./dash.css";
 
 const NAV: Array<[string, string]> = [["/dashboard", "Overview"], ["/dashboard/links", "Links"], ["/dashboard/hotels", "Hotels"], ["/dashboard/payouts", "Payouts"], ["/dashboard/earnings", "How you earn"], ["/dashboard/settings", "Storefront"]];
@@ -22,11 +23,13 @@ export default async function DashLayout({ children }: { children: React.ReactNo
     revalidatePath("/dashboard", "layout");
   }
   return (
+    <>
+    <CreatorTabs signedIn slug={c.sf.slug} labels={{ view: c.demo ? "Creator view (demo)" : "Creator view", dashboard: "Dashboard", storefront: "My storefront", platform: "Booking platform" }} />
     <div className="dash">
       <aside className="dash-side">
         <div className="dash-who"><b>{c.sf.brandName}</b><span>{c.creator.displayName}</span></div>
         <nav aria-label="Dashboard">{NAV.map(([h, l]) => <Link key={h} href={h}>{l}</Link>)}</nav>
-        <Link className="btn" href={`/s/${c.sf.slug}`}>View my storefront</Link>
+        
         {c.demo && <Link className="notice warn small" href="/login" style={{ textDecoration: "none" }}>Demo dashboard, read only. Sign in to see your own.</Link>}
         {c.admin && (
           <form action={viewAs} className="dash-admin">
@@ -40,6 +43,7 @@ export default async function DashLayout({ children }: { children: React.ReactNo
       </aside>
       <section className="dash-main">{children}</section>
     </div>
+    </>
   );
 }
 

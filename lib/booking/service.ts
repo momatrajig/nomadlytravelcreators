@@ -121,7 +121,13 @@ function refreshLater(task: () => Promise<unknown>) {
 
 async function searchStaysUncached(sf: Storefront, checkIn: string, checkOut: string, adults: number, childrenAges: number[], only?: number[], leaderIso?: string): Promise<StaysResult> {
   const all = await db().pinnedHotels(sf.id);
-  const pins = only ? all.filter((p) => only.includes(p.ebcId)) : all;
+  // the creator's picks, plus (when asked by ID) any hotel in our catalog: the similar stays under a pick
+  const pins: Array<{ ebcId: number; name: string; stars: number | null }> = only ? all.filter((p) => only.includes(p.ebcId)) : all;
+  if (only) {
+    const extra = only.filter((id) => !pins.some((p) => p.ebcId === id)).slice(0, 12);
+    const rows = await Promise.all(extra.map((id) => db().hotel(id).catch(() => null)));
+    for (const h of rows) if (h) pins.push(h);
+  }
   if (!pins.length) return { offers: [], rate: termsOf(sf).markup, ceiling: termsOf(sf).markup, checkedAt: null };
   const [res, checks] = await Promise.all([
     ebc().searchSync({ accommodation: pins.map((p) => p.ebcId), checkIn, checkOut, occupancy: { rooms: [{ adults, childrenAges }], leaderIso } }),
@@ -150,7 +156,7 @@ async function searchStaysUncached(sf: Storefront, checkIn: string, checkOut: st
     // the live API returns the hotel index as a string; our IDs are numbers
     const id = Number(h.index);
     const pin = pins.find((x) => x.ebcId === id);
-    return { ebcId: id, name: pin?.name ?? h.name, stars: pin?.stars ?? h.stars, hotelIndex: h.index, offerIndex: o.id, srk: res.srk, resultsToken: res.tokens.results, rates, references: refs, lowestReference: low, saving: low && cheapestFlex ? r2(low.price - cheapestFlex.readerPrice) : null };
+    return { ebcId: id, name: pin?.name ?? h.name, stars: pin?.stars ?? h.stars ?? 0, hotelIndex: h.index, offerIndex: o.id, srk: res.srk, resultsToken: res.tokens.results, rates, references: refs, lowestReference: low, saving: low && cheapestFlex ? r2(low.price - cheapestFlex.readerPrice) : null };
   });
   const checkedAt = checks.map((c) => c.checkedAt).sort().at(-1) ?? null;
   return { offers, rate, ceiling, checkedAt };

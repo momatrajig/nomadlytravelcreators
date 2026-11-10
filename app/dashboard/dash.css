@@ -57,3 +57,18 @@
   .dash-side nav { display: flex; flex-wrap: wrap; gap: 4px; }
   .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+/* Live activity */
+.act-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.live-toggle { border: 1px solid var(--line); background: none; border-radius: 999px; padding: 4px 12px; font: inherit; font-size: 13px; color: var(--mute); cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+.live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--mute); }
+.live-dot.on { background: #1f9d55; box-shadow: 0 0 0 0 rgba(31,157,85,.5); animation: pulse 2s infinite; }
+@keyframes pulse { 70% { box-shadow: 0 0 0 7px rgba(31,157,85,0); } 100% { box-shadow: 0 0 0 0 rgba(31,157,85,0); } }
+@media (prefers-reduced-motion: reduce) { .live-dot.on { animation: none; } }
+.act { list-style: none; margin: 10px 0 0; padding: 0; }
+.act li { display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 0; border-top: 1px solid var(--line); }
+.act-ico { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; background: var(--mist); }
+.act-booking .act-ico { background: var(--save-bg, #e6f6ec); color: var(--save, #1f7a45); }
+.act-cancel .act-ico { background: var(--bad-bg, #fdecec); color: var(--bad, #b42318); }
+.act-r { text-align: right; display: grid; gap: 2px; justify-items: end; }
+@media (max-width: 620px) { .act li { grid-template-columns: 28px 1fr; } .act-r { grid-column: 2; justify-items: start; text-align: left; } }

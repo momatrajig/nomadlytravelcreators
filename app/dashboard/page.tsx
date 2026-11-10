@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 import { CATEGORY_LABEL, summarize, transactions, type Tx } from "@/lib/dashboard/metrics";
 import { termsOf } from "@/lib/pricing/engine";
 import { fmtDate, usd } from "@/lib/format";
+import AutoRefresh from "@/components/dash/AutoRefresh";
+import type { Click } from "@/lib/db/types";
 
 export const dynamic = "force-dynamic";
 
@@ -50,6 +52,8 @@ export default async function Overview({ searchParams }: { searchParams: Promise
         <div className="kpi"><span>EPC</span><b>{usd(s.epc)}</b><small>Earnings per click</small></div>
         <div className="kpi"><span>Commission</span><b>{usd(s.commission)}</b><small>{s.bookingValue ? `${pct(s.ofValue)} of booking value` : "Pending and approved"}</small></div>
       </div>
+
+      <Activity clicks={clicks} txs={txs.filter((t) => includeDemo || !t.demo)} name={(id) => names.get(id) ?? `Hotel ${id}`} slug={c.sf.slug} />
 
       <div className="dgrid">
         <section className="dcard" aria-labelledby="ch-h">
@@ -149,5 +153,49 @@ function Chart({ series }: { series: Array<{ label: string; clicks: number; book
       })}
       <text x={0} y={12}>{maxC}</text>
     </svg>
+  );
+}
+
+const FLAG: Record<string, string> = { CZ: "Czechia", SK: "Slovakia", US: "United States", GB: "United Kingdom", DE: "Germany", FR: "France", AT: "Austria", PL: "Poland", LB: "Lebanon", AE: "UAE" };
+function ago(iso: string, now: number) {
+  const s = Math.max(0, Math.round((now - Date.parse(iso)) / 1000));
+  if (s < 60) return "just now";
+  if (s < 3600) return `${Math.round(s / 60)} min ago`;
+  if (s < 86400) return `${Math.round(s / 3600)} h ago`;
+  return fmtDate(iso);
+}
+function nowMs() { return Date.now(); }
+
+/** What readers did, newest first: each link click and each booking, as it happens. */
+function Activity({ clicks, txs, name, slug }: { clicks: Click[]; txs: Tx[]; name: (id: number) => string; slug: string }) {
+  const now = nowMs();
+  type Ev = { at: string; key: string; kind: "click" | "booking" | "cancel"; title: string; detail: string; amount?: string; status?: string };
+  const evs: Ev[] = [
+    ...clicks.filter((k) => !k.bot).slice(0, 40).map((k): Ev => ({
+      at: k.createdAt, key: `c${k.id}`, kind: "click",
+      title: k.target === "hotel" && k.ebcId ? `Clicked ${name(k.ebcId)}` : k.target === "city" ? `Clicked ${k.query?.city ?? k.query?.address ?? "a destination"}` : k.query?.hotelname ? `Clicked ${k.query.hotelname}` : "Clicked your storefront",
+      detail: [k.source ? `from ${k.source}` : "direct", k.country ? FLAG[k.country] ?? k.country : null, k.device].filter(Boolean).join(", "),
+    })),
+    ...txs.slice(0, 40).map((t): Ev => ({
+      at: t.date, key: `b${t.id}`, kind: t.tx === "Canceled" ? "cancel" : "booking",
+      title: `${t.tx === "Canceled" ? "Canceled" : "Booked"}: ${t.info}`, detail: [t.reference, t.source ? `from ${t.source}` : "direct", t.demo ? "demo, test card" : null].filter(Boolean).join(", "),
+      amount: `${usd(t.price)}, you earn ${usd(t.commission)}`, status: t.tx,
+    })),
+  ].sort((a, b) => b.at.localeCompare(a.at)).slice(0, 12);
+  return (
+    <section className="dcard" aria-labelledby="act-h">
+      <div className="act-head"><h2 id="act-h">Live activity</h2><AutoRefresh /></div>
+      {evs.length ? (
+        <ol className="act" role="list">
+          {evs.map((e) => (
+            <li key={e.key} className={`act-${e.kind}`}>
+              <span className="act-ico" aria-hidden="true">{e.kind === "click" ? "↗" : e.kind === "cancel" ? "×" : "✓"}</span>
+              <div><b>{e.title}</b><div className="small mute">{e.detail}</div></div>
+              <div className="act-r">{e.amount && <div className="small"><b>{e.amount}</b></div>}{e.status && <span className={`status st-${e.status}`}>{e.status}</span>}<div className="small mute">{ago(e.at, now)}</div></div>
+            </li>
+          ))}
+        </ol>
+      ) : <p className="mute">Nothing yet. Open one of your links (<Link href="/dashboard/links">Links</Link>) in another tab and the click shows here within seconds; a booking shows the moment it is paid. Your storefront: <Link href={`/s/${slug}`}>/s/{slug}</Link>.</p>}
+    </section>
   );
 }
