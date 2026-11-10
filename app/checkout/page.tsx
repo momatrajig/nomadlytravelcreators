@@ -9,6 +9,7 @@ import { requireStorefront } from "@/lib/tenant";
 import { sourceLabel } from "@/lib/booking/service";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 // kept outside render so the React compiler lint accepts the clock read on a dynamic server page
 function isExpired(iso: string) { return Date.parse(iso) < Date.now(); }

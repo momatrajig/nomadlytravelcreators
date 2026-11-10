@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import type { Hotel, Storefront } from "@/lib/db/types";
+import type { Hotel, PinnedHotel, Storefront } from "@/lib/db/types";
 import type { StayCardData } from "@/components/StaysFlow";
 import SearchBar from "@/components/SearchBar";
 import CreatorMark from "@/components/CreatorMark";
@@ -11,12 +11,13 @@ import { readerOf } from "@/lib/storefront/reader";
 import { nights as nightsOf } from "@/lib/booking/service";
 import { readDates } from "@/lib/dates";
 import { destination, stayView, storefrontDestinations } from "@/lib/storefront/data";
-import { similarTo, km } from "@/lib/storefront/similar";
+import { underPick, km } from "@/lib/storefront/similar";
 import { requireStorefront } from "@/lib/tenant";
 import { db } from "@/lib/db";
 import { photoSet, photoSrc } from "@/lib/media/photo";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 /**
  * Results. Two modes:
@@ -63,7 +64,7 @@ export default async function Stays({ searchParams }: { searchParams: Promise<Re
           <section className="similar" aria-labelledby="sim-h">
             <div className="similar-head"><h2 id="sim-h">{t.similarNearby}</h2><p>{t.similarSub}</p></div>
             <Suspense key={`s${pick.ebcId}${checkIn}${checkOut}${adults}`} fallback={<ListWait n={3} />}>
-              <SimilarList t={t} f={f} sf={sf} pick={pick} pinIds={pins.filter((p) => p.ebcId !== pick.ebcId && p.lat != null && p.lng != null && km(pick.lat ?? 0, pick.lng ?? 0, p.lat, p.lng) <= 3).map((p) => p.ebcId)} allPins={pins.map((p) => p.ebcId)} checkIn={checkIn} checkOut={checkOut} adults={adults} qs={datesQs} />
+              <SimilarList t={t} f={f} sf={sf} pick={pick} pins={pins} checkIn={checkIn} checkOut={checkOut} adults={adults} qs={datesQs} />
             </Suspense>
           </section>
         </>
@@ -101,9 +102,8 @@ async function PickBlock({ t, f, sf, pick, checkIn, checkOut, adults, qs }: { t:
   );
 }
 
-async function SimilarList({ t, f, sf, pick, pinIds, allPins, checkIn, checkOut, adults, qs }: { t: Dict; f: ReaderFmt; sf: Storefront; pick: Hotel; pinIds: number[]; allPins: number[]; checkIn: string; checkOut: string; adults: number; qs: string }) {
-  const near = await similarTo(pick, [pick.ebcId, ...allPins], 14).catch(() => []);
-  const ids = [...pinIds, ...near.map((n) => n.ebcId)];
+async function SimilarList({ t, f, sf, pick, pins, checkIn, checkOut, adults, qs }: { t: Dict; f: ReaderFmt; sf: Storefront; pick: Hotel; pins: PinnedHotel[]; checkIn: string; checkOut: string; adults: number; qs: string }) {
+  const { ids, pinIds, near } = await underPick(pick, pins);
   if (!ids.length) return <p className="mute">{t.noRoomsDates}</p>;
   const v = await stayView(sf, checkIn, checkOut, adults, ids);
   const hotels = await Promise.all(pinIds.map((id) => db().hotel(id).catch(() => null)));

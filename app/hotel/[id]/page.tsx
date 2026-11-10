@@ -17,6 +17,7 @@ import { destination, stayView } from "@/lib/storefront/data";
 import { requireStorefront } from "@/lib/tenant";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 export default async function HotelPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const sf = await requireStorefront();

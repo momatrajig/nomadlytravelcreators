@@ -66,3 +66,14 @@ export async function similarTo(pick: Hotel, exclude: number[], n = 6, waitMs = 
   if (out.length) await db().cacheSet(key, out, KEEP_S).catch(() => undefined);
   return out;
 }
+
+/**
+ * Everything priced under a pick, in one search: the creator's other picks within 3 km, then the nearby
+ * candidates. Shared by the results page and the daily warm up, so both ask the supplier the same question
+ * (and the warm up's answer is the page's cache).
+ */
+export async function underPick(pick: Hotel, pins: Array<{ ebcId: number; lat: number | null; lng: number | null }>): Promise<{ ids: number[]; pinIds: number[]; near: Array<{ ebcId: number; km: number }> }> {
+  const pinIds = pick.lat == null || pick.lng == null ? [] : pins.filter((p) => p.ebcId !== pick.ebcId && p.lat != null && p.lng != null && km(pick.lat!, pick.lng!, p.lat, p.lng) <= 3).map((p) => p.ebcId);
+  const near = await similarTo(pick, [pick.ebcId, ...pins.map((p) => p.ebcId)], 14).catch(() => []);
+  return { ids: [...pinIds, ...near.map((n) => n.ebcId)], pinIds, near };
+}

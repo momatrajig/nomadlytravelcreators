@@ -9,6 +9,7 @@ import { requireStorefront } from "@/lib/tenant";
 import { photoSet, photoSrc } from "@/lib/media/photo";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 /**
  * The creator's storefront, inside the booking platform: who they are and every hotel they recommend,

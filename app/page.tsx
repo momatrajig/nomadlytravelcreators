@@ -15,6 +15,7 @@ import { requireStorefront } from "@/lib/tenant";
 import { photoSet, photoSrc } from "@/lib/media/photo";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 export default async function Home({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const sf = await requireStorefront();
