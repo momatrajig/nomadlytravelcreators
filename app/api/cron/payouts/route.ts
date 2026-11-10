@@ -1,13 +1,18 @@
 import { NextResponse } from "next/server";
 import { runPayouts } from "@/lib/payouts/run";
 import { db } from "@/lib/db";
+import { isAdminToken } from "@/lib/admin";
 
 export const dynamic = "force-dynamic";
 
-/** Vercel cron: 0 6 * * 3 (Wednesday 06:00 UTC). Protected by CRON_SECRET. */
+/**
+ * Vercel cron, monthly: the 15th at 06:00 UTC. Pays every creator for stays completed before the 1st of this
+ * month. Only Vercel's cron (CRON_SECRET) or a Nomadly operator token can run it; without a secret it refuses.
+ */
 export async function GET(req: Request) {
-  if (process.env.CRON_SECRET && req.headers.get("authorization") !== `Bearer ${process.env.CRON_SECRET}`) return new NextResponse("unauthorized", { status: 401 });
-  const lina = await db().storefrontBySlug("lina"); // TODO: iterate all creators once the creators listing exists in Db
-  const res = await runPayouts(lina ? [lina.creatorId] : []);
+  const auth = req.headers.get("authorization");
+  const cron = process.env.CRON_SECRET && auth === `Bearer ${process.env.CRON_SECRET}`;
+  if (!cron && !isAdminToken(req.headers.get("x-admin-token"))) return new NextResponse("unauthorized", { status: 401 });
+  const res = await runPayouts(await db().creatorIdsWithStorefronts());
   return NextResponse.json({ ran: res });
 }

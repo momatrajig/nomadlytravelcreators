@@ -13,7 +13,7 @@ import { cancellationDeadline, ebc, EbcError } from "@/lib/ebc/client";
 import type { Package, Room } from "@/lib/ebc/types";
 import { db } from "@/lib/db";
 import type { Booking, PriceCheck, Quote, Storefront } from "@/lib/db/types";
-import { extraLedger, lowestReference, parityCeiling, r2, stayLedger, type ReferenceQuote } from "@/lib/pricing/engine";
+import { extraLedger, lowestReference, markupCeiling, r2, stayLedger, termsOf, type ReferenceQuote } from "@/lib/pricing/engine";
 import { extraByKind } from "@/lib/extras/catalog";
 import { sendBookingEmail } from "@/lib/email/send";
 import { bookingMode } from "./guard";
@@ -38,7 +38,11 @@ export interface StayOffer {
     offerIndex?: string;
     packageCode: string; packageToken: string; roomTokens: string[]; roomName: string; board: string; refundable: boolean; onRequest: boolean;
     cancelDeadline: string | null; cancelCharge: number | null;
-    supplierNet: number; readerPrice: number; creatorShare: number; nomadlyNet: number; creatorRate: number;
+    supplierNet: number; readerPrice: number; creatorShare: number; nomadlyNet: number;
+    /** the creator's share of Nomadly's net revenue (0.55) */
+    creatorRate: number;
+    /** Nomadly's markup on the supplier net used for this price */
+    markup: number; margin: number; costs: number;
   }>;
   references: ReferenceQuote[]; lowestReference: ReferenceQuote | null; saving: number | null;
 }
@@ -49,26 +53,27 @@ export function nights(checkIn: string, checkOut: string): number {
   return n;
 }
 
-function packagesToRates(pkgs: Package[], rooms: Room[], creatorRate: number): StayOffer["rates"] {
+function packagesToRates(pkgs: Package[], rooms: Room[], markup: number, share: number): StayOffer["rates"] {
   return pkgs.filter((p) => p.complete).map((p) => {
     const refs = p.packageRooms.flatMap((pr) => pr.roomReferences.filter((r) => r.selected).map((r) => r));
     const room = rooms.find((r) => r.index === refs[0]?.roomCode) ?? rooms[0];
     const supplierNet = p.price.components?.supplier?.value ?? p.price.selling.value;
-    const l = stayLedger(supplierNet, creatorRate);
+    const l = stayLedger(supplierNet, markup, share);
     const dl = room?.cancellationDeadline ?? null;
     return {
       packageCode: p.packageCode, packageToken: p.packageToken, roomTokens: refs.map((r) => r.roomToken),
       roomName: room?.name ?? "Room", board: room?.boardBasis ?? "RO", refundable: !(room?.nonRefundable ?? false), onRequest: p.status === "RQ",
       cancelDeadline: dl?.date ?? null, cancelCharge: dl?.charge.value ?? null,
-      supplierNet: l.supplierNet, readerPrice: l.readerPrice, creatorShare: l.creatorShare, nomadlyNet: l.nomadlyNet, creatorRate,
+      supplierNet: l.supplierNet, readerPrice: l.readerPrice, creatorShare: l.creatorShare, nomadlyNet: l.nomadlyNet, creatorRate: share, markup, margin: l.margin, costs: l.costs,
     };
   }).sort((a, b) => Number(b.refundable) - Number(a.refundable) || a.readerPrice - b.readerPrice); // flexible rates first, then price
 }
 
-/** Effective creator rate for this storefront on these dates: the dial, capped by the parity ceiling. */
+/** Markup for this storefront on these dates: its set markup, capped where a big site price was recorded for the same stay. */
 export async function effectiveRate(sf: Storefront, hotelsNet: Array<{ ebcId: number; supplierNet: number }>, checks: PriceCheck[]): Promise<{ rate: number; ceiling: number }> {
-  const ceiling = parityCeiling(hotelsNet.map((h) => ({ supplierNet: h.supplierNet, quotes: checks.filter((c) => c.ebcId === h.ebcId).map((c) => ({ source: SOURCE_LABEL[c.source], price: c.price, checkedAt: c.checkedAt })) })));
-  return { rate: Math.min(sf.creatorRate, ceiling), ceiling };
+  const wanted = termsOf(sf).markup;
+  const ceiling = markupCeiling(hotelsNet.map((h) => ({ supplierNet: h.supplierNet, quotes: checks.filter((c) => c.ebcId === h.ebcId).map((c) => ({ source: SOURCE_LABEL[c.source], price: c.price, checkedAt: c.checkedAt })) })), wanted);
+  return { rate: ceiling, ceiling };
 }
 
 type StaysResult = { offers: StayOffer[]; rate: number; ceiling: number; checkedAt: string | null; searchedAt?: string };
@@ -86,7 +91,8 @@ const KEEP_S = 6 * 3600;           // a stale search is still shown instantly wh
  */
 export async function searchStays(sf: Storefront, checkIn: string, checkOut: string, adults: number, childrenAges: number[] = [], only?: number[], leaderIso?: string, opts: { fresh?: boolean } = {}): Promise<StaysResult> {
   nights(checkIn, checkOut);
-  const key = `stays:v4:${sf.id}:${checkIn}:${checkOut}:${adults}:${childrenAges.join(".")}:${(leaderIso ?? "").toUpperCase()}:${only ? [...only].sort((a, b) => a - b).join(".") : "all"}:${sf.creatorRate}`;
+  const terms = termsOf(sf);
+  const key = `stays:v5:${sf.id}:${checkIn}:${checkOut}:${adults}:${childrenAges.join(".")}:${(leaderIso ?? "").toUpperCase()}:${only ? [...only].sort((a, b) => a - b).join(".") : "all"}:${terms.markup}:${terms.hotelShare}`;
   const run = () => {
     const running = inflight.get(key);
     if (running) return running;
@@ -115,7 +121,7 @@ function refreshLater(task: () => Promise<unknown>) {
 async function searchStaysUncached(sf: Storefront, checkIn: string, checkOut: string, adults: number, childrenAges: number[], only?: number[], leaderIso?: string): Promise<StaysResult> {
   const all = await db().pinnedHotels(sf.id);
   const pins = only ? all.filter((p) => only.includes(p.ebcId)) : all;
-  if (!pins.length) return { offers: [], rate: sf.creatorRate, ceiling: sf.creatorRate, checkedAt: null };
+  if (!pins.length) return { offers: [], rate: termsOf(sf).markup, ceiling: termsOf(sf).markup, checkedAt: null };
   const [res, checks] = await Promise.all([
     ebc().searchSync({ accommodation: pins.map((p) => p.ebcId), checkIn, checkOut, occupancy: { rooms: [{ adults, childrenAges }], leaderIso } }),
     db().latestPriceChecks(pins.map((p) => p.ebcId), checkIn, checkOut, adults),
@@ -132,7 +138,7 @@ async function searchStaysUncached(sf: Storefront, checkIn: string, checkOut: st
     // a five star hotel can return two hundred packages; the reader compares a handful: keep the cheapest
     // eight, making sure the cheapest refundable and cheapest with breakfast are among them
     // every wholesaler's offer, then the cheapest of each room, board and refund combination
-    const merged = h.offers.flatMap((of) => packagesToRates(of.packages, of.rooms, rate).map((r) => ({ ...r, offerIndex: of.id })));
+    const merged = h.offers.flatMap((of) => packagesToRates(of.packages, of.rooms, rate, termsOf(sf).hotelShare).map((r) => ({ ...r, offerIndex: of.id })));
     const best = new Map<string, (typeof merged)[number]>();
     for (const r of merged) { const k = `${r.roomName.toLowerCase()}|${r.board}|${r.refundable}`; const cur = best.get(k); if (!cur || r.readerPrice < cur.readerPrice) best.set(k, r); }
     const all = [...best.values()].sort((a, b) => a.readerPrice - b.readerPrice);
@@ -165,7 +171,7 @@ export async function holdQuote(sf: Storefront, offer: StayOffer, packageCode: s
     // the supplier repriced between search and prebook: never silently book the new price
     throw new BookingError("PRICE_CHANGED", "The price changed while you were looking. Refresh to see the new one.", { was: rate.supplierNet, now: supplierNet });
   }
-  const l = stayLedger(supplierNet, rate.creatorRate);
+  const l = stayLedger(supplierNet, rate.markup, rate.creatorRate);
   const dl = cancellationDeadline(av.cancellationPolicy);
   const now = Date.now();
   return db().saveQuote({
@@ -173,6 +179,7 @@ export async function holdQuote(sf: Storefront, offer: StayOffer, packageCode: s
     packageCode, packageToken: rate.packageToken, roomTokens: rate.roomTokens, board: rate.board, refundable: rate.refundable && !(av.rooms[0]?.nonRefundable ?? false),
     cancelDeadline: dl?.date ?? null, cancelCharge: dl?.charge ?? null,
     supplierNet: l.supplierNet, currency: av.price.selling.currency, creatorRate: l.creatorRate, nomadlyNet: l.nomadlyNet, creatorShare: l.creatorShare, readerPrice: l.readerPrice,
+    pricingModel: "net", margin: l.margin, costs: l.costs,
     lowestReference: offer.lowestReference?.price ?? null, lowestReferenceSource: sourceCode(offer.lowestReference?.source),
     availabilityToken: av.availabilityToken, availabilityAt: new Date(now).toISOString(), autocancelAt: av.autocancelDate ?? null, expiresAt: new Date(now + 20 * 60_000).toISOString(),
   });
@@ -187,7 +194,7 @@ export function newReference(): string {
 export interface GuestInput { firstName: string; lastName: string; email: string; phone?: string; title?: "mr" | "mrs" | "ms"; country?: string }
 
 /** Create the booking row in "paying" and return the amount to charge. The caller creates the PaymentIntent. */
-export async function startPayment(sf: Storefront, quote: Quote, guest: GuestInput, promoCode?: string, extraKinds: string[] = []): Promise<{ booking: Booking; amount: number; currency: string }> {
+export async function startPayment(sf: Storefront, quote: Quote, guest: GuestInput, promoCode?: string, extraKinds: string[] = [], attribution: { clickId: string | null; source: string | null } = { clickId: null, source: null }): Promise<{ booking: Booking; amount: number; currency: string }> {
   if (Date.parse(quote.expiresAt) < Date.now()) throw new BookingError("QUOTE_EXPIRED", "This quote expired. Search again for a fresh price.");
   let discount = 0;
   if (promoCode) {
@@ -197,7 +204,7 @@ export async function startPayment(sf: Storefront, quote: Quote, guest: GuestInp
     discount = Math.min(p.amountOff, quote.creatorShare); // a promo is paid out of the creator's share, never below Nomadly's net
   }
   const n = nights(quote.checkIn, quote.checkOut);
-  const extras = [...new Set(extraKinds)].map((k) => extraByKind(k)).filter((x): x is NonNullable<typeof x> => !!x).map((x) => { const l = extraLedger(x.price, x.commission); return { kind: x.kind, name: x.name, price: l.price, commission: l.nomadlyCommission, creatorShare: l.creatorShare }; });
+  const extras = [...new Set(extraKinds)].map((k) => extraByKind(k)).filter((x): x is NonNullable<typeof x> => !!x).map((x) => { const l = extraLedger(x.price, x.commission, termsOf(sf).extrasShare); return { kind: x.kind, name: x.name, price: l.price, commission: l.nomadlyCommission, creatorShare: l.creatorShare }; });
   const seq = Date.now().toString(36);
   const booking = await db().createBooking({
     reference: newReference(), clientRef: `nomadly-${seq}`.toLowerCase(), storefrontId: sf.id, creatorId: sf.creatorId, quoteId: quote.id, ebcId: quote.ebcId, ebcReservationId: null, hotelConfirmation: null,
@@ -205,6 +212,7 @@ export async function startPayment(sf: Storefront, quote: Quote, guest: GuestInp
     guests: [{ firstName: guest.firstName.trim(), lastName: guest.lastName.trim(), type: "adult", lead: true }], leadEmail: guest.email.trim().toLowerCase(), leadPhone: guest.phone ?? null,
     roomName: null, board: quote.board, refundable: quote.refundable, cancelDeadline: quote.cancelDeadline, cancelCharge: quote.cancelCharge, currency: quote.currency,
     supplierNet: quote.supplierNet, nomadlyNet: quote.nomadlyNet, creatorRate: quote.creatorRate, creatorShare: quote.creatorShare, readerPrice: r2(quote.readerPrice - discount), cardFee: null,
+    pricingModel: quote.pricingModel ?? "v1", margin: quote.margin ?? null, costs: quote.costs ?? null, clickId: attribution.clickId, source: attribution.source,
     extras, lowestReference: quote.lowestReference, lowestReferenceSource: quote.lowestReferenceSource, promoCode: promoCode ?? null, promoDiscount: discount,
     stripePaymentIntent: null, paidAt: null, canceledAt: null, voucherToken: null,
   });

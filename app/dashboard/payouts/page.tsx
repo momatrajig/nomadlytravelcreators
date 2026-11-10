@@ -1,28 +1,33 @@
-import { currentCreator } from "@/lib/auth";
+import { dashContext } from "@/lib/dashboard/context";
 import { db } from "@/lib/db";
 import { fmtDate, usd } from "@/lib/format";
-import { HOLD_DAYS } from "@/lib/payouts/run";
+import { transactions } from "@/lib/dashboard/metrics";
 
 export const dynamic = "force-dynamic";
 
 export default async function Payouts() {
-  const c = (await currentCreator())!;
-  const payouts = await db().payoutsForCreator(c.id);
-  const bookings = await db().bookingsForCreator(c.id, 500);
-  const upcoming = bookings.filter((b) => b.status === "confirmed" || b.status === "on_request").reduce((a, b) => a + b.creatorShare - b.promoDiscount, 0);
+  const c = (await dashContext())!;
+  const [payouts, bookings] = await Promise.all([db().payoutsForCreator(c.creator.id), db().bookingsForCreator(c.creator.id, 2000)]);
+  const txs = transactions(bookings, payouts, () => "");
+  const real = txs.filter((t) => !t.demo && t.tx !== "Canceled");
+  const sum = (s: string) => real.filter((t) => t.pay === s).reduce((a, t) => a + t.commission, 0);
   return (
     <>
-      <h1 style={{ fontSize: 26 }}>Payouts</h1>
-      <p className="mute" style={{ margin: "6px 0 16px" }}>Paid every Wednesday, automatically, no minimum. A stay is paid {HOLD_DAYS} days after the reader checks out.</p>
-      <div className="grid2">
-        <div className="panel"><div className="small mute">Confirmed stays not yet paid</div><div className="price">{usd(upcoming, true)}</div></div>
-        <div className="panel"><div className="small mute">Paid out all time</div><div className="price">{usd(payouts.filter((p) => p.status === "paid").reduce((a, p) => a + p.amount, 0), true)}</div></div>
+      <div className="dash-head"><div><h1>Payouts</h1><p>Monthly, on the 15th, for stays completed the month before. No minimum. Statements itemize every booking.</p></div></div>
+      <div className="kpis" style={{ gridTemplateColumns: "repeat(3, minmax(0,1fr))" }}>
+        <div className="kpi"><span>Ready</span><b>{usd(sum("Ready"))}</b><small>Stays completed, in the next payout</small></div>
+        <div className="kpi"><span>Pending</span><b>{usd(sum("Pending"))}</b><small>Booked, stay ahead</small></div>
+        <div className="kpi"><span>Paid, all time</span><b>{usd(payouts.filter((p) => p.status === "paid").reduce((a, p) => a + p.amount, 0))}</b><small>{payouts.filter((p) => p.status === "paid").length} payouts</small></div>
       </div>
-      <h2 style={{ fontSize: 20, margin: "22px 0 10px" }}>Statements</h2>
-      <div style={{ display: "grid", gap: 10 }}>
-        {payouts.map((p) => <div key={p.id} className="panel" style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}><div><b>{usd(p.amount)}</b> <span className="mute small">for stays completed up to {fmtDate(p.periodEnd)}, {p.items.length} {p.items.length === 1 ? "booking" : "bookings"}</span></div><span className={`chip ${p.status === "paid" ? "chip-ok" : "chip-warn"}`}>{p.status === "paid" ? `Paid ${p.paidAt ? fmtDate(p.paidAt) : ""}` : `Scheduled ${fmtDate(p.scheduledFor)}`}</span></div>)}
-        {!payouts.length && <div className="panel mute">No payouts yet. The first one is created the Wednesday after your first reader checks out.</div>}
-      </div>
+      <section className="dcard">
+        <h2>Statements</h2>
+        <table className="dtable"><thead><tr><th>Payout</th><th>Stays completed</th><th className="n">Bookings</th><th className="n">Amount</th><th>Status</th></tr></thead>
+          <tbody>
+            {payouts.map((p) => <tr key={p.id}><td>{fmtDate(p.scheduledFor)}</td><td>{fmtDate(p.periodStart)} to {fmtDate(p.periodEnd)}</td><td className="n">{p.items.length}</td><td className="n"><b>{usd(p.amount, false, p.currency)}</b></td><td><span className={`status st-${p.status === "paid" ? "Paid" : "Ready"}`}>{p.status === "paid" ? `Paid ${p.paidAt ? fmtDate(p.paidAt) : ""}` : "Scheduled"}</span></td></tr>)}
+            {!payouts.length && <tr><td colSpan={5} className="mute">No payouts yet. The first one is made on the 15th of the month after your first reader checks out.</td></tr>}
+          </tbody></table>
+        <p className="note">Paid to the account on file, in USD. Tell your partner manager where to send it; account details are never stored on this site.</p>
+      </section>
     </>
   );
 }

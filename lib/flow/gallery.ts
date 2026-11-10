@@ -12,17 +12,19 @@ export function openGallery(opts: { title: string; photos: Photo[]; start?: numb
   root.className = "gx";
   root.setAttribute("role", "dialog");
   root.setAttribute("aria-modal", "true");
-  root.setAttribute("aria-label", `${opts.title} photos`);
+  const cs = document.documentElement.lang === "cs";
+  const W = cs ? { photos: "fotky", close: "Zavřít fotky", prev: "Předchozí fotka", next: "Další fotka", all: "Všechny fotky", photo: "Fotka", of: "z", src: "zdroj" } : { photos: "photos", close: "Close photos", prev: "Previous photo", next: "Next photo", all: "All photos", photo: "Photo", of: "of", src: "source" };
+  root.setAttribute("aria-label", `${opts.title} ${W.photos}`);
   root.innerHTML = `
     <div class="gx-top"><div class="gx-title">${esc(opts.title)}</div><div class="gx-count" aria-live="polite"></div>
-      <button type="button" class="gx-x" aria-label="Close photos"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+      <button type="button" class="gx-x" aria-label="${W.close}"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
     <div class="gx-stage">
-      <button type="button" class="gx-nav gx-prev" aria-label="Previous photo"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <button type="button" class="gx-nav gx-prev" aria-label="${W.prev}"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
       <div class="gx-frame"><img class="gx-img" alt="" decoding="async"></div>
-      <button type="button" class="gx-nav gx-next" aria-label="Next photo"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+      <button type="button" class="gx-nav gx-next" aria-label="${W.next}"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
     </div>
     <div class="gx-credit"></div>
-    <div class="gx-strip" role="tablist" aria-label="All photos">${ps.map((p, i) => `<button type="button" role="tab" data-i="${i}" aria-label="Photo ${i + 1} of ${n}"><img src="${photoThumb(p.url)}" alt="" loading="lazy"></button>`).join("")}</div>`;
+    <div class="gx-strip" role="tablist" aria-label="${W.all}">${ps.map((p, i) => `<button type="button" role="tab" data-i="${i}" aria-label="${W.photo} ${i + 1} ${W.of} ${n}"><img src="${photoThumb(p.url)}" alt="" loading="lazy"></button>`).join("")}</div>`;
   document.body.appendChild(root);
   const prevOverflow = document.documentElement.style.overflow;
   document.documentElement.style.overflow = "hidden";
@@ -42,10 +44,10 @@ export function openGallery(opts: { title: string; photos: Photo[]; start?: numb
     const set = photoSet(p.url, p.w);
     if (set) img.srcset = set; else img.removeAttribute("srcset");
     img.src = photoSrc(p.url, 1920, p.w);
-    img.alt = `${opts.title}, photo ${i + 1} of ${n}`;
+    img.alt = `${opts.title}, ${W.photo.toLowerCase()} ${i + 1} ${W.of} ${n}`;
     if (img.complete) img.classList.add("in");
-    count.textContent = `${i + 1} of ${n}`;
-    credit.innerHTML = p.credit ? `Photo: ${esc(p.credit)}${p.license ? `, ${esc(p.license)}` : ""}${p.source ? `, <a href="${esc(p.source)}" target="_blank" rel="noreferrer">source</a>` : ""}` : "";
+    count.textContent = `${i + 1} ${W.of} ${n}`;
+    credit.innerHTML = p.credit ? `${W.photo}: ${esc(p.credit)}${p.license ? `, ${esc(p.license)}` : ""}${p.source ? `, <a href="${esc(p.source)}" target="_blank" rel="noreferrer">${W.src}</a>` : ""}` : "";
     thumbs.forEach((t, j) => { t.setAttribute("aria-selected", String(j === i)); if (j === i) t.scrollIntoView({ block: "nearest", inline: "center" }); });
     preload(i + 1); preload(i - 1);
   };

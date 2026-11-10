@@ -3,6 +3,16 @@ export interface Storefront {
   id: string; creatorId: string; slug: string; customDomain: string | null; brandName: string; brandColor: string; logoPath: string | null;
   template: "postcard" | "editorial" | "grid"; headline: string; cityId: number | null; cityName: string | null; currency: string;
   creatorRate: number; flightFee: number; live: boolean;
+  /** storefront language for readers */
+  locale?: "en" | "cs";
+  /** prices are charged in the supplier currency; this one is shown next to them as an approximation (CZK, EUR) */
+  displayCurrency?: string | null;
+  /** commercial terms set by Nomadly: markup on the supplier net, creator share of net revenue on hotels and add ons */
+  markup?: number; hotelShare?: number; extrasShare?: number;
+  /** the creator's own site (articles link from here) */
+  siteUrl?: string | null;
+  /** set by Nomadly once the creator's domain resolves to us and has a certificate */
+  domainVerifiedAt?: string | null;
 }
 export interface Hotel {
   ebcId: number; name: string; stars: number | null; address: string | null; cityName: string | null; lat: number | null; lng: number | null;
@@ -19,6 +29,7 @@ export interface Quote {
   srk: string; resultsToken: string; hotelIndex: number; offerIndex: string; packageCode: string; packageToken: string; roomTokens: string[];
   board: string | null; refundable: boolean; cancelDeadline: string | null; cancelCharge: number | null;
   supplierNet: number; currency: string; creatorRate: number; nomadlyNet: number; creatorShare: number; readerPrice: number;
+  pricingModel?: "v1" | "net"; margin?: number | null; costs?: number | null;
   lowestReference: number | null; lowestReferenceSource: string | null;
   availabilityToken: string | null; availabilityAt: string | null; autocancelAt: string | null; expiresAt: string; createdAt: string;
 }
@@ -31,6 +42,9 @@ export interface Booking {
   guests: Array<{ firstName: string; lastName: string; type: "adult" | "child"; lead: boolean }>; leadEmail: string; leadPhone: string | null;
   roomName: string | null; board: string | null; refundable: boolean; cancelDeadline: string | null; cancelCharge: number | null; currency: string;
   supplierNet: number; nomadlyNet: number; creatorRate: number; creatorShare: number; readerPrice: number; cardFee: number | null;
+  pricingModel?: "v1" | "net"; margin?: number | null; costs?: number | null;
+  /** the tracked link click this booking came from, and its source (article or campaign) */
+  clickId?: string | null; source?: string | null;
   extras: Array<{ kind: string; name: string; price: number; commission: number; creatorShare: number }>;
   lowestReference: number | null; lowestReferenceSource: string | null; promoCode: string | null; promoDiscount: number;
   stripePaymentIntent: string | null; paidAt: string | null; canceledAt: string | null; voucherToken: string | null; createdAt: string;
@@ -39,6 +53,11 @@ export interface PromoCode { storefrontId: string; code: string; amountOff: numb
 
 export interface Payout { id: string; creatorId: string; periodStart: string; periodEnd: string; amount: number; currency: string; status: "scheduled" | "paid" | "held" | "failed"; scheduledFor: string; paidAt: string | null; items: Array<{ bookingId: string; amount: number }> }
 export interface Creator { id: string; userId: string | null; displayName: string; email: string }
+export interface Click {
+  id: string; storefrontId: string; createdAt: string; source: string | null; article: string | null; target: "hotel" | "city" | "home";
+  ebcId: number | null; query: Record<string, string> | null; country: string | null; device: string | null; visitor: string | null; bot: boolean;
+}
+export interface DirectoryHotel { ebcId: number; name: string; norm: string; cityId: number; address: string | null; zip: string | null; stars: number | null; lat: number | null; lng: number | null }
 
 export interface Db {
   creatorByUserId(userId: string): Promise<Creator | null>;
@@ -46,7 +65,7 @@ export interface Db {
   creatorByEmail(email: string): Promise<Creator | null>;
   linkCreatorUser(creatorId: string, userId: string): Promise<void>;
   storefrontsForCreator(creatorId: string): Promise<Storefront[]>;
-  updateStorefront(id: string, patch: Partial<Pick<Storefront, "brandName" | "brandColor" | "template" | "headline" | "creatorRate" | "flightFee" | "live">>): Promise<void>;
+  updateStorefront(id: string, patch: Partial<Pick<Storefront, "brandName" | "brandColor" | "template" | "headline" | "creatorRate" | "flightFee" | "live" | "locale" | "displayCurrency" | "siteUrl" | "customDomain">>): Promise<void>;
   updatePin(storefrontId: string, ebcId: number, patch: { tip?: string | null; stayedWhen?: string | null; position?: number }): Promise<void>;
   payoutsForCreator(creatorId: string): Promise<Payout[]>;
   /** completed stays (check out plus hold days before now) not yet in a payout */
@@ -74,4 +93,18 @@ export interface Db {
   bookingsForCreator(creatorId: string, limit?: number): Promise<Booking[]>;
   /** confirmed or completed bookings per hotel since a date, for the honest "booked N times by readers" signal */
   bookedCountsByHotel(storefrontId: string, sinceIso: string): Promise<Map<number, number>>;
+  storefrontSlugs(): Promise<string[]>;
+  creatorIdsWithStorefronts(): Promise<string[]>;
+  // ---------- tracked links ----------
+  logClick(c: Omit<Click, "id" | "createdAt">): Promise<Click>;
+  click(id: string): Promise<Click | null>;
+  clicksForStorefront(storefrontId: string, sinceIso: string): Promise<Click[]>;
+  // ---------- hotel content and directory ----------
+  upsertHotel(h: Hotel & { cityId?: number | null; countryIso?: string | null; description?: string | null }): Promise<void>;
+  pinHotel(storefrontId: string, ebcId: number, patch?: { tip?: string | null; position?: number }): Promise<void>;
+  unpinHotel(storefrontId: string, ebcId: number): Promise<void>;
+  directoryCity(cityId: number): Promise<{ cityId: number; name: string; pages: number; pagesDone: number; total: number; finishedAt: string | null } | null>;
+  saveDirectoryCity(c: { cityId: number; name: string; pages: number; pagesDone: number; total: number; finishedAt: string | null }): Promise<void>;
+  saveDirectoryHotels(rows: DirectoryHotel[]): Promise<void>;
+  directoryHotels(cityId: number): Promise<DirectoryHotel[]>;
 }

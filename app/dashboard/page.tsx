@@ -1,49 +1,153 @@
-import { currentCreator } from "@/lib/auth";
+import Link from "next/link";
+import { dashContext } from "@/lib/dashboard/context";
 import { db } from "@/lib/db";
+import { CATEGORY_LABEL, summarize, transactions, type Tx } from "@/lib/dashboard/metrics";
+import { termsOf } from "@/lib/pricing/engine";
 import { fmtDate, usd } from "@/lib/format";
-import { stayLedger, NOMADLY_MARKUP } from "@/lib/pricing/engine";
 
 export const dynamic = "force-dynamic";
-const AVG_STAY = 640;
-// demo bookings (test card while hotel prices are live) are listed but never counted as earnings
-const lastThirtyDays = <T extends { createdAt: string; status: string; demo?: boolean }>(rows: T[]) => { const since = Date.now() - 30 * 86_400_000; return rows.filter((b) => Date.parse(b.createdAt) > since && b.status !== "failed" && b.status !== "paying" && !b.demo); };
 
-export default async function Overview() {
-  const c = (await currentCreator())!;
-  const sf = (await db().storefrontsForCreator(c.id))[0];
-  const bookings = await db().bookingsForCreator(c.id, 200);
-  const recent = lastThirtyDays(bookings);
-  const earnOf = (b: { creatorShare: number; promoDiscount: number; extras: Array<{ creatorShare: number }> }) => b.creatorShare - b.promoDiscount + b.extras.reduce((a, x) => a + x.creatorShare, 0);
-  const earned = recent.filter((b) => b.status !== "canceled").reduce((a, b) => a + earnOf(b), 0);
-  const rate = sf?.creatorRate ?? 0.08;
-  const per = stayLedger(AVG_STAY / (1 + NOMADLY_MARKUP) / (1 + rate), rate).creatorShare;
-  const count = (s: string) => recent.filter((b) => b.status === s).length;
+const PERIODS: Array<[number, string]> = [[7, "7 days"], [30, "30 days"], [90, "90 days"], [365, "12 months"]];
+const pct = (v: number, d = 1) => `${(v * 100).toFixed(d)}%`;
+const num = (v: number) => v.toLocaleString("en-US");
+// outside render: the clock is read once per request on this dynamic page
+function daysAgo(d: number) { return new Date(Date.now() - d * 86_400_000).toISOString(); }
+
+export default async function Overview({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
+  const c = (await dashContext())!;
+  const sp = await searchParams;
+  const days = PERIODS.some(([d]) => String(d) === sp.p) ? Number(sp.p) : 30;
+  const includeDemo = sp.demo === "1";
+  const since = daysAgo(days);
+  const prevSince = daysAgo(2 * days);
+  const [bookings, clicks, payouts, pins] = await Promise.all([
+    db().bookingsForCreator(c.creator.id, 2000), db().clicksForStorefront(c.sf.id, prevSince), db().payoutsForCreator(c.creator.id), db().pinnedHotels(c.sf.id),
+  ]);
+  const names = new Map(pins.map((p) => [p.ebcId, p.name]));
+  const missing = [...new Set(bookings.map((b) => b.ebcId).filter((id) => !names.has(id)))];
+  for (const id of missing.slice(0, 40)) { const h = await db().hotel(id); if (h) names.set(id, h.name); }
+  const txs = transactions(bookings.filter((b) => b.storefrontId === c.sf.id), payouts, (id) => names.get(id) ?? `Hotel ${id}`);
+  const s = summarize(clicks, txs, { since, days, includeDemo });
+  const prev = summarize(clicks, txs, { since: prevSince, until: since, days, includeDemo });
+  const delta = (a: number, b: number) => (b > 0 ? `${a >= b ? "+" : ""}${Math.round(((a - b) / b) * 100)}% on the ${days} days before` : "");
+  const demoCount = txs.filter((t) => t.demo && t.category === "hotel" && t.date >= since).length;
+  const terms = termsOf(c.sf);
+  const q = (o: Record<string, string>) => `?${new URLSearchParams({ p: String(days), ...(includeDemo ? { demo: "1" } : {}), ...o })}`;
+  const shown = txs.filter((t) => t.date >= since && (includeDemo || !t.demo)).slice(0, 60);
+
   return (
     <>
-      <h1 style={{ fontSize: 26 }}>Overview</h1>
-      <div className="notice" style={{ marginTop: 12 }}><span><b>You earn about {usd(per, true)} per hotel booking</b> at {Math.round(rate * 100)} percent of Nomadly&apos;s net rate on a USD {AVG_STAY} stay. {recent.length} {recent.length === 1 ? "booking" : "bookings"} in the last 30 days, {usd(earned, true)}. Paid every Wednesday, 7 days after each check out.</span></div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 12, marginTop: 14 }}>
-        {[["Waiting for the hotel", count("on_request")], ["Confirmed, stay ahead", count("confirmed")], ["Completed, in payout", count("completed")], ["Canceled by the reader", count("canceled")]].map(([l, v]) => <div key={String(l)} className="panel"><div className="small mute">{l}</div><div className="price">{v}</div></div>)}
+      <div className="dash-head">
+        <div><h1>Overview</h1><p>{c.sf.brandName}, last {PERIODS.find(([d]) => d === days)![1]}. Every number is live.</p></div>
+        <nav className="period" aria-label="Period">{PERIODS.map(([d, l]) => <Link key={d} href={`?${new URLSearchParams({ p: String(d), ...(includeDemo ? { demo: "1" } : {}) })}`} aria-current={d === days ? "page" : undefined}>{l}</Link>)}</nav>
       </div>
-      <h2 style={{ fontSize: 20, margin: "22px 0 10px" }}>Latest bookings</h2>
-      <div className="panel" style={{ padding: 0, overflowX: "auto" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
-          <thead><tr style={{ textAlign: "left", color: "var(--mute)" }}>{["Reference", "Stay", "Status", "Reader paid", "Hotel received", "Nomadly", "You earn"].map((h) => <th key={h} style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}>{h}</th>)}</tr></thead>
+      {demoCount > 0 && <div className="notice small">{includeDemo ? <>Showing {demoCount} demo {demoCount === 1 ? "booking" : "bookings"} (test card, nothing reserved). They are never paid. <Link href={q({ demo: "0" })}>Hide them</Link>.</> : <>{demoCount} demo {demoCount === 1 ? "booking" : "bookings"} made with a test card are left out. <Link href={q({ demo: "1" })}>Show them</Link> to see how a booking appears.</>}</div>}
+
+      <div className="kpis">
+        <div className="kpi"><span>Clicks</span><b>{num(s.clicks)}</b><small>{num(s.visitors)} unique visitors{prev.clicks ? `. ${delta(s.clicks, prev.clicks)}` : ""}</small></div>
+        <div className="kpi"><span>Bookings</span><b>{num(s.hotelBookings)}</b><small>Plus {num(s.addOns)} add {s.addOns === 1 ? "on" : "ons"}{s.canceled ? `, ${s.canceled} canceled` : ""}</small></div>
+        <div className="kpi"><span>Conversion</span><b>{pct(s.conversion, 2)}</b><small>Bookings per click</small></div>
+        <div className="kpi"><span>EPC</span><b>{usd(s.epc)}</b><small>Earnings per click</small></div>
+        <div className="kpi"><span>Commission</span><b>{usd(s.commission)}</b><small>{s.bookingValue ? `${pct(s.ofValue)} of booking value` : "Pending and approved"}</small></div>
+      </div>
+
+      <div className="dgrid">
+        <section className="dcard" aria-labelledby="ch-h">
+          <h2 id="ch-h">Clicks and bookings by {days <= 31 ? "day" : "week"}</h2>
+          <Chart series={s.series} />
+          <div className="legend"><span><i style={{ background: "var(--mist-2)" }} />Clicks</span><span><i style={{ background: "var(--ink)" }} />Bookings</span></div>
+        </section>
+        <section className="dcard" aria-labelledby="ps-h">
+          <h2 id="ps-h">Payment status</h2>
+          <div className="paystat">
+            <div><span>Paid</span><span>{usd(s.byStatus.paid)}</span></div>
+            <div><span>Ready{s.byStatus.nextPayout ? `, pays ${fmtDate(s.byStatus.nextPayout)}` : ""}</span><span>{usd(s.byStatus.ready)}</span></div>
+            <div><span>Pending</span><span>{usd(s.byStatus.pending)}</span></div>
+            <div><span>Canceled{s.byStatus.canceledCount ? `, ${s.byStatus.canceledCount} ${s.byStatus.canceledCount === 1 ? "booking" : "bookings"}` : ""}</span><span>{usd(0)}</span></div>
+            <div><span>Total commission</span><span>{usd(s.commission)}</span></div>
+          </div>
+          <p className="note">Paid monthly on the 15th for stays completed the month before. No minimum.</p>
+        </section>
+      </div>
+
+      <section className="dcard" aria-labelledby="src-h">
+        <h2 id="src-h">Top sources</h2>
+        <div className="scroll"><table className="dtable">
+          <thead><tr><th>Source</th><th className="n">Clicks</th><th className="n">Visitors</th><th className="n">Bookings</th><th className="n">Conversion</th><th className="n">Commission</th><th className="n">EPC</th></tr></thead>
           <tbody>
-            {bookings.slice(0, 25).map((b) => <tr key={b.id}>
-              <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}><b>{b.reference}</b><div className="small mute">{fmtDate(b.createdAt)}</div></td>
-              <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}>{fmtDate(b.checkIn)}, {b.nights} {b.nights === 1 ? "night" : "nights"}</td>
-              <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}><span className={`chip ${b.status === "confirmed" || b.status === "completed" ? "chip-ok" : b.status === "canceled" || b.status === "failed" ? "chip-bad" : "chip-warn"}`}>{b.status.replace("_", " ")}</span>{b.demo ? <span className="chip" style={{ marginLeft: 6 }}>demo</span> : null}</td>
-              <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}>{usd(b.readerPrice + b.extras.reduce((a, x) => a + x.price, 0))}{b.extras.length ? <div className="small mute">{b.extras.length} {b.extras.length === 1 ? "extra" : "extras"}</div> : null}</td>
-              <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}>{usd(b.supplierNet)}</td>
-              <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}>{usd(b.nomadlyNet - b.supplierNet)}</td>
-              <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)", color: "var(--ok)", fontWeight: 600 }}>{b.status === "canceled" ? usd(0) : usd(earnOf(b))}</td>
-            </tr>)}
-            {!bookings.length && <tr><td colSpan={7} className="mute" style={{ padding: 20 }}>No bookings yet. Share your storefront link and this fills in by itself.</td></tr>}
+            {s.sources.slice(0, 12).map((r) => <tr key={r.source}><td>{r.source}</td><td className="n">{num(r.clicks)}</td><td className="n">{num(r.visitors)}</td><td className="n">{num(r.bookings)}</td><td className="n">{r.clicks ? pct(r.conversion, 2) : "n/a"}</td><td className="n">{usd(r.commission)}</td><td className="n">{r.clicks ? usd(r.epc) : "n/a"}</td></tr>)}
+            {!s.sources.length && <tr><td colSpan={7} className="mute">No clicks yet. Put one of your links in an article (<Link href="/dashboard/links">Links</Link>) and the first click shows here within a second.</td></tr>}
           </tbody>
-        </table>
-      </div>
-      <p className="small mute" style={{ marginTop: 10 }}>Every row shows what the hotel received, Nomadly&apos;s part and yours. Nobody else prints this.</p>
+        </table></div>
+        <p className="note">A source is the name you give a link (src=), usually the article. Clicks from bots and link previews are left out. Every booking on your storefront is yours whether or not it came through a link; the source only says where it came from.</p>
+      </section>
+
+      <section className="dcard" aria-labelledby="cat-h">
+        <h2 id="cat-h">By category</h2>
+        <div className="scroll"><table className="dtable">
+          <thead><tr><th>Category</th><th className="n">Bookings</th><th className="n">Booking value</th><th>Your share</th><th className="n">Commission</th></tr></thead>
+          <tbody>
+            {s.byCategory.map((r) => <tr key={r.category}><td>{CATEGORY_LABEL[r.category]}</td><td className="n">{num(r.bookings)}</td><td className="n">{usd(r.value)}</td><td>{Math.round((r.category === "hotel" ? terms.hotelShare : terms.extrasShare) * 100)}% of net</td><td className="n">{usd(r.commission)}</td></tr>)}
+            <tr className="soon"><td>Flights</td><td colSpan={4}>Coming soon, fixed margin per ticket</td></tr>
+            <tr className="total"><td>Total</td><td className="n">{num(s.byCategory.reduce((a, r) => a + r.bookings, 0))}</td><td className="n">{usd(s.bookingValue)}</td><td /><td className="n">{usd(s.commission)}</td></tr>
+          </tbody>
+        </table></div>
+      </section>
+
+      <section className="dcard" aria-labelledby="tx-h">
+        <h2 id="tx-h">Transactions</h2>
+        <div className="scroll"><table className="dtable">
+          <thead><tr><th>Date</th><th>Info</th><th>Source</th><th className="n">Price</th><th className="n">Our margin</th><th className="n">Costs</th><th className="n">Commission</th><th className="n">Of price</th><th>Transaction</th><th>Payment</th></tr></thead>
+          <tbody>
+            {shown.map((t) => <TxRow key={t.id} t={t} />)}
+            {!shown.length && <tr><td colSpan={10} className="mute">No bookings in this period yet.</td></tr>}
+          </tbody>
+        </table></div>
+        <div className="gloss" style={{ marginTop: 12 }}>
+          <span><span className="status st-Pending">Pending</span> Booked; the stay is not completed yet.</span>
+          <span><span className="status st-Approved">Approved</span> Stay completed; commission is final.</span>
+          <span><span className="status st-Ready">Ready</span> In the next monthly payout.</span>
+          <span><span className="status st-Paid">Paid</span> Sent to your account.</span>
+          <span><span className="status st-Canceled">Canceled</span> Refunded; no commission.</span>
+        </div>
+        <p className="note">Commission is {Math.round(terms.hotelShare * 100)}% of Nomadly&apos;s net revenue on hotels and {Math.round(terms.extrasShare * 100)}% on add ons. Net revenue is our margin less the card and payout costs we pay. Every line shows both.</p>
+      </section>
     </>
+  );
+}
+
+function TxRow({ t }: { t: Tx }) {
+  return (
+    <tr>
+      <td style={{ whiteSpace: "nowrap" }}>{fmtDate(t.date)}<div className="small mute">{t.reference}</div></td>
+      <td>{t.info}{t.demo && <span className="chip" style={{ marginLeft: 6 }}>demo</span>}</td>
+      <td className="small">{t.source ?? <span className="mute">direct</span>}</td>
+      <td className="n">{usd(t.price)}</td><td className="n">{usd(t.margin)}</td><td className="n">{usd(t.costs)}</td>
+      <td className="n"><b>{usd(t.commission)}</b></td><td className="n">{t.price ? pct(t.commission / t.price) : ""}</td>
+      <td><span className={`status st-${t.tx}`}>{t.tx}</span></td><td><span className={`status st-${t.pay}`}>{t.pay}</span></td>
+    </tr>
+  );
+}
+
+function Chart({ series }: { series: Array<{ label: string; clicks: number; bookings: number }> }) {
+  const W = 640, H = 180, pad = 22, n = Math.max(series.length, 1);
+  const maxC = Math.max(1, ...series.map((s) => s.clicks)), maxB = Math.max(1, ...series.map((s) => s.bookings));
+  const bw = (W - pad) / n;
+  const every = Math.ceil(n / 8);
+  return (
+    <svg className="chart" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Clicks per period, highest ${maxC}`}>
+      {series.map((s, i) => {
+        const h = ((H - pad - 8) * s.clicks) / maxC, x = pad + i * bw;
+        const bh = s.bookings ? Math.max(4, ((H - pad - 8) * 0.45 * s.bookings) / maxB) : 0;
+        return (
+          <g key={i}>
+            <rect className="bar" x={x + 1} y={H - pad - h} width={Math.max(1, bw - 3)} height={h} rx={2}><title>{`${s.label}: ${s.clicks} clicks, ${s.bookings} bookings`}</title></rect>
+            {bh > 0 && <rect className="bk" x={x + bw * 0.3} y={H - pad - bh} width={Math.max(1, bw * 0.4 - 1)} height={bh} rx={2} />}
+            {i % every === 0 && <text x={x + bw / 2} y={H - 6} textAnchor="middle">{s.label}</text>}
+          </g>
+        );
+      })}
+      <text x={0} y={12}>{maxC}</text>
+    </svg>
   );
 }

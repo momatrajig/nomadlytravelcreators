@@ -1,5 +1,5 @@
 import { EXTRAS } from "@/lib/extras/catalog";
-import { usd } from "@/lib/format";
+import { dict, price, type ReaderFmt } from "@/lib/i18n";
 
 const ICON: Record<string, string> = {
   car: "M3 13l2-5a2 2 0 012-1h10a2 2 0 012 1l2 5v5h-2a2 2 0 11-4 0H9a2 2 0 11-4 0H3zM6 13h12",
@@ -9,19 +9,20 @@ const ICON: Record<string, string> = {
 };
 
 /** Veny services as a quiet row. They are added at checkout, with the stay, in one payment. */
-export default function ExtrasRow() {
+export default function ExtrasRow({ f = { lang: "en", currency: "USD", disp: null, rate: null } }: { f?: ReaderFmt }) {
+  const t = dict(f.lang);
   return (
     <section className="block extras" aria-labelledby="extras">
       <div className="block-head">
-        <h2 id="extras">Add the trip around the room</h2>
-        <p>Added at checkout, in the same payment, and canceled with the stay.</p>
+        <h2 id="extras">{t.extrasTitle}</h2>
+        <p>{t.extrasSub}</p>
       </div>
       <ul role="list">
         {EXTRAS.map((x) => (
           <li key={x.kind}>
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d={ICON[x.icon]} /></svg>
-            <div><h3>{x.name}</h3><p>{x.short}</p></div>
-            <div className="extra-price"><b>{usd(x.price, true)}</b><s>{usd(x.elsewhere, true)} on its own</s></div>
+            <div><h3>{t.extras?.[x.kind]?.name ?? x.name}</h3><p>{t.extras?.[x.kind]?.short ?? x.short}</p></div>
+            <div className="extra-price"><b>{price(f, x.price)}</b><s>{t.onItsOwn(price(f, x.elsewhere))}</s></div>
           </li>
         ))}
       </ul>

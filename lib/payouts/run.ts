@@ -1,15 +1,19 @@
 /**
- * Weekly payout run (Vercel cron, Wednesdays). A stay becomes payable 7 days after check out.
- * One payout per creator per run, itemized per booking, so the dashboard can show the statement.
- * Money movement itself (Wise transfer) is a separate step that reads payouts with status scheduled.
+ * Monthly payout run (Vercel cron, the 15th). Pays every completed stay that checked out before the 1st of
+ * the current month and is not in a payout yet: hotel commission less any promotion code, plus add ons.
+ * One payout per creator per run, itemized per booking, so the dashboard shows the statement.
+ * Money movement itself (bank or Wise transfer) is a separate step that reads payouts with status scheduled.
  */
 import { db } from "@/lib/db";
 import { r2 } from "@/lib/pricing/engine";
 
-export const HOLD_DAYS = 7;
+/** stays checked out before this date are payable on this run */
+export const cutoffFor = (now: Date) => new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString().slice(0, 10);
 
 export async function runPayouts(creatorIds: string[], now = new Date()): Promise<Array<{ creatorId: string; amount: number; bookings: number }>> {
-  const before = new Date(now.getTime() - HOLD_DAYS * 86_400_000).toISOString().slice(0, 10);
+  const cutoff = cutoffFor(now);
+  // payableBookings is inclusive of the date given; the day before the 1st
+  const before = new Date(Date.parse(`${cutoff}T00:00:00Z`) - 86_400_000).toISOString().slice(0, 10);
   const out = [];
   for (const creatorId of creatorIds) {
     const payable = await db().payableBookings(creatorId, before);

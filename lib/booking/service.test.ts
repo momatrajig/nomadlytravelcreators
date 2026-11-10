@@ -10,17 +10,17 @@ process.env.NOMADLY_PIN_ALL = "1";
 describe("booking service end to end on fixtures", () => {
   beforeEach(() => resetMock());
 
-  it("searches the pinned hotels, prices them with option D and reports savings", async () => {
+  it("searches the pinned hotels, prices them with the storefront markup and reports savings", async () => {
     const sf = (await db().storefrontBySlug("lina"))!;
     const r = await searchStays(sf, "2026-12-03", "2026-12-05", 1);
     expect(r.offers).toHaveLength(37);
-    expect(r.rate).toBe(0.08); // ceiling is 10.5 percent, above the dial max
+    expect(r.rate).toBe(0.15); // no recorded big site price is below this markup
     const ic = r.offers.find((o) => o.ebcId === 515886)!;
     const flex = ic.rates.find((x) => x.refundable && x.board === "RO")!;
     expect(flex.supplierNet).toBe(328.48);
-    expect(flex.readerPrice).toBe(379.59);
+    expect(flex.readerPrice).toBe(377.75);
     expect(ic.lowestReference?.price).toBe(404);
-    expect(ic.saving).toBe(24.41);
+    expect(ic.saving).toBe(26.25);
     for (const o of r.offers) if (o.saving !== null) expect(o.saving).toBeGreaterThan(0);
   });
 
@@ -31,12 +31,12 @@ describe("booking service end to end on fixtures", () => {
     const flex = ic.rates.find((x) => x.refundable && x.board === "RO")!;
     const q = await holdQuote(sf, ic, flex.packageCode, "2026-12-03", "2026-12-05", [{ adults: 1, childrenAges: [] }]);
     expect(q.availabilityToken).toMatch(/^av\./);
-    expect(q.readerPrice).toBe(379.59);
+    expect(q.readerPrice).toBe(377.75);
     expect(q.cancelDeadline).toBe("2026-11-21T23:59:00");
     // stored as the database enum code, never the display label
     expect(["booking", "expedia", "agoda", "tripcom", "hotel", null]).toContain(q.lowestReferenceSource);
     const { booking, amount } = await startPayment(sf, q, { firstName: "Lina", lastName: "Reader", email: "L@Example.com" }, "LISBON10");
-    expect(amount).toBe(369.59); // promo comes out of the creator share
+    expect(amount).toBe(367.75); // promo comes out of the creator share
     expect(booking.status).toBe("paying");
     expect(booking.leadEmail).toBe("l@example.com");
     const confirmed = await confirmPaid(booking.id, "pi_test_1", "https://stays.wanderwithlina.com");
@@ -47,7 +47,7 @@ describe("booking service end to end on fixtures", () => {
     expect((await confirmPaid(booking.id, "pi_test_1", "x")).status).toBe("confirmed");
     const c = await cancelBooking(booking.id);
     expect(c.penalty).toBe(0);
-    expect(c.refund).toBe(369.59);
+    expect(c.refund).toBe(367.75);
     expect(c.booking.status).toBe("canceled");
   });
 
@@ -89,10 +89,10 @@ describe("extras", () => {
     const q = await holdQuote(sf, o, o.rates.find((x) => x.refundable)!.packageCode, "2026-12-03", "2026-12-05", [{ adults: 1, childrenAges: [] }]);
     const { booking, amount } = await startPayment(sf, q, { firstName: "A", lastName: "B", email: "a@b.c" }, undefined, ["transfer", "esim", "esim"]);
     expect(booking.extras.map((x) => x.kind)).toEqual(["transfer", "esim"]);
-    expect(amount).toBe(379.59 + 29 + 12);
-    expect(booking.extras[0]!.creatorShare).toBe(4.5);
+    expect(amount).toBe(377.75 + 29 + 12);
+    expect(booking.extras[0]!.creatorShare).toBe(4.08);
     await confirmPaid(booking.id, "pi_x", "https://x");
     const c = await cancelBooking(booking.id);
-    expect(c.refund).toBe(420.59);
+    expect(c.refund).toBe(418.75);
   });
 });

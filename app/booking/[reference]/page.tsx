@@ -5,11 +5,13 @@ import { chargedTotal, confirmPaid, penaltyNow } from "@/lib/booking/service";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
 import { stripe } from "@/lib/stripe";
-import { BOARD, fmtDate, usd } from "@/lib/format";
+import { fmtDay, money } from "@/lib/i18n";
+import { readerOf } from "@/lib/storefront/reader";
 import { requireStorefront } from "@/lib/tenant";
 import CancelButton from "@/components/CancelButton";
 
 export const dynamic = "force-dynamic";
+const b0Currency = (c: string | null | undefined) => c || "USD";
 
 const STATUS: Record<string, { label: string; cls: string; text: string }> = {
   paying: { label: "Payment in progress", cls: "chip-warn", text: "We are waiting for the card confirmation. This page refreshes itself." },
@@ -23,6 +25,9 @@ const STATUS: Record<string, { label: string; cls: string; text: string }> = {
 
 export default async function BookingPage({ params, searchParams }: { params: Promise<{ reference: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const sf = await requireStorefront();
+  const { t, f } = await readerOf(sf);
+  const fmtDate = (d: string) => fmtDay(d, f.lang);
+  const usd = (x: number, whole = false) => money(x, { lang: f.lang, currency: b0Currency(sf.currency), whole });
   const { reference } = await params;
   const sp = await searchParams;
   const email = typeof sp.email === "string" ? sp.email.trim().toLowerCase() : "";
@@ -47,31 +52,33 @@ export default async function BookingPage({ params, searchParams }: { params: Pr
     try { b = await confirmPaid(b.id, "pi_dev", ""); } catch { b = (await db().booking(b.id))!; }
   }
   const hotel = await db().hotel(b.ebcId);
-  const st = STATUS[b.status] ?? STATUS.confirmed!;
+  const base = STATUS[b.status] ?? STATUS.confirmed!;
+  const tr = t.status[b.status] ?? t.status.confirmed!;
+  const st = { ...base, label: tr[0], text: tr[1] };
   const penalty = penaltyNow(b);
   const canCancel = (b.status === "confirmed" || b.status === "on_request") && (!!b.ebcReservationId || !!b.demo);
   return (
     <>
       <div style={{ marginTop: 18 }} className="panel">
-        {b.demo && <div className="notice warn" role="note" style={{ marginBottom: 12 }}>Demo booking: paid with a Stripe test card while hotel prices are live. No room is reserved at the hotel and no money was taken.</div>}
-        <span className={`chip ${st.cls}`}>{st.label}{b.demo ? ", demo" : ""}</span>
+        {b.demo && <div className="notice warn" role="note" style={{ marginBottom: 12 }}>{t.demoBooking}</div>}
+        <span className={`chip ${st.cls}`}>{st.label}{b.demo ? t.demoSuffix : ""}</span>
         <h1 style={{ fontSize: 28, marginTop: 10 }}>{hotel?.name}</h1>
-        <p className="mute" style={{ margin: "4px 0 0" }}>{fmtDate(b.checkIn)} to {fmtDate(b.checkOut)}, {b.nights} {b.nights === 1 ? "night" : "nights"}. {b.roomName ?? "Room"}, {BOARD[b.board ?? "RO"]?.toLowerCase()}.</p>
+        <p className="mute" style={{ margin: "4px 0 0" }}>{t.stayLine(fmtDate(b.checkIn), fmtDate(b.checkOut), b.nights, b.guests.length || 1).split(", ").slice(0, 2).join(", ")}. {b.roomName ?? t.room}, {t.board[b.board ?? "RO"]?.toLowerCase()}.</p>
         <p style={{ margin: "12px 0 0" }}>{st.text}</p>
-        {b.extras.length > 0 && <ul className="small" style={{ margin: "10px 0 0", paddingLeft: 18, color: "var(--fg-2)" }}>{b.extras.map((x) => <li key={x.kind}>{x.name}, {usd(x.price, true)}</li>)}</ul>}
+        {b.extras.length > 0 && <ul className="small" style={{ margin: "10px 0 0", paddingLeft: 18, color: "var(--fg-2)" }}>{b.extras.map((x) => <li key={x.kind}>{t.extras?.[x.kind]?.name ?? x.name}, {usd(x.price, true)}</li>)}</ul>}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 12, marginTop: 16 }}>
-          <div><div className="small mute">Your reference</div><b>{b.reference}</b></div>
-          {b.hotelConfirmation && <div><div className="small mute">Hotel confirmation</div><b>{b.hotelConfirmation}</b></div>}
-          <div><div className="small mute">Paid</div><b>{usd(chargedTotal(b))}</b></div>
-          <div><div className="small mute">Cancellation</div><b>{b.refundable ? (penalty === 0 ? `Free until ${b.cancelDeadline ? fmtDate(b.cancelDeadline) : "check in"}` : `${usd(penalty)} if canceled now`) : "No refunds"}</b></div>
+          <div><div className="small mute">{t.yourRef}</div><b>{b.reference}</b></div>
+          {b.hotelConfirmation && <div><div className="small mute">{t.hotelConf}</div><b>{b.hotelConfirmation}</b></div>}
+          <div><div className="small mute">{t.paid}</div><b>{usd(chargedTotal(b))}</b></div>
+          <div><div className="small mute">{t.cancellation}</div><b>{b.refundable ? (penalty === 0 ? t.freeUntil(b.cancelDeadline ? fmtDate(b.cancelDeadline) : t.checkInWord) : t.ifCanceledNow(usd(penalty))) : t.noRefunds}</b></div>
         </div>
       </div>
       <div className="panel" style={{ marginTop: 14 }}>
-        <h2 style={{ fontSize: 20 }}>If anything goes wrong</h2>
-        <p className="small" style={{ color: "var(--fg-2)", margin: "6px 0 10px" }}>If the hotel cannot find your booking, show them the reference above and the voucher in your email. Nomadly support answers 7 days a week, 08:00 to 22:00 Lisbon time, by phone and WhatsApp, in English, Arabic and Portuguese.</p>
+        <h2 style={{ fontSize: 20 }}>{t.ifWrong}</h2>
+        <p className="small" style={{ color: "var(--fg-2)", margin: "6px 0 10px" }}>{t.ifWrongText}</p>
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-          {canCancel && <CancelButton bookingId={b.id} email={email} penalty={penalty} refund={Math.round((chargedTotal(b) - penalty) * 100) / 100} />}
-          <Link className="btn" href="/">Back to the storefront</Link>
+          {canCancel && <CancelButton lang={f.lang} currency={b.currency} bookingId={b.id} email={email} penalty={penalty} refund={Math.round((chargedTotal(b) - penalty) * 100) / 100} />}
+          <Link className="btn" href="/">{t.backStore}</Link>
         </div>
       </div>
       {(b.status === "paying" || b.status === "booked") && <meta httpEquiv="refresh" content="6" />}

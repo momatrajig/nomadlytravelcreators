@@ -3,7 +3,9 @@ import { Suspense } from "react";
 import type { Storefront } from "@/lib/db/types";
 import SearchBar from "@/components/SearchBar";
 import { env } from "@/lib/env";
-import { checkedLabel, fmtDate, usd } from "@/lib/format";
+import { checkedLabel } from "@/lib/format";
+import { fmtDay, price, approxOf, type Dict, type ReaderFmt } from "@/lib/i18n";
+import { readerOf } from "@/lib/storefront/reader";
 import { nights as nightsOf } from "@/lib/booking/service";
 import { readDates } from "@/lib/dates";
 import { destination, stayView, storefrontDestinations } from "@/lib/storefront/data";
@@ -15,6 +17,8 @@ export const dynamic = "force-dynamic";
 
 export default async function Stays({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const sf = await requireStorefront();
+  const { t, f } = await readerOf(sf);
+  const fmtDate = (d: string) => fmtDay(d, f.lang);
   const sp = await searchParams;
   const { checkIn, checkOut, adults, qs } = readDates(sp, env().EBC_MODE);
   const [pins, collections] = await Promise.all([db().pinnedHotels(sf.id), db().collections(sf.id)]);
@@ -22,22 +26,22 @@ export default async function Stays({ searchParams }: { searchParams: Promise<Re
   const d = typeof sp.d === "string" ? destination(sp.d) : null;
   const col = typeof sp.collection === "string" ? collections.find((c) => c.slug === sp.collection) ?? null : null;
   const only = col ? col.ebcIds : d ? pins.filter((p) => p.destination === d.slug).map((p) => p.ebcId) : undefined;
-  const title = col ? col.title : d ? d.name : "Every hotel";
+  const title = col ? col.title : d ? d.name : t.everyHotel;
   const chip = (href: string, label: string, on: boolean) => <Link key={href} className="filter" href={href} aria-current={on ? "page" : undefined}>{label}</Link>;
   return (
     <>
-      <div className="page-search"><SearchBar checkIn={checkIn} checkOut={checkOut} adults={adults} dest={d?.slug ?? ""} destinations={dests.map((x) => ({ slug: x.slug, name: x.name }))} /></div>
+      <div className="page-search"><SearchBar lang={f.lang} checkIn={checkIn} checkOut={checkOut} adults={adults} dest={d?.slug ?? ""} destinations={dests.map((x) => ({ slug: x.slug, name: x.name }))} /></div>
       <nav className="filters" aria-label="Destinations and seasons">
-        {chip(`/stays?${qs}`, "All", !d && !col)}
+        {chip(`/stays?${qs}`, t.all, !d && !col)}
         {collections.filter((c) => c.kind === "season").map((c) => chip(`/stays?in=${c.checkIn}&out=${c.checkOut}&adults=2&collection=${c.slug}`, c.title, col?.slug === c.slug))}
         {dests.map((x) => chip(`/stays?d=${x.slug}&${qs}`, x.name, d?.slug === x.slug && !col))}
       </nav>
       <header className="list-head">
         <h1>{title}</h1>
-        <p>{fmtDate(checkIn)} to {fmtDate(checkOut)}, {nightsOf(checkIn, checkOut)} {nightsOf(checkIn, checkOut) === 1 ? "night" : "nights"}, {adults} {adults === 1 ? "adult" : "adults"}. Total prices, tax included.</p>
+        <p>{t.listMeta(fmtDate(checkIn), fmtDate(checkOut), nightsOf(checkIn, checkOut), adults)}</p>
       </header>
       <Suspense key={`${checkIn}${checkOut}${adults}${only?.join(".")}`} fallback={<ListWait />}>
-        <StayList sf={sf} checkIn={checkIn} checkOut={checkOut} adults={adults} only={only} qs={qs} colIn={col?.checkIn ?? null} />
+        <StayList t={t} f={f} sf={sf} checkIn={checkIn} checkOut={checkOut} adults={adults} only={only} qs={qs} colIn={col?.checkIn ?? null} />
       </Suspense>
     </>
   );
@@ -51,13 +55,15 @@ function ListWait() {
   );
 }
 
-async function StayList({ sf, checkIn, checkOut, adults, only, qs, colIn }: { sf: Storefront; checkIn: string; checkOut: string; adults: number; only?: number[]; qs: string; colIn: string | null }) {
+async function StayList({ t, f, sf, checkIn, checkOut, adults, only, qs, colIn }: { t: Dict; f: ReaderFmt; sf: Storefront; checkIn: string; checkOut: string; adults: number; only?: number[]; qs: string; colIn: string | null }) {
   const v = await stayView(sf, checkIn, checkOut, adults, only);
+  const fmtDate = (d: string) => fmtDay(d, f.lang);
+  const usd = (x: number) => price(f, x);
   const cards = [...v.cards].sort((a, b) => (b.saving ?? -1e9) - (a.saving ?? -1e9));
   return (
     <>
-      {v.checkedAt && <p className="mute small" style={{ marginTop: -8, marginBottom: 12 }}>Big site prices {checkedLabel(v.checkedAt)}.</p>}
-      {v.error && <div className="notice warn" role="alert">{v.error} <Link href={`/stays?${qs}`}>Try again</Link></div>}
+      {v.checkedAt && f.lang === "en" && <p className="mute small" style={{ marginTop: -8, marginBottom: 12 }}>{t.bigChecked(checkedLabel(v.checkedAt))}</p>}
+      {v.error && <div className="notice warn" role="alert">{t.supplierDown} <Link href={`/stays?${qs}`}>{t.tryAgain}</Link></div>}
       <ul className="list" role="list">
         {cards.map((h) => {
           const p = h.photos[0];
@@ -66,25 +72,25 @@ async function StayList({ sf, checkIn, checkOut, adults, only, qs, colIn }: { sf
             <li key={h.ebcId} className="stay">
               <Link href={href} className="stay-pic" tabIndex={-1} aria-hidden="true">{p && <img src={photoSrc(p.url, 960, p.w)} srcSet={photoSet(p.url, p.w)} sizes="(max-width: 700px) 100vw, 320px" alt="" loading="lazy" />}</Link>
               <div className="stay-main">
-                <div className="stay-where">{h.area}, {h.city}</div>
+                <div className="stay-where">{[h.area, h.city].filter(Boolean).join(", ")}</div>
                 <h2><Link href={href}>{h.name}</Link></h2>
-                <div className="stay-facts">{h.stars} star{h.rating ? `, ${h.rating.toFixed(1)} from ${h.ratingCount?.toLocaleString("en-US")} reviews` : ""}{h.refundable && h.cancelDeadline ? `. Free cancellation until ${fmtDate(h.cancelDeadline)}` : ""}</div>
+                <div className="stay-facts">{h.stars ? t.star(h.stars) : ""}{h.rating ? t.fromReviews(h.rating.toFixed(1), h.ratingCount?.toLocaleString(f.lang === "cs" ? "cs-CZ" : "en-US") ?? "") : ""}{h.refundable && h.cancelDeadline ? `. ${t.freeCancelUntil(fmtDate(h.cancelDeadline))}` : ""}</div>
                 {h.tip && <p className="stay-tip">{h.tip}</p>}
               </div>
               <div className="stay-price">
                 {h.saving !== null && h.lowestReference && (h.saving > 0
-                  ? <span className="save">{usd(h.saving, true)} less than {h.lowestReference.source}</span>
-                  : <span className="above">{usd(-h.saving, true)} above {h.lowestReference.source}</span>)}
-                {h.saving && h.saving > 0 ? <s>{usd(h.lowestReference!.price, true)}</s> : null}
-                <strong>{usd(h.readerPrice, true)}</strong>
-                <span className="per">{usd(h.readerPrice / v.nights, true)} a night</span>
-                <Link className="btn btn-brand" href={href}>See rooms</Link>
+                  ? <span className="save">{t.lessThan(usd(h.saving), h.lowestReference.source)}</span>
+                  : <span className="above">{t.above(usd(-h.saving), h.lowestReference.source)}</span>)}
+                {h.saving && h.saving > 0 ? <s>{usd(h.lowestReference!.price)}</s> : null}
+                <strong>{usd(h.readerPrice)}</strong>
+                <span className="per">{t.aNight(usd(h.readerPrice / v.nights))}{approxOf(f, h.readerPrice) ? <><br />{approxOf(f, h.readerPrice)}</> : null}</span>
+                <Link className="btn btn-brand" href={href}>{t.seeRooms}</Link>
               </div>
             </li>
           );
         })}
       </ul>
-      {!cards.length && !v.error && <div className="empty"><p>No rooms at these hotels for these dates.</p><Link className="btn" href="/stays">Show every hotel</Link></div>}
+      {!cards.length && !v.error && <div className="empty"><p>{t.noRoomsDates}</p><Link className="btn" href="/stays">{t.showEvery}</Link></div>}
     </>
   );
 }

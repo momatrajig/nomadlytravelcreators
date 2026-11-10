@@ -2,7 +2,9 @@ import { notFound } from "next/navigation";
 import CheckoutForm from "@/components/CheckoutForm";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
-import { BOARD, fmtDate, usd } from "@/lib/format";
+import { fmtDay, price } from "@/lib/i18n";
+import { readerOf } from "@/lib/storefront/reader";
+import Price from "@/components/Price";
 import { requireStorefront } from "@/lib/tenant";
 import { sourceLabel } from "@/lib/booking/service";
 
@@ -13,6 +15,9 @@ function isExpired(iso: string) { return Date.parse(iso) < Date.now(); }
 
 export default async function Checkout({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const sf = await requireStorefront();
+  const { t, f } = await readerOf(sf);
+  const fmtDate = (d: string) => fmtDay(d, f.lang);
+  const usd = (x: number) => price(f, x, false);
   const { q } = await searchParams;
   if (typeof q !== "string") notFound();
   const quote = await db().quote(q);
@@ -22,22 +27,22 @@ export default async function Checkout({ searchParams }: { searchParams: Promise
   const nights = Math.round((Date.parse(quote.checkOut) - Date.parse(quote.checkIn)) / 86_400_000);
   return (
     <>
-      <h1 style={{ fontSize: 28, margin: "18px 0 0" }}>Checkout</h1>
+      <h1 style={{ fontSize: 28, margin: "18px 0 0" }}>{t.checkout}</h1>
       <div className="checkout">
         <div>
-          {expired ? <div className="notice warn" role="alert">This price was held for 20 minutes and has expired. <a href={`/hotel/${quote.ebcId}?in=${quote.checkIn}&out=${quote.checkOut}`}>Get a fresh price</a>.</div>
-            : <CheckoutForm quoteId={quote.id} amount={quote.readerPrice} currency={quote.currency} refundable={quote.refundable} cancelDeadline={quote.cancelDeadline} cancelCharge={quote.cancelCharge} brandName={sf.brandName} stripeKey={env().NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? null} expiresAt={quote.expiresAt} />}
+          {expired ? <div className="notice warn" role="alert">{t.heldExpired} <a href={`/hotel/${quote.ebcId}?in=${quote.checkIn}&out=${quote.checkOut}`}>{t.freshPrice}</a>.</div>
+            : <CheckoutForm quoteId={quote.id} amount={quote.readerPrice} currency={quote.currency} refundable={quote.refundable} cancelDeadline={quote.cancelDeadline} cancelCharge={quote.cancelCharge} brandName={sf.brandName} stripeKey={env().NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? null} expiresAt={quote.expiresAt} f={f} />}
         </div>
         <aside className="summary panel">
           <h2 style={{ fontSize: 20 }}>{hotel?.name}</h2>
-          <p className="small mute" style={{ margin: "4px 0 12px" }}>{fmtDate(quote.checkIn)} to {fmtDate(quote.checkOut)}, {nights} {nights === 1 ? "night" : "nights"}, {quote.occupancy[0]?.adults} {quote.occupancy[0]?.adults === 1 ? "adult" : "adults"}. {BOARD[quote.board ?? "RO"]}.</p>
+          <p className="small mute" style={{ margin: "4px 0 12px" }}>{t.stayLine(fmtDate(quote.checkIn), fmtDate(quote.checkOut), nights, quote.occupancy[0]?.adults ?? 1)}. {t.board[quote.board ?? "RO"]}.</p>
           <ul>
-            <li><span>Room, {nights} nights, tax included</span><span>{usd(quote.readerPrice)}</span></li>
-            {quote.lowestReference && quote.lowestReference > quote.readerPrice && <li className="small" style={{ color: "var(--ok)" }}><span>{sourceLabel(quote.lowestReferenceSource)} showed</span><span>{usd(quote.lowestReference)}</span></li>}
-            <li className="total"><span>You pay now</span><span>{usd(quote.readerPrice)}</span></li>
-            <li className="small mute"><span>At the hotel, city tax</span><span>per person per night</span></li>
+            <li><span>{t.roomNights(nights)}</span><span>{usd(quote.readerPrice)}</span></li>
+            {quote.lowestReference && quote.lowestReference > quote.readerPrice && <li className="small" style={{ color: "var(--ok)" }}><span>{t.showed(sourceLabel(quote.lowestReferenceSource))}</span><span>{usd(quote.lowestReference)}</span></li>}
+            <li className="total"><span>{t.payNow}</span><Price f={f} v={quote.readerPrice} whole={false} approxClass="approx small mute" /></li>
+            <li className="small mute"><span>{t.cityTax}</span><span>{t.perPersonNight}</span></li>
           </ul>
-          <p className="small mute" style={{ margin: "12px 0 0" }}>{quote.refundable ? `Free cancellation until ${quote.cancelDeadline ? fmtDate(quote.cancelDeadline) : "check in"}${quote.cancelCharge ? `, then ${usd(quote.cancelCharge)}` : ""}.` : "This rate has no refunds."}</p>
+          <p className="small mute" style={{ margin: "12px 0 0" }}>{quote.refundable ? t.freeUntilShort(quote.cancelDeadline ? fmtDate(quote.cancelDeadline) : t.checkInWord, quote.cancelCharge ? usd(quote.cancelCharge) : null) : t.rateNoRefunds}</p>
         </aside>
       </div>
     </>

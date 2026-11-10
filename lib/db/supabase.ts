@@ -1,12 +1,12 @@
 /** Supabase implementation (service role, server only). Column names are snake_case in SQL, camelCase in code. */
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { env } from "@/lib/env";
-import type { Booking, Collection, Creator, Db, Hotel, Payout, PinnedHotel, PriceCheck, PromoCode, Quote, Storefront } from "./types";
+import type { Booking, Click, Collection, Creator, Db, DirectoryHotel, Hotel, Payout, PinnedHotel, PriceCheck, PromoCode, Quote, Storefront } from "./types";
 
 const snake = (s: string) => s.replace(/[A-Z]/g, (m) => `_${m.toLowerCase()}`);
 const camel = (s: string) => s.replace(/_([a-z])/g, (_, c: string) => c.toUpperCase());
 const toRow = (o: Record<string, unknown>) => Object.fromEntries(Object.entries(o).map(([k, v]) => [snake(k), v]));
-const fromRow = <T>(r: Record<string, unknown>): T => Object.fromEntries(Object.entries(r).map(([k, v]) => [camel(k), typeof v === "string" && /^-?\d+(\.\d+)?$/.test(v) && /price|net|share|rate|fee|charge|reference$|discount|amount/.test(k) ? Number(v) : v])) as T;
+const fromRow = <T>(r: Record<string, unknown>): T => Object.fromEntries(Object.entries(r).map(([k, v]) => [camel(k), typeof v === "string" && /^-?\d+(\.\d+)?$/.test(v) && /price|net|share|rate|fee|charge|reference$|discount|amount|markup|margin|costs/.test(k) ? Number(v) : v])) as T;
 
 function client(): SupabaseClient {
   const e = env();
@@ -94,6 +94,42 @@ export function supabaseDb(): Db {
     async updateBooking(id, patch) { must(await sb.from("bookings").update(toRow(patch)).eq("id", id)); },
     async addEvent(bookingId, kind, payload) { must(await sb.from("booking_events").insert({ booking_id: bookingId, kind, payload })); },
     async bookedCountsByHotel(storefrontId, sinceIso) { const rows = must(await sb.from('bookings').select('ebc_id').eq('storefront_id', storefrontId).in('status', ['confirmed', 'completed']).eq('demo', false).gte('created_at', sinceIso)) as Array<{ ebc_id: number }>; const m = new Map<number, number>(); for (const r of rows) m.set(r.ebc_id, (m.get(r.ebc_id) ?? 0) + 1); return m; },
+    async storefrontSlugs() { return ((must(await sb.from("storefronts").select("slug").order("slug")) as Array<{ slug: string }>)).map((r) => r.slug); },
+    async creatorIdsWithStorefronts() { return [...new Set((must(await sb.from("storefronts").select("creator_id")) as Array<{ creator_id: string }>).map((r) => r.creator_id))]; },
+    async logClick(c) { return fromRow<Click>(must(await sb.from("clicks").insert(toRow(c)).select("*").single())); },
+    async click(id) { const r = await sb.from("clicks").select("*").eq("id", id).maybeSingle(); return r.data ? fromRow<Click>(r.data) : null; },
+    async clicksForStorefront(storefrontId, since) {
+      // paged: a busy creator can pass the default 1,000 row limit in a month
+      const out: Click[] = [];
+      for (let from = 0; ; from += 1000) {
+        const rows = must(await sb.from("clicks").select("id,storefront_id,created_at,source,article,target,ebc_id,query,country,device,visitor,bot").eq("storefront_id", storefrontId).gte("created_at", since).order("created_at", { ascending: false }).range(from, from + 999)) as Array<Record<string, unknown>>;
+        out.push(...rows.map((r) => fromRow<Click>(r)));
+        if (rows.length < 1000 || out.length >= 50000) break;
+      }
+      return out;
+    },
+    async upsertHotel(h) {
+      must(await sb.from("hotels").upsert({ ebc_id: h.ebcId, name: h.name, stars: h.stars, address: h.address, city_id: h.cityId ?? null, city_name: h.cityName, country_iso: h.countryIso ?? null, lat: h.lat, lng: h.lng, images: h.images, rating: h.rating, rating_count: h.ratingCount, destination_slug: h.destination, description: h.description ?? null, synced_at: new Date().toISOString() }));
+    },
+    async pinHotel(storefrontId, ebcId, patch = {}) {
+      const exists = await sb.from("storefront_hotels").select("ebc_id").eq("storefront_id", storefrontId).eq("ebc_id", ebcId).maybeSingle();
+      if (exists.data) return;
+      const last = await sb.from("storefront_hotels").select("position").eq("storefront_id", storefrontId).order("position", { ascending: false }).limit(1).maybeSingle();
+      must(await sb.from("storefront_hotels").insert({ storefront_id: storefrontId, ebc_id: ebcId, position: patch.position ?? ((last.data?.position as number | undefined) ?? -1) + 1, tip: patch.tip ?? null }));
+    },
+    async unpinHotel(storefrontId, ebcId) { must(await sb.from("storefront_hotels").delete().eq("storefront_id", storefrontId).eq("ebc_id", ebcId)); },
+    async directoryCity(cityId) { const r = await sb.from("directory_cities").select("*").eq("city_id", cityId).maybeSingle(); return r.data ? fromRow(r.data) : null; },
+    async saveDirectoryCity(c) { must(await sb.from("directory_cities").upsert(toRow(c))); },
+    async saveDirectoryHotels(rows) { for (let i = 0; i < rows.length; i += 500) must(await sb.from("hotel_directory").upsert(rows.slice(i, i + 500).map((r) => toRow(r as unknown as Record<string, unknown>)))); },
+    async directoryHotels(cityId) {
+      const out: DirectoryHotel[] = [];
+      for (let from = 0; ; from += 1000) {
+        const rows = must(await sb.from("hotel_directory").select("*").eq("city_id", cityId).range(from, from + 999)) as Array<Record<string, unknown>>;
+        out.push(...rows.map((r) => fromRow<DirectoryHotel>(r)));
+        if (rows.length < 1000) break;
+      }
+      return out;
+    },
     async bookingsForCreator(creatorId, limit = 50) { const rows = must(await sb.from("bookings").select("*").eq("creator_id", creatorId).order("created_at", { ascending: false }).limit(limit)) as Array<Record<string, unknown>>; return rows.map((r) => fromRow<Booking>(r)); },
   };
 }

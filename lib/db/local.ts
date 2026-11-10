@@ -6,7 +6,7 @@ import worldFx from "@/lib/ebc/fixtures/world.json";
 import plan from "@/lib/content/lina.json";
 import { destination, destinationForCity } from "@/lib/content/destinations";
 import type { Photo } from "@/lib/media/photo";
-import type { Booking, Collection, Creator, Db, Hotel, Payout, PinnedHotel, PriceCheck, PromoCode, Quote, Storefront } from "./types";
+import type { Booking, Click, Collection, Creator, Db, DirectoryHotel, Hotel, Payout, PinnedHotel, PriceCheck, PromoCode, Quote, Storefront } from "./types";
 
 type Fx = { slug: string; ebcId: number; name: string; area: string; city: string; stars: number; rating: number; votes: number; lat: number; lng: number; tip: string; refs: Array<{ source: string; price: number }>; images?: Photo[]; destination?: string };
 const ALL: Fx[] = [...lisbonFx, ...portugalFx, ...worldFx] as Fx[];
@@ -39,6 +39,9 @@ export function localDb(): Db {
   const CREATOR: Creator = { id: STOREFRONT.creatorId, userId: "00000000-0000-0000-0000-000000000001", displayName: "Lina", email: "lina@example.com" };
   let sf: Storefront = { ...STOREFRONT };
   const cache = new Map<string, { v: unknown; exp: number }>();
+  const clicks: Click[] = [];
+  const dirCities = new Map<number, { cityId: number; name: string; pages: number; pagesDone: number; total: number; finishedAt: string | null }>();
+  const dir = new Map<number, DirectoryHotel>();
 
   for (const h of ALL) {
     hotels.set(h.ebcId, { ebcId: h.ebcId, name: h.name, stars: h.stars, address: h.area, cityName: h.city, lat: h.lat, lng: h.lng, images: h.images ?? [], rating: h.rating, ratingCount: h.votes, destination: h.destination ?? destinationForCity(h.city)?.slug ?? null });
@@ -85,5 +88,17 @@ export function localDb(): Db {
     async addEvent(bookingId, kind, payload) { events.push({ bookingId, kind, payload, at: new Date().toISOString() }); },
     async bookedCountsByHotel(storefrontId, sinceIso) { const m = new Map<number, number>(); for (const b of bookings.values()) if (b.storefrontId === storefrontId && (b.status === 'confirmed' || b.status === 'completed') && !b.demo && b.createdAt >= sinceIso) m.set(b.ebcId, (m.get(b.ebcId) ?? 0) + 1); return m; },
     async bookingsForCreator(creatorId, limit = 50) { return [...bookings.values()].filter((b) => b.creatorId === creatorId).slice(-limit).reverse(); },
+    async storefrontSlugs() { return [sf.slug]; },
+    async creatorIdsWithStorefronts() { return [sf.creatorId]; },
+    async logClick(c) { const full: Click = { ...c, id: randomUUID(), createdAt: new Date().toISOString() }; clicks.push(full); return full; },
+    async click(id) { return clicks.find((c) => c.id === id) ?? null; },
+    async clicksForStorefront(id, since) { return clicks.filter((c) => c.storefrontId === id && c.createdAt >= since); },
+    async upsertHotel(h) { hotels.set(h.ebcId, { ebcId: h.ebcId, name: h.name, stars: h.stars, address: h.address, cityName: h.cityName, lat: h.lat, lng: h.lng, images: h.images, rating: h.rating, ratingCount: h.ratingCount, destination: h.destination }); },
+    async pinHotel(id, ebcId, patch = {}) { if (id !== sf.id || pins.some((p) => p.ebcId === ebcId)) return; const h = hotels.get(ebcId); if (h) pins.push({ ...h, position: patch.position ?? pins.length, tip: patch.tip ?? null, stayedWhen: null }); },
+    async unpinHotel(id, ebcId) { const i = pins.findIndex((p) => p.ebcId === ebcId); if (id === sf.id && i >= 0) pins.splice(i, 1); },
+    async directoryCity(cityId) { return dirCities.get(cityId) ?? null; },
+    async saveDirectoryCity(c) { dirCities.set(c.cityId, c); },
+    async saveDirectoryHotels(rows) { for (const r of rows) dir.set(r.ebcId, r); },
+    async directoryHotels(cityId) { return [...dir.values()].filter((d) => d.cityId === cityId); },
   };
 }

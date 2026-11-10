@@ -1,6 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { ebc, EbcError } from "@/lib/ebc/client";
 import { isAdminToken } from "@/lib/admin";
+import { db } from "@/lib/db";
+import { findHotel, importHotel, citiesFor, syncCity } from "@/lib/links/directory";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -29,7 +31,17 @@ export async function GET(req: NextRequest) {
     else if (op === "details") data = await c.hotelDetails(Number(q.get("id")));
     else if (op === "images") data = await c.hotelImages(Number(q.get("id")));
     else if (op === "descriptions") data = await c.hotelDescriptions(Number(q.get("id")));
-    else return NextResponse.json({ error: "op: cities | hotels | find | details | images | descriptions" }, { status: 400 });
+    else if (op === "import") {
+      // import a hotel's content and pin it to a storefront: id, optional name (display), sf (slug), tip, position
+      const id = Number(q.get("id"));
+      const h = await importHotel(id, q.get("name"));
+      const sf = q.get("sf") ? await db().storefrontBySlug(q.get("sf")!) : null;
+      if (sf) { await db().pinHotel(sf.id, id, { position: q.get("position") ? Number(q.get("position")) : undefined }); if (q.has("tip")) await db().updatePin(sf.id, id, { tip: q.get("tip") || null }); }
+      data = { hotel: h, pinnedTo: sf?.slug ?? null };
+    }
+    else if (op === "resolve") data = await findHotel(q.get("name") ?? "", q.get("place") ?? "");
+    else if (op === "sync") { const cs = await citiesFor(q.get("place") ?? ""); data = await Promise.all(cs.map(async (c) => ({ ...c, done: await syncCity(c, 45_000) }))); }
+    else return NextResponse.json({ error: "op: cities | hotels | find | details | images | descriptions | import | resolve | sync" }, { status: 400 });
     return NextResponse.json({ ok: true, rate: c.lastRateLimit, data }, { headers: { "cache-control": "no-store" } });
   } catch (e) {
     return NextResponse.json({ ok: false, error: e instanceof EbcError ? { status: e.problem.status, title: e.problem.title, code: e.code } : String(e instanceof Error ? e.message : e).slice(0, 300) }, { status: 502 });
