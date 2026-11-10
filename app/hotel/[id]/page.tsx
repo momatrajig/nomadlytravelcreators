@@ -47,7 +47,7 @@ export default async function HotelPage({ params, searchParams }: { params: Prom
 
           <h2 className="rates-h">{t.roomsFor(fmtDate(checkIn), fmtDate(checkOut), adults)}</h2>
           <Suspense fallback={<div className="list-wait" role="status" aria-label="Loading live rates">{[0, 1, 2].map((k) => <div key={k} style={{ gridTemplateColumns: "1fr 200px" }}><div><div className="skel line" style={{ width: "60%", height: 22 }} /><div className="skel line" style={{ width: "80%" }} /></div><div className="skel line" style={{ height: 32 }} /></div>)}</div>}>
-            <Rates t={t} f={f} sf={sf} ebcId={ebcId} checkIn={checkIn} checkOut={checkOut} adults={adults} qs={qs} />
+            <Rates t={t} f={f} sf={sf} ebcId={ebcId} checkIn={checkIn} checkOut={checkOut} adults={adults} qs={qs} photos={hotel.images} />
           </Suspense>
         </div>
         <aside className="hotel-side">
@@ -59,7 +59,7 @@ export default async function HotelPage({ params, searchParams }: { params: Prom
   );
 }
 
-async function Rates({ t, f, sf, ebcId, checkIn, checkOut, adults, qs }: { t: Dict; f: ReaderFmt; sf: Storefront; ebcId: number; checkIn: string; checkOut: string; adults: number; qs: string }) {
+async function Rates({ t, f, sf, ebcId, checkIn, checkOut, adults, qs, photos }: { t: Dict; f: ReaderFmt; sf: Storefront; ebcId: number; checkIn: string; checkOut: string; adults: number; qs: string; photos: Array<{ url: string; w?: number }> }) {
   const v = await stayView(sf, checkIn, checkOut, adults, [ebcId]);
   const offer = v.offers.find((o) => o.ebcId === ebcId);
   const card = v.cards.find((c) => c.ebcId === ebcId);
@@ -80,7 +80,7 @@ async function Rates({ t, f, sf, ebcId, checkIn, checkOut, adults, qs }: { t: Di
             <li>{flex.cancelDeadline ? t.cheapestFlexUntil(fmtDate(flex.cancelDeadline), flex.cancelCharge ? usd(flex.cancelCharge, false) : null) : t.flexNoDate}</li>
             <li>{t.taxNote}</li>
           </ul>}
-          {v.error ? <div className="notice warn" role="alert">{t.supplierDown}</div> : offer ? <RateList f={f} ebcId={ebcId} rates={offer.rates} nights={v.nights} checkIn={checkIn} checkOut={checkOut} adults={adults} /> : <div className="empty"><p>{t.noRooms}</p><Link className="btn" href={`/stays?${qs}`}>{t.tryOtherDates}</Link></div>}
+          {v.error ? <div className="notice warn" role="alert">{t.supplierDown}</div> : offer ? <RateList f={f} ebcId={ebcId} rates={offer.rates} nights={v.nights} checkIn={checkIn} checkOut={checkOut} adults={adults} photos={photos} /> : <div className="empty"><p>{t.noRooms}</p><Link className="btn" href={`/stays?${qs}`}>{t.tryOtherDates}</Link></div>}
     </>
   );
 }

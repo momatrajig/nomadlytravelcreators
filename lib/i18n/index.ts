@@ -15,7 +15,7 @@ export const locale = (lang: Lang) => (lang === "cs" ? "cs-CZ" : "en-US");
 
 export function money(v: number, opts: { lang?: Lang; currency?: string; whole?: boolean } = {}): string {
   const { lang = "en", currency = "USD", whole = false } = opts;
-  const s = new Intl.NumberFormat(lang === "cs" ? "cs-CZ" : "en-US", { style: "currency", currency, currencyDisplay: currency === "CZK" ? "symbol" : "code", minimumFractionDigits: whole ? 0 : 2, maximumFractionDigits: whole ? 0 : 2 }).format(whole ? Math.round(v) : v);
+  const s = new Intl.NumberFormat(lang === "cs" ? "cs-CZ" : "en-US", { style: "currency", currency, currencyDisplay: currency === "CZK" || (currency === "USD" && lang !== "cs") || currency === "EUR" ? "narrowSymbol" : "symbol", minimumFractionDigits: whole ? 0 : 2, maximumFractionDigits: whole ? 0 : 2 }).format(whole ? Math.round(v) : v);
   return s.replace(/ /g, " ").replace(/ /g, " ");
 }
 
@@ -34,7 +34,7 @@ export function fmtDay(iso: string, lang: Lang): string {
 const en = {
   lang: "en" as Lang,
   // header, footer, nav
-  hotels: "Hotels", yourBooking: "Your booking", home: "Home", creatorDashboard: "Creator dashboard", dashboard: "Dashboard",
+  hotels: "Hotels", yourBooking: "Your booking", home: "Home", creatorDashboard: "Creator dashboard", forCreators: "For creators", dashboard: "Dashboard",
   recommendedBy: (b: string) => `Recommended by ${b}`, alsoPick: (b: string) => `Also a ${b} pick`, similarNearby: "Similar stays nearby", similarSub: "Same class of hotel, closest first, priced for your dates.",
   kmAway: (km: number) => km < 1 ? `${Math.round(km * 1000 / 50) * 50} m away` : `${km.toFixed(1)} km away`, pickGone: "Your pick has no rooms on these dates. Try other dates, or one of the stays below.",
   stayingIn: (p: string) => `Stays in ${p}`, theirPicks: (b: string) => `${b}'s picks`, seePicks: "See all picks", picksSub: (n: number, p: number) => `${n} ${n === 1 ? "hotel" : "hotels"} in ${p} ${p === 1 ? "place" : "places"}, each chosen and stayed in.`,
@@ -113,7 +113,7 @@ export type Dict = typeof en;
 
 const cs: Dict = {
   lang: "cs",
-  hotels: "Hotely", yourBooking: "Moje rezervace", home: "Domů", creatorDashboard: "Přehled pro autory", dashboard: "Přehled",
+  hotels: "Hotely", yourBooking: "Moje rezervace", home: "Domů", creatorDashboard: "Přehled pro autory", forCreators: "Pro autory", dashboard: "Přehled",
   recommendedBy: (b) => `Doporučuje ${b}`, alsoPick: (b) => `Také tip: ${b}`, similarNearby: "Podobná ubytování poblíž", similarSub: "Hotely stejné třídy, od nejbližšího, s cenou na vaše termíny.",
   kmAway: (km) => km < 1 ? `${Math.round(km * 1000 / 50) * 50} m odsud` : `${km.toFixed(1).replace(".", ",")} km odsud`, pickGone: "Doporučený hotel nemá na tyto termíny volné pokoje. Zkuste jiné termíny nebo ubytování níže.",
   stayingIn: (p) => `Ubytování: ${p}`, theirPicks: (b) => `Tipy: ${b}`, seePicks: "Všechny tipy", picksSub: (n, p) => `${n} ${plural("cs", n, "hotel", "hotely", "hotelů")} v ${p} ${plural("cs", p, "místě", "místech", "místech")}, všechny vybrané a vyzkoušené.`,

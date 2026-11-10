@@ -1,17 +1,45 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { approxOf, dict, fmtDay, price, type ReaderFmt } from "@/lib/i18n";
+import { roomsDict } from "@/lib/i18n/checkout";
+import { photoSrc, photoSet } from "@/lib/media/photo";
 
 export interface RateView { packageCode: string; roomName: string; board: string; refundable: boolean; onRequest: boolean; cancelDeadline: string | null; cancelCharge: number | null; readerPrice: number }
+type Photo = { url: string; w?: number };
 
-/** Rates for one hotel. "Book this rate" prebooks on the server and moves to checkout with a quote id. */
-export default function RateList({ ebcId, rates, nights, checkIn, checkOut, adults, f }: { ebcId: number; rates: RateView[]; nights: number; checkIn: string; checkOut: string; adults: number; f: ReaderFmt }) {
+/** "DELUXE DOUBLE ROOM, CITY VIEW" reads as "Deluxe Double Room, City View"; mixed case is left as the hotel wrote it. */
+export function roomTitle(s: string) {
+  const x = s.trim().replace(/\s+/g, " ");
+  return x === x.toUpperCase() ? x.toLowerCase().replace(/(^|[\s,(/-])(\p{L})/gu, (_, a, b) => a + b.toUpperCase()) : x;
+}
+/** Rates grouped by room, cheapest room first, each room's options cheapest first. */
+export function groupRooms(rates: RateView[]) {
+  const by = new Map<string, RateView[]>();
+  for (const r of rates) { const k = roomTitle(r.roomName); by.set(k, [...(by.get(k) ?? []), r]); }
+  return [...by.entries()].map(([name, rs]) => ({ name, rates: rs.sort((a, b) => a.readerPrice - b.readerPrice) })).sort((a, b) => a.rates[0]!.readerPrice - b.rates[0]!.readerPrice);
+}
+
+/**
+ * Rooms as a row of cards you swipe through, the way streaming apps lay out a row: one card per room type,
+ * its price options inside it (non refundable or free cancellation, room only or breakfast), the difference
+ * between them spelled out. "Reserve" holds the chosen option on the server and opens checkout.
+ */
+export default function RateList({ ebcId, rates, nights, checkIn, checkOut, adults, f, photos = [] }: { ebcId: number; rates: RateView[]; nights: number; checkIn: string; checkOut: string; adults: number; f: ReaderFmt; photos?: Photo[] }) {
   const t = dict(f.lang);
+  const rd = roomsDict(f.lang);
   const p$ = (v: number, whole = true) => price(f, v, whole);
   const r = useRouter();
+  const row = useRef<HTMLUListElement>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [filter, setFilter] = useState<"all" | "flex" | "breakfast">("all");
+  const [chosen, setChosen] = useState<Record<string, string>>({});
+  const rooms = useMemo(() => groupRooms(rates.filter((x) => filter === "all" || (filter === "flex" ? x.refundable : x.board !== "RO"))), [rates, filter]);
+  const cheapest = Math.min(...rates.map((x) => x.readerPrice));
+  const flexCount = rates.filter((x) => x.refundable).length, bbCount = rates.filter((x) => x.board !== "RO").length;
+  const pics = photos.length > 1 ? photos.slice(1) : photos;
+
   const book = async (packageCode: string) => {
     setBusy(packageCode); setErr(null);
     try {
@@ -21,23 +49,63 @@ export default function RateList({ ebcId, rates, nights, checkIn, checkOut, adul
       r.push(`/checkout?q=${j.quote.id}`);
     } catch { setErr(t.noConnection); setBusy(null); }
   };
+  const scroll = (dir: number) => row.current?.scrollBy({ left: dir * (row.current.clientWidth * 0.85), behavior: "smooth" });
+
   return (
-    <div>
-      {err && <div className="notice bad" role="alert" style={{ marginTop: 12 }}>{err}</div>}
-      {rates.map((rt) => (
-        <div className="rate" key={rt.packageCode}>
-          <div>
-            <h3 style={{ fontSize: 19 }}>{rt.roomName} {rt.refundable ? <span className="chip chip-ok">{t.freeCancel}</span> : <span className="chip chip-bad">{t.noRefunds}</span>}</h3>
-            <p className="small" style={{ margin: "6px 0 0", color: "var(--fg-2)" }}>{rt.refundable ? (rt.cancelDeadline ? t.cancelFreeUntil(fmtDay(rt.cancelDeadline, f.lang), rt.cancelCharge ? p$(rt.cancelCharge, false) : null) : t.refundableNoDate) : t.noRefundKept(p$(rt.readerPrice))}</p>
-            <p className="small" style={{ margin: "4px 0 0", color: "var(--fg-2)" }}>{t.board[rt.board] ?? rt.board}.{rt.onRequest ? t.onRequest : ""}</p>
-          </div>
-          <div className="side">
-            <div className="price">{p$(rt.readerPrice)}</div>{approxOf(f, rt.readerPrice) && <div className="small mute">{approxOf(f, rt.readerPrice)}</div>}
-            <div className="small mute">{t.forNights(nights)}</div>
-            <button className="btn btn-brand" type="button" onClick={() => book(rt.packageCode)} aria-disabled={busy !== null} disabled={busy !== null}>{busy === rt.packageCode ? t.holding : t.bookRate}</button>
-          </div>
+    <div className="rooms">
+      <div className="rooms-bar">
+        <div className="rooms-filters" role="group" aria-label="Filter rooms">
+          <button type="button" className="chip-btn" aria-pressed={filter === "all"} onClick={() => setFilter("all")}>{rd.all(groupRooms(rates).length)}</button>
+          {flexCount > 0 && <button type="button" className="chip-btn" aria-pressed={filter === "flex"} onClick={() => setFilter("flex")}>{rd.flex}</button>}
+          {bbCount > 0 && <button type="button" className="chip-btn" aria-pressed={filter === "breakfast"} onClick={() => setFilter("breakfast")}>{rd.breakfast}</button>}
         </div>
-      ))}
+        {rooms.length > 1 && <div className="rooms-arrows"><button type="button" aria-label={rd.prev} onClick={() => scroll(-1)}>‹</button><button type="button" aria-label={rd.next} onClick={() => scroll(1)}>›</button></div>}
+      </div>
+      {err && <div className="notice bad" role="alert" style={{ marginTop: 12 }}>{err}</div>}
+      {!rooms.length && <p className="mute">{rd.none}</p>}
+      <ul className="rooms-row" ref={row} role="list">
+        {rooms.map((room, i) => {
+          const sel = room.rates.find((x) => x.packageCode === chosen[room.name]) ?? room.rates[0]!;
+          const base = room.rates[0]!.readerPrice;
+          const pic = pics.length ? pics[i % pics.length]! : null;
+          const isLowest = room.rates[0]!.readerPrice === cheapest;
+          const flexiest = !isLowest && room.rates.some((x) => x.refundable && x.board !== "RO");
+          return (
+            <li key={room.name} className="room">
+              <div className="room-pic">
+                {pic ? <img src={photoSrc(pic.url, 720, pic.w)} srcSet={photoSet(pic.url, pic.w)} sizes="340px" alt="" loading={i < 2 ? "eager" : "lazy"} /> : <span className="room-nopic" />}
+                <span className="tag">{rd.photo}</span>
+                {isLowest ? <span className="badge">{rd.lowest}</span> : flexiest ? <span className="badge alt">{rd.flexiest}</span> : null}
+              </div>
+              <div className="room-body">
+                <h3>{room.name}</h3>
+                <p className="room-facts">{rd.sleeps(adults)} · {rd.options(room.rates.length)}</p>
+                <fieldset className="opts"><legend className="sr-only">{rd.choose}</legend>
+                  {room.rates.map((o) => (
+                    <label key={o.packageCode} className={`opt${o.packageCode === sel.packageCode ? " on" : ""}`}>
+                      <input type="radio" name={`r-${i}`} checked={o.packageCode === sel.packageCode} onChange={() => setChosen({ ...chosen, [room.name]: o.packageCode })} />
+                      <span className="opt-txt">
+                        <b className={o.refundable ? "ok" : "bad"}>{o.refundable ? (o.cancelDeadline ? rd.freeUntil(fmtDay(o.cancelDeadline, f.lang)) : t.refundableNoDate) : rd.nonRef}</b>
+                        <span>{t.board[o.board] ?? o.board}{o.onRequest ? `. ${rd.onReq}` : ""}</span>
+                      </span>
+                      <span className="opt-price num">{o.readerPrice === base ? p$(o.readerPrice) : rd.more(p$(o.readerPrice - base))}</span>
+                    </label>
+                  ))}
+                </fieldset>
+                <div className="room-foot">
+                  <div>
+                    <b className="num">{p$(sel.readerPrice)}</b>
+                    <span>{rd.total(nights)}</span>
+                    <span className="num">{rd.perNight(p$(sel.readerPrice / nights))}{approxOf(f, sel.readerPrice) ? `, ${approxOf(f, sel.readerPrice)}` : ""}</span>
+                  </div>
+                  <button className="btn btn-brand" type="button" onClick={() => book(sel.packageCode)} aria-disabled={busy !== null} disabled={busy !== null}>{busy === sel.packageCode ? rd.holding : rd.reserve}</button>
+                </div>
+                {sel.refundable && sel.cancelCharge ? <p className="small mute room-note">{t.cancelFreeUntil(sel.cancelDeadline ? fmtDay(sel.cancelDeadline, f.lang) : t.checkInWord, p$(sel.cancelCharge, false))}</p> : !sel.refundable ? <p className="small mute room-note">{t.noRefundKept(p$(sel.readerPrice))}</p> : null}
+              </div>
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }

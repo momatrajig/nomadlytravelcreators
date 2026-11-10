@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { chargedTotal, confirmPaid, penaltyNow } from "@/lib/booking/service";
 import { db } from "@/lib/db";
+import { requestComments } from "@/lib/booking/service";
 import { env } from "@/lib/env";
 import { stripe } from "@/lib/stripe";
 import { fmtDay, money } from "@/lib/i18n";
@@ -65,7 +66,8 @@ export default async function BookingPage({ params, searchParams }: { params: Pr
         <h1 style={{ fontSize: 28, marginTop: 10 }}>{hotel?.name}</h1>
         <p className="mute" style={{ margin: "4px 0 0" }}>{t.stayLine(fmtDate(b.checkIn), fmtDate(b.checkOut), b.nights, b.guests.length || 1).split(", ").slice(0, 2).join(", ")}. {b.roomName ?? t.room}, {t.board[b.board ?? "RO"]?.toLowerCase()}.</p>
         <p style={{ margin: "12px 0 0" }}>{st.text}</p>
-        {b.extras.length > 0 && <ul className="small" style={{ margin: "10px 0 0", paddingLeft: 18, color: "var(--fg-2)" }}>{b.extras.map((x) => <li key={x.kind}>{t.extras?.[x.kind]?.name ?? x.name}, {usd(x.price, true)}</li>)}</ul>}
+        {b.extras.length > 0 && <ul className="small" style={{ margin: "10px 0 0", paddingLeft: 18, color: "var(--fg-2)" }}>{b.extras.map((x) => <li key={x.kind}>{x.option ? x.name : t.extras?.[x.kind]?.name ?? x.name}, {usd(x.price, true)}{x.detail ? <><br /><span className="mute">{x.detail}</span></> : null}</li>)}</ul>}
+        {b.requests && (b.requests.items.length > 0 || b.requests.note || b.requests.arrival) && <p className="small" style={{ margin: "10px 0 0", color: "var(--fg-2)" }}><b>{f.lang === "cs" ? "Požadavky pro hotel" : "Requests sent to the hotel"}:</b> {requestComments(b.requests)}</p>}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 12, marginTop: 16 }}>
           <div><div className="small mute">{t.yourRef}</div><b>{b.reference}</b></div>
           {b.hotelConfirmation && <div><div className="small mute">{t.hotelConf}</div><b>{b.hotelConfirmation}</b></div>}

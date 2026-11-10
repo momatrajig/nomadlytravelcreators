@@ -89,11 +89,11 @@ describe("extras", () => {
     const q = await holdQuote(sf, o, o.rates.find((x) => x.refundable)!.packageCode, "2026-12-03", "2026-12-05", [{ adults: 1, childrenAges: [] }]);
     const { booking, amount } = await startPayment(sf, q, { firstName: "A", lastName: "B", email: "a@b.c" }, undefined, ["transfer", "esim", "esim"]);
     expect(booking.extras.map((x) => x.kind)).toEqual(["transfer", "esim"]);
-    expect(amount).toBe(377.75 + 78 + 12);
+    expect(amount).toBe(377.75 + 78 + 8); // 2 nights: the 5 GB plan is the default
     expect(booking.extras[0]!.creatorShare).toBe(12.52);
     await confirmPaid(booking.id, "pi_x", "https://x");
     const c = await cancelBooking(booking.id);
-    expect(c.refund).toBe(467.75);
+    expect(c.refund).toBe(463.75);
   });
 });
 

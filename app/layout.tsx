@@ -44,12 +44,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 <span className="x" aria-hidden="true">×</span>
                 {sf.logoPath ? <img className="cl" src={sf.logoPath} alt={sf.brandName} /> : <><span className="mark">{sf.brandName.slice(0, 1).toUpperCase()}</span><span className="bn">{sf.brandName}</span></>}
               </Link>
-              <div className="hdr-right"><nav className="nav" aria-label="Main"><Link href="/picks">{t.theirPicks(sf.brandName)}</Link><Link href="/stays">{t.hotels}</Link><Link href="/booking">{t.yourBooking}</Link></nav></div>
+              <div className="hdr-right"><nav className="nav" aria-label="Main"><Link href="/picks">{t.theirPicks(sf.brandName)}</Link><Link href="/stays">{t.hotels}</Link><Link href="/booking">{t.yourBooking}</Link></nav>{!showCreator && <Link href="/dashboard" className="btn btn-quiet hdr-creators">{t.forCreators}</Link>}</div>
             </div></header>
             <main className="wrap">{children}</main>
             <footer className="wrap site-foot">
               <p>{t.footRuns(sf.brandName)}</p>
-              <p>{sf.siteUrl && <a href={sf.siteUrl}>{sf.siteUrl.replace(/^https?:\/\//, "").replace(/\/$/, "")}</a>}<Link href="/credits">{t.photoCredits}</Link><Link href="/booking">{t.findBooking}</Link></p>
+              <p>{sf.siteUrl && <a href={sf.siteUrl}>{sf.siteUrl.replace(/^https?:\/\//, "").replace(/\/$/, "")}</a>}<Link href="/credits">{t.photoCredits}</Link><Link href="/booking">{t.findBooking}</Link><Link href="/dashboard">{t.creatorDashboard}</Link></p>
             </footer>
             <BottomNav labels={[t.home, t.hotels, t.yourBooking]} />
           </>

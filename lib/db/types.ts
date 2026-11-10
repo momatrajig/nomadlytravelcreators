@@ -45,9 +45,22 @@ export interface Booking {
   pricingModel?: "v1" | "net"; margin?: number | null; costs?: number | null;
   /** the tracked link click this booking came from, and its source (article or campaign) */
   clickId?: string | null; source?: string | null;
-  extras: Array<{ kind: string; name: string; price: number; commission: number; creatorShare: number }>;
+  extras: Array<{ kind: string; name: string; price: number; commission: number; creatorShare: number; detail?: string | null; option?: string | null }>;
+  /** what the reader asked the hotel for; sent with the reservation as comments */
+  requests?: BookingRequests | null;
+  leadCountry?: string | null;
   lowestReference: number | null; lowestReferenceSource: string | null; promoCode: string | null; promoDiscount: number;
   stripePaymentIntent: string | null; paidAt: string | null; canceledAt: string | null; voucherToken: string | null; createdAt: string;
+}
+export interface BookingRequests {
+  /** early_checkin, late_checkout, quiet, high_floor, low_floor, twin, double, cot, accessible, connecting */
+  items: string[];
+  note: string | null;
+  /** expected arrival hour at the hotel, "HH:00", or null when unknown */
+  arrival: string | null;
+  /** "self" when the person paying is the guest; "other" with the booker's name when booking for someone */
+  bookedFor: "self" | "other";
+  booker: { firstName: string; lastName: string } | null;
 }
 export interface PromoCode { storefrontId: string; code: string; amountOff: number; maxUses: number | null; uses: number; active: boolean; startsAt: string | null; endsAt: string | null }
 

@@ -12,9 +12,9 @@
 import { cancellationDeadline, ebc, EbcError } from "@/lib/ebc/client";
 import type { Package, Room } from "@/lib/ebc/types";
 import { db } from "@/lib/db";
-import type { Booking, PriceCheck, Quote, Storefront } from "@/lib/db/types";
+import type { Booking, BookingRequests, PriceCheck, Quote, Storefront } from "@/lib/db/types";
 import { extraLedger, lowestReference, markupCeiling, r2, stayLedger, termsOf, type ReferenceQuote } from "@/lib/pricing/engine";
-import { extraByKind } from "@/lib/extras/catalog";
+import { priceExtra, type ExtraPick } from "@/lib/extras/catalog";
 import { sendBookingEmail } from "@/lib/email/send";
 import { bookingMode } from "./guard";
 
@@ -198,10 +198,10 @@ export function newReference(): string {
   return `NMD ${n}`;
 }
 
-export interface GuestInput { firstName: string; lastName: string; email: string; phone?: string; title?: "mr" | "mrs" | "ms"; country?: string }
+export interface GuestInput { firstName: string; lastName: string; email: string; phone?: string; title?: "mr" | "mrs" | "ms"; country?: string; requests?: BookingRequests | null }
 
 /** Create the booking row in "paying" and return the amount to charge. The caller creates the PaymentIntent. */
-export async function startPayment(sf: Storefront, quote: Quote, guest: GuestInput, promoCode?: string, extraKinds: string[] = [], attribution: { clickId: string | null; source: string | null } = { clickId: null, source: null }): Promise<{ booking: Booking; amount: number; currency: string }> {
+export async function startPayment(sf: Storefront, quote: Quote, guest: GuestInput, promoCode?: string, extraPicks: Array<ExtraPick | ExtraPick["kind"]> = [], attribution: { clickId: string | null; source: string | null } = { clickId: null, source: null }): Promise<{ booking: Booking; amount: number; currency: string }> {
   if (Date.parse(quote.expiresAt) < Date.now()) throw new BookingError("QUOTE_EXPIRED", "This quote expired. Search again for a fresh price.");
   let discount = 0;
   if (promoCode) {
@@ -211,12 +211,18 @@ export async function startPayment(sf: Storefront, quote: Quote, guest: GuestInp
     discount = Math.min(p.amountOff, quote.creatorShare); // a promo is paid out of the creator's share, never below Nomadly's net
   }
   const n = nights(quote.checkIn, quote.checkOut);
-  const extras = [...new Set(extraKinds)].map((k) => extraByKind(k)).filter((x): x is NonNullable<typeof x> => !!x).map((x) => { const l = extraLedger(x.price, x.commission, termsOf(sf).extrasShare); return { kind: x.kind, name: x.name, price: l.price, commission: l.nomadlyCommission, creatorShare: l.creatorShare }; });
+  // every service priced here from the catalogue; one of each kind; the browser only sends choices
+  const hotel = await db().hotel(quote.ebcId).catch(() => null);
+  const ctx = { destination: hotel?.destination ?? null, adults: quote.occupancy.reduce((a, r) => a + r.adults, 0) || 1, nights: n };
+  const picks = extraPicks.map((x) => (typeof x === "string" ? { kind: x } : x)).filter((x, i, a) => a.findIndex((y) => y.kind === x.kind) === i);
+  let priced;
+  try { priced = picks.map((x) => priceExtra(x, ctx)); } catch (e) { throw new BookingError("INVALID", e instanceof Error ? e.message : "That service option is not available."); }
+  const extras = priced.map((x) => { const l = extraLedger(x.price, x.commission, termsOf(sf).extrasShare); return { kind: x.kind, name: x.name, detail: x.detail, option: x.option, price: l.price, commission: l.nomadlyCommission, creatorShare: l.creatorShare }; });
   const seq = Date.now().toString(36);
   const booking = await db().createBooking({
     reference: newReference(), clientRef: `nomadly-${seq}`.toLowerCase(), storefrontId: sf.id, creatorId: sf.creatorId, quoteId: quote.id, ebcId: quote.ebcId, ebcReservationId: null, hotelConfirmation: null,
     status: "paying", checkIn: quote.checkIn, checkOut: quote.checkOut, nights: n,
-    guests: [{ firstName: guest.firstName.trim(), lastName: guest.lastName.trim(), type: "adult", lead: true }], leadEmail: guest.email.trim().toLowerCase(), leadPhone: guest.phone ?? null,
+    guests: [{ firstName: guest.firstName.trim(), lastName: guest.lastName.trim(), type: "adult", lead: true }], leadEmail: guest.email.trim().toLowerCase(), leadPhone: guest.phone ?? null, leadCountry: guest.country ?? null, requests: guest.requests ?? null,
     roomName: null, board: quote.board, refundable: quote.refundable, cancelDeadline: quote.cancelDeadline, cancelCharge: quote.cancelCharge, currency: quote.currency,
     supplierNet: quote.supplierNet, nomadlyNet: quote.nomadlyNet, creatorRate: quote.creatorRate, creatorShare: quote.creatorShare, readerPrice: r2(quote.readerPrice - discount), cardFee: null,
     pricingModel: quote.pricingModel ?? "v1", margin: quote.margin ?? null, costs: quote.costs ?? null, clickId: attribution.clickId, source: attribution.source,
@@ -224,7 +230,7 @@ export async function startPayment(sf: Storefront, quote: Quote, guest: GuestInp
     stripePaymentIntent: null, paidAt: null, canceledAt: null, voucherToken: null,
   });
   const amount = r2(booking.readerPrice + extras.reduce((a, x) => a + x.price, 0));
-  await db().addEvent(booking.id, "payment_started", { amount, extras: extras.map((x) => x.kind) });
+  await db().addEvent(booking.id, "payment_started", { amount, extras: extras.map((x) => `${x.kind}:${x.option}`), requests: guest.requests?.items ?? [] });
   return { booking, amount, currency: booking.currency };
 }
 
@@ -251,8 +257,9 @@ export async function confirmPaid(bookingId: string, paymentIntentId: string, we
     if (dbl.hasDoubleBookings) await db().addEvent(b.id, "double_booking_warning", dbl);
     const res = await c.book(q.srk, q.hotelIndex, q.offerIndex, q.resultsToken, {
       availabilityToken: q.availabilityToken, clientRef: b.clientRef,
-      rooms: [{ packageRoomToken: q.packageCode, travelers: [{ reference: "t1", type: "adult", lead: true, title: "ms", firstName: lead.firstName, lastName: lead.lastName, email: b.leadEmail, phone: b.leadPhone ?? undefined }] }],
+      rooms: [{ packageRoomToken: q.packageCode, travelers: [{ reference: "t1", type: "adult", lead: true, title: "ms", firstName: lead.firstName, lastName: lead.lastName, email: b.leadEmail, ...splitPhone(b.leadPhone), country: b.leadCountry ?? undefined }] }],
       payment: { method: "credit" },
+      ...(requestComments(b.requests) ? { comments: requestComments(b.requests)! } : {}),
     });
     const r = await c.reservation(res.id);
     let webhookId: number | undefined;
@@ -271,6 +278,22 @@ export async function confirmPaid(bookingId: string, paymentIntentId: string, we
     await db().addEvent(b.id, "book_failed", e instanceof EbcError ? e.problem : String(e));
     throw new BookingError("SUPPLIER", "Payment succeeded but the hotel booking failed; refund scheduled.", e);
   }
+}
+
+const REQUEST_TEXT: Record<string, string> = {
+  early_checkin: "Early check-in if possible", late_checkout: "Late check-out if possible", quiet: "Quiet room", high_floor: "High floor",
+  low_floor: "Low floor", twin: "Twin beds", double: "Double bed", cot: "Baby cot", accessible: "Accessible room", connecting: "Connecting rooms",
+};
+/** The reader's requests as the one line of comments the hotel receives with the reservation (English, as hotels read it). */
+export function requestComments(r: BookingRequests | null | undefined): string | null {
+  if (!r) return null;
+  const parts = [...r.items.map((k: string) => REQUEST_TEXT[k]), r.arrival ? `Arrival around ${r.arrival}` : null, r.note?.trim() || null].filter(Boolean);
+  return parts.length ? `${parts.join(". ")}. Requests subject to availability.`.slice(0, 480) : null;
+}
+/** "+420 777123456" (dial code, a space, the number, as checkout sends it) as the supplier wants it: prefix and number apart. */
+export function splitPhone(p: string | null | undefined): { phonePrefix?: string; phone?: string } {
+  const m = p?.trim().match(/^\+(\d{1,4})\s+([\d\s()-]{4,20})$/);
+  return m ? { phonePrefix: `+${m[1]}`, phone: m[2]!.replace(/\D/g, "") } : p ? { phone: p.replace(/\D/g, "") } : {};
 }
 
 /** What the reader was charged: room plus extras. */
