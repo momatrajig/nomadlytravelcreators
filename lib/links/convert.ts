@@ -56,7 +56,7 @@ export async function convertLinks(sf: Storefront, lines: string[], base: string
   let position = pins.length;
   for (const { href, source: fallback } of queue.slice(0, 60)) {
     const l = readLink(href)!;
-    const source = opts.source ?? l.source ?? fallback;
+    const source = opts.source ?? fallback ?? l.source;
     const place = l.place ?? opts.place ?? sf.cityName ?? null;
     const p = new URLSearchParams();
     if (l.search || !l.name) {

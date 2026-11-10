@@ -96,3 +96,24 @@ describe("extras", () => {
     expect(c.refund).toBe(418.75);
   });
 });
+
+describe("link attribution", () => {
+  it("a booking made after a link click carries the click and its source", async () => {
+    const { attributionFor } = await import("@/lib/links/track");
+    const sf = (await db().storefrontBySlug("lina"))!;
+    const click = await db().logClick({ storefrontId: sf.id, source: "paris-guide", article: null, target: "hotel", ebcId: 515886, query: null, country: "CZ", device: "mobile", visitor: "v", bot: false });
+    const bot = await db().logClick({ storefrontId: sf.id, source: "x", article: null, target: "hotel", ebcId: null, query: null, country: null, device: null, visitor: null, bot: true });
+    expect(await attributionFor(sf.id, bot.id)).toEqual({ clickId: null, source: null });
+    expect(await attributionFor("other", click.id)).toEqual({ clickId: null, source: null });
+    const a = await attributionFor(sf.id, click.id);
+    const r = await searchStays(sf, "2026-12-03", "2026-12-05", 1);
+    const ic = r.offers.find((o) => o.ebcId === 515886)!;
+    const flex = ic.rates.find((x) => x.refundable)!;
+    const q = await holdQuote(sf, ic, flex.packageCode, "2026-12-03", "2026-12-05", [{ adults: 1, childrenAges: [] }]);
+    const { booking } = await startPayment(sf, q, { firstName: "Ana", lastName: "Reader", email: "a@example.com" }, undefined, [], a);
+    expect(booking.clickId).toBe(click.id);
+    expect(booking.source).toBe("paris-guide");
+    expect(booking.pricingModel).toBe("net");
+    expect(booking.margin! - booking.costs!).toBeCloseTo(booking.nomadlyNet, 2);
+  });
+});
