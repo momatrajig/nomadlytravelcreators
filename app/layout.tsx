@@ -36,7 +36,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             {env().EBC_MODE === "mock" ? <div className="demo" role="note">{t.bannerMock}</div>
               : bookingClosedReason() ? <div className="demo" role="note">{t.bannerDemo}</div> : null}
             <header className="hdr"><div className="wrap">
-              <Link href="/" className="logo"><span className="mark">{sf.brandName.slice(0, 1).toUpperCase()}</span><span>{sf.brandName}</span></Link>
+              <Link href="/" className="logo cobrand" aria-label={`Nomadly with ${sf.brandName}, home`}>
+                <img className="nm" src="/brand/nomadly.png" alt="Nomadly" width={118} height={36} />
+                <span className="x" aria-hidden="true">×</span>
+                {sf.logoPath ? <img className="cl" src={sf.logoPath} alt={sf.brandName} /> : <><span className="mark">{sf.brandName.slice(0, 1).toUpperCase()}</span><span className="bn">{sf.brandName}</span></>}
+              </Link>
               <div className="hdr-right"><nav className="nav" aria-label="Main"><Link href="/stays">{t.hotels}</Link><Link href="/booking">{t.yourBooking}</Link></nav>{showCreator && <Link href="/dashboard" className="btn btn-quiet"><span className="hide-sm">{t.creatorDashboard}</span><span className="show-sm">{t.dashboard}</span></Link>}</div>
             </div></header>
             <main className="wrap">{children}</main>
