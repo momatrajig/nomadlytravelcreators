@@ -146,7 +146,19 @@ export class EbcClient {
 
   // ---------- mapping ----------
   hotelDetails(id: number) { return this.request<HotelDetails>("GET", `/mapping/v1/hotels/${id}/details`); }
-  hotelImages(id: number) { return this.request<{ _embedded?: { images?: HotelImage[] }; images?: HotelImage[] }>("GET", `/mapping/v1/hotels/${id}/images`).then((r) => r.images ?? r._embedded?.images ?? []); }
+  /** the live API returns the gallery under _embedded.gallery; older shapes are kept for safety */
+  hotelImages(id: number) { return this.request<{ _embedded?: { images?: HotelImage[]; gallery?: HotelImage[] }; images?: HotelImage[] }>("GET", `/mapping/v1/hotels/${id}/images`, { query: { perPage: 100 } }).then((r) => r.images ?? r._embedded?.gallery ?? r._embedded?.images ?? []); }
+  hotelDescriptions(id: number) { return this.request<Record<string, unknown>>("GET", `/mapping/v1/hotels/${id}/descriptions`); }
+  /** cities by (partial) name; case insensitive */
+  cities(name: string, perPage = 20) {
+    return this.request<{ _total_items?: number; _embedded?: { cities?: Array<{ id: number; countryId: number; name: string; code: string | null; geolocation?: { latitude: number | null; longitude: number | null } }> } }>("GET", "/mapping/v1/cities", { query: { name, perPage } })
+      .then((r) => r._embedded?.cities ?? []);
+  }
+  /** one page of the hotels in a city (basic info) */
+  hotelsPage(q: { cityId?: number; hotelIds?: number[]; page?: number; perPage?: number }) {
+    return this.request<{ _total_items?: number; _page?: number; _page_count?: number; _embedded?: { hotels?: Array<{ id: number; name: string; address: string | null; zipCode?: string | null; stars: number | null; city?: { id?: number; name?: string } | null; country?: { id?: number; name?: string; iso?: string } | null; geolocation?: { latitude: number | null; longitude: number | null } | null }> } }>("GET", "/mapping/v1/hotels", { query: { cityId: q.cityId, hotelIds: q.hotelIds?.join(","), page: q.page ?? 1, perPage: q.perPage ?? 100 } })
+      .then((r) => ({ total: r._total_items ?? 0, pages: r._page_count ?? 1, hotels: r._embedded?.hotels ?? [] }));
+  }
 
   // ---------- nationalities ----------
   private nationalities: { at: number; byIso: Map<string, number> } | null = null;
