@@ -67,7 +67,7 @@ const en = {
   allHotels: "All hotels", roomsFor: (a: string, b: string, ad: number) => `Rooms for ${a} to ${b}, ${ad} ${ad === 1 ? "adult" : "adults"}`,
   stayed: (w: string) => `, stayed ${w}`, cheapestFlexUntil: (d: string, then: string | null) => `Free cancellation until ${d} on the cheapest flexible rate${then ? `, then ${then}` : ""}.`,
   flexNoDate: "Flexible rates are refundable; each one's exact deadline is shown at checkout, before you pay.", taxNote: "Taxes included. City tax, where there is one, is paid at the hotel.",
-  tryOtherDates: "Try other dates", noRooms: "No rooms for these dates.", openPhoto: (i: number, n: number) => `Open photo ${i} of ${n}`, allPhotos: (n: number) => `All ${n} photos`,
+  tryOtherDates: "Try other dates", noRooms: "No rooms for these dates.", openPhoto: (i: number, n: number) => `Open photo ${i} of ${n}`, fullMap: "Open the full map", mapOf: (n: string) => `Map of ${n}`, allPhotos: (n: number) => `All ${n} photos`,
   // rates
   freeCancel: "Free cancellation", cancelFreeUntil: (d: string, then: string | null) => `Cancel free until ${d}${then ? `, then ${then} is charged` : ""}.`,
   refundableNoDate: "Refundable. The hotel's exact cancellation deadline is shown at checkout, before you pay.",
@@ -118,7 +118,7 @@ const cs: Dict = {
   metaTitle: (brand) => `${brand}: hotely s aktuálními cenami`,
   heroSub: (who) => `Aktuální ceny přímo z hotelů, rezervace přes ${who}. Kde máme cenu z Booking.com a Expedie pro stejný pokoj a termín, uvidíte ji vedle naší.`,
   whereStayed: "Kde bydlet", placesHotels: (p, h) => `${p} ${plural("cs", p, "místo", "místa", "míst")}, ${h} ${plural("cs", h, "hotel", "hotely", "hotelů")}.`,
-  pricesFor: (a, b) => `Ceny za noc pro termín ${a} až ${b}.`,
+  pricesFor: (a, b) => `Ceny za noc, ${a} až ${b}`,
   hotelsN: (n) => `${n} ${plural("cs", n, "hotel", "hotely", "hotelů")}`, fromNight: (p) => `, od ${p} za noc`,
   everyHotel: "Všechny hotely", everyHotelDates: (a, b) => `Všechny hotely, ${a} až ${b}`, askingRates: "Zjišťujeme aktuální ceny v hotelech.",
   belowBig: (best, of) => `${best} z ${of} porovnaných je pro tento termín levnějších než velké portály. `,
@@ -139,7 +139,7 @@ const cs: Dict = {
   allHotels: "Všechny hotely", roomsFor: (a, b, ad) => `Pokoje pro ${a} až ${b}, ${ad} ${plural("cs", ad, "dospělý", "dospělí", "dospělých")}`,
   stayed: (w) => `, bydleli jsme ${w}`, cheapestFlexUntil: (d, then) => `U nejlevnější flexibilní ceny storno zdarma do ${d}${then ? `, potom ${then}` : ""}.`,
   flexNoDate: "Flexibilní ceny lze zrušit; přesný termín storna u každé z nich uvidíte v pokladně před platbou.", taxNote: "Včetně daní. Městskou daň, pokud se platí, hradíte v hotelu.",
-  tryOtherDates: "Zkusit jiný termín", noRooms: "Pro tento termín nejsou volné pokoje.", openPhoto: (i, n) => `Otevřít fotku ${i} z ${n}`, allPhotos: (n) => `Všech ${n} fotek`,
+  tryOtherDates: "Zkusit jiný termín", noRooms: "Pro tento termín nejsou volné pokoje.", openPhoto: (i, n) => `Otevřít fotku ${i} z ${n}`, fullMap: "Otevřít celou mapu", mapOf: (n) => `Mapa: ${n}`, allPhotos: (n) => `Všech ${n} fotek`,
   freeCancel: "Storno zdarma", cancelFreeUntil: (d, then) => `Storno zdarma do ${d}${then ? `, potom se účtuje ${then}` : ""}.`,
   refundableNoDate: "Vratná cena. Přesný termín storna hotelu uvidíte v pokladně před platbou.",
   noRefundKept: (p) => `Po rezervaci nelze zrušit ani změnit. Při změně plánů propadá celých ${p}.`, onRequest: " Hotel potvrdí do několika hodin; do té doby se nic neúčtuje.",
@@ -181,6 +181,10 @@ const cs: Dict = {
 };
 
 export const dict = (lang: Lang): Dict => (lang === "cs" ? cs : en);
+
+/** Destination names the way Czech readers write them. */
+const CS_PLACES: Record<string, string> = { paris: "Paříž", london: "Londýn", dubai: "Dubaj", "new-york": "New York", singapore: "Singapur", istanbul: "Istanbul", marrakech: "Marrákeš", amsterdam: "Amsterdam", barcelona: "Barcelona", rome: "Řím", rio: "Rio de Janeiro", lisbon: "Lisabon", madeira: "Madeira" };
+export const placeName = (slug: string, fallback: string, lang: Lang) => (lang === "cs" ? CS_PLACES[slug] ?? fallback : fallback);
 export const plurals = plural;
 
 /** Everything a page needs to write prices and dates for its readers; serializable, so client components get it as a prop. */

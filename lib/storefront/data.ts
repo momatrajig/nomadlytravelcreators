@@ -37,9 +37,10 @@ export async function stayView(sf: Storefront, checkIn: string, checkOut: string
 
 
 import { DESTINATIONS, destination, type Destination } from "@/lib/content/destinations";
+import { placeName, type Lang } from "@/lib/i18n";
 export interface DestView extends Destination { hotels: number[] }
 /** Destinations this storefront has hotels in, in the platform's order. */
-export function storefrontDestinations(pins: PinnedHotel[]): DestView[] {
-  return DESTINATIONS.map((d) => ({ ...d, hotels: pins.filter((p) => p.destination === d.slug).map((p) => p.ebcId) })).filter((d) => d.hotels.length);
+export function storefrontDestinations(pins: PinnedHotel[], lang: Lang = "en"): DestView[] {
+  return DESTINATIONS.map((d) => ({ ...d, name: placeName(d.slug, d.name, lang), hotels: pins.filter((p) => p.destination === d.slug).map((p) => p.ebcId) })).filter((d) => d.hotels.length);
 }
 export { destination };

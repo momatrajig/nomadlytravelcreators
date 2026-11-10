@@ -39,6 +39,13 @@ export async function GET(req: NextRequest) {
       if (sf) { await db().pinHotel(sf.id, id, { position: q.get("position") ? Number(q.get("position")) : undefined }); if (q.has("tip")) await db().updatePin(sf.id, id, { tip: q.get("tip") || null }); }
       data = { hotel: h, pinnedTo: sf?.slug ?? null };
     }
+    else if (op === "convert") {
+      // the dashboard's link converter, for a storefront: text (links or article address), place, source
+      const sf = await db().storefrontBySlug(q.get("sf") ?? "");
+      if (!sf) return NextResponse.json({ error: "sf" }, { status: 400 });
+      const { convertLinks } = await import("@/lib/links/convert");
+      data = await convertLinks(sf, (q.get("text") ?? "").split(/\s+/), `${req.nextUrl.origin}/go/${sf.slug}`, { place: q.get("place"), source: q.get("source") });
+    }
     else if (op === "resolve") data = await findHotel(q.get("name") ?? "", q.get("place") ?? "");
     else if (op === "sync") { const cs = await citiesFor(q.get("place") ?? ""); data = await Promise.all(cs.map(async (c) => ({ ...c, done: await syncCity(c, 45_000) }))); }
     else return NextResponse.json({ error: "op: cities | hotels | find | details | images | descriptions | import | resolve | sync" }, { status: 400 });

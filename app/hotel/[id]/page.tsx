@@ -9,7 +9,7 @@ import GalleryOpener from "@/components/GalleryOpener";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
 import { checkedLabel } from "@/lib/format";
-import { approxOf, fmtDay, price, type Dict, type ReaderFmt } from "@/lib/i18n";
+import { approxOf, fmtDay, placeName, price, type Dict, type ReaderFmt } from "@/lib/i18n";
 import { readerOf } from "@/lib/storefront/reader";
 import { readDates } from "@/lib/dates";
 import { destination, stayView } from "@/lib/storefront/data";
@@ -32,7 +32,7 @@ export default async function HotelPage({ params, searchParams }: { params: Prom
   const first = f.lang === "cs" ? sf.brandName : sf.brandName.split(" ").pop();
   return (
     <>
-      <nav className="crumbs" aria-label="Breadcrumb"><Link href={`/stays?${qs}`}>{t.allHotels}</Link>{d && <><span aria-hidden="true">/</span><Link href={`/stays?d=${d.slug}&${qs}`}>{d.name}</Link></>}<span aria-hidden="true">/</span><span aria-current="page">{hotel.name}</span></nav>
+      <nav className="crumbs" aria-label="Breadcrumb"><Link href={`/stays?${qs}`}>{t.allHotels}</Link>{d && <><span aria-hidden="true">/</span><Link href={`/stays?d=${d.slug}&${qs}`}>{placeName(d.slug, d.name, f.lang)}</Link></>}<span aria-hidden="true">/</span><span aria-current="page">{hotel.name}</span></nav>
       <GalleryOpener lang={f.lang} photos={hotel.images} name={hotel.name} />
       <div className="hotel">
         <div className="hotel-main">
@@ -48,7 +48,7 @@ export default async function HotelPage({ params, searchParams }: { params: Prom
           </Suspense>
         </div>
         <aside className="hotel-side">
-          {hotel.lat != null && hotel.lng != null && <HotelMap lat={hotel.lat} lng={hotel.lng} name={hotel.name} />}
+          {hotel.lat != null && hotel.lng != null && <HotelMap lat={hotel.lat} lng={hotel.lng} name={hotel.name} labels={[t.mapOf(hotel.name), t.fullMap]} />}
           {hotel.lat != null && hotel.lng != null && <TravelTimes lang={f.lang} destination={hotel.destination} lat={hotel.lat} lng={hotel.lng} />}
         </aside>
       </div>

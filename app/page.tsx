@@ -23,7 +23,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
   const { checkIn, checkOut, adults, qs } = readDates(await searchParams, env().EBC_MODE);
   const [pins, collections] = await Promise.all([db().pinnedHotels(sf.id), db().collections(sf.id)]);
   const seasons = collections.filter((c) => c.kind === "season" && c.checkIn && c.checkOut);
-  const dests = storefrontDestinations(pins);
+  const dests = storefrontDestinations(pins, f.lang);
   const who = f.lang === "cs" ? sf.brandName : sf.brandName.split(" ").pop()!;
   const slides = ["paris", "dubai", "rio", "london", "istanbul"].map((s) => dests.find((d) => d.slug === s)).filter(Boolean).map((d) => ({ url: d!.hero, place: d!.name }));
   return (

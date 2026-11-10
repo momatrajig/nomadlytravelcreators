@@ -63,7 +63,8 @@ function packagesToRates(pkgs: Package[], rooms: Room[], markup: number, share: 
     return {
       packageCode: p.packageCode, packageToken: p.packageToken, roomTokens: refs.map((r) => r.roomToken),
       roomName: room?.name ?? "Room", board: room?.boardBasis ?? "RO", refundable: !(room?.nonRefundable ?? false), onRequest: p.status === "RQ",
-      cancelDeadline: dl?.date ?? null, cancelCharge: dl?.charge.value ?? null,
+      // a supplier's penalty can be stated on a different basis; the reader never owes more than they pay
+      cancelDeadline: dl?.date ?? null, cancelCharge: dl?.charge.value != null ? Math.min(dl.charge.value, l.readerPrice) : null,
       supplierNet: l.supplierNet, readerPrice: l.readerPrice, creatorShare: l.creatorShare, nomadlyNet: l.nomadlyNet, creatorRate: share, markup, margin: l.margin, costs: l.costs,
     };
   }).sort((a, b) => Number(b.refundable) - Number(a.refundable) || a.readerPrice - b.readerPrice); // flexible rates first, then price
@@ -177,7 +178,7 @@ export async function holdQuote(sf: Storefront, offer: StayOffer, packageCode: s
   return db().saveQuote({
     storefrontId: sf.id, ebcId: offer.ebcId, checkIn, checkOut, occupancy, srk: offer.srk, resultsToken: offer.resultsToken, hotelIndex: offer.hotelIndex, offerIndex: rate.offerIndex ?? offer.offerIndex,
     packageCode, packageToken: rate.packageToken, roomTokens: rate.roomTokens, board: rate.board, refundable: rate.refundable && !(av.rooms[0]?.nonRefundable ?? false),
-    cancelDeadline: dl?.date ?? null, cancelCharge: dl?.charge ?? null,
+    cancelDeadline: dl?.date ?? null, cancelCharge: dl?.charge != null ? Math.min(dl.charge, l.readerPrice) : null,
     supplierNet: l.supplierNet, currency: av.price.selling.currency, creatorRate: l.creatorRate, nomadlyNet: l.nomadlyNet, creatorShare: l.creatorShare, readerPrice: l.readerPrice,
     pricingModel: "net", margin: l.margin, costs: l.costs,
     lowestReference: offer.lowestReference?.price ?? null, lowestReferenceSource: sourceCode(offer.lowestReference?.source),

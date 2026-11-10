@@ -4,7 +4,7 @@ import type { Storefront } from "@/lib/db/types";
 import SearchBar from "@/components/SearchBar";
 import { env } from "@/lib/env";
 import { checkedLabel } from "@/lib/format";
-import { fmtDay, price, approxOf, type Dict, type ReaderFmt } from "@/lib/i18n";
+import { fmtDay, placeName, price, approxOf, type Dict, type ReaderFmt } from "@/lib/i18n";
 import { readerOf } from "@/lib/storefront/reader";
 import { nights as nightsOf } from "@/lib/booking/service";
 import { readDates } from "@/lib/dates";
@@ -22,11 +22,11 @@ export default async function Stays({ searchParams }: { searchParams: Promise<Re
   const sp = await searchParams;
   const { checkIn, checkOut, adults, qs } = readDates(sp, env().EBC_MODE);
   const [pins, collections] = await Promise.all([db().pinnedHotels(sf.id), db().collections(sf.id)]);
-  const dests = storefrontDestinations(pins);
+  const dests = storefrontDestinations(pins, f.lang);
   const d = typeof sp.d === "string" ? destination(sp.d) : null;
   const col = typeof sp.collection === "string" ? collections.find((c) => c.slug === sp.collection) ?? null : null;
   const only = col ? col.ebcIds : d ? pins.filter((p) => p.destination === d.slug).map((p) => p.ebcId) : undefined;
-  const title = col ? col.title : d ? d.name : t.everyHotel;
+  const title = col ? col.title : d ? placeName(d.slug, d.name, f.lang) : t.everyHotel;
   const chip = (href: string, label: string, on: boolean) => <Link key={href} className="filter" href={href} aria-current={on ? "page" : undefined}>{label}</Link>;
   return (
     <>
