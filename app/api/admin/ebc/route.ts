@@ -28,6 +28,11 @@ export async function GET(req: NextRequest) {
       const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "");
       data = { total: first.total, pages: first.pages, scanned: all.length, matches: all.filter((h) => words.every((w) => norm(h.name).includes(w))).slice(0, 40) };
     }
+    else if (op === "search") {
+      const ids = (q.get("ids") ?? "").split(",").map(Number).filter((n) => n > 0).slice(0, 40);
+      const r = await c.searchSync({ accommodation: ids, checkIn: q.get("in") ?? "", checkOut: q.get("out") ?? "", occupancy: { rooms: [{ adults: Number(q.get("adults") ?? 2), childrenAges: [] }], leaderIso: q.get("iso") ?? undefined } });
+      data = { asked: ids.length, returned: r.hotels.length, withOffers: r.hotels.filter((h) => h.offers.length).map((h) => ({ id: h.index, name: h.name, offers: h.offers.length })) };
+    }
     else if (op === "details") data = await c.hotelDetails(Number(q.get("id")));
     else if (op === "images") data = await c.hotelImages(Number(q.get("id")));
     else if (op === "descriptions") data = await c.hotelDescriptions(Number(q.get("id")));
