@@ -28,7 +28,7 @@ export async function GET(req: Request) {
     const pins = await db().pinnedHotels(sf.id);
     const jobs: Array<() => Promise<unknown>> = [() => searchStays(sf, checkIn, checkOut, 2, [], undefined, country, { fresh: true }), ...pins.map((p) => () => searchStays(sf, checkIn, checkOut, 2, [], [p.ebcId], country, { fresh: true })),
       // the similar stays under each pick (what a hotel link opens), so the first reader of the day is not the one who waits
-      ...pins.map((p) => async () => { const u = await underPick(p, pins); if (u.ids.length) await searchStays(sf, checkIn, checkOut, 2, [], u.ids, country, { fresh: true }); })];
+      ...pins.map((p) => async () => { const u = await underPick(p, pins); await Promise.allSettled(u.ids.map((id) => searchStays(sf, checkIn, checkOut, 2, [], [id], country, { fresh: true }))); })];
     let ok = 0;
     for (let i = 0; i < jobs.length && Date.now() - started < 270_000; i += 4) {
       const r = await Promise.allSettled(jobs.slice(i, i + 4).map((j) => j()));

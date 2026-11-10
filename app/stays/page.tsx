@@ -105,7 +105,10 @@ async function PickBlock({ t, f, sf, pick, checkIn, checkOut, adults, qs }: { t:
 async function SimilarList({ t, f, sf, pick, pins, checkIn, checkOut, adults, qs }: { t: Dict; f: ReaderFmt; sf: Storefront; pick: Hotel; pins: PinnedHotel[]; checkIn: string; checkOut: string; adults: number; qs: string }) {
   const { ids, pinIds, near } = await underPick(pick, pins);
   if (!ids.length) return <p className="mute">{t.noRoomsDates}</p>;
-  const v = await stayView(sf, checkIn, checkOut, adults, ids);
+  // one search per hotel, in parallel: a combined search returns only the hotels the supplier answers within its
+  // time limit (warm ones), and the per hotel answer is the same cache the hotel page reads, so a click opens at once
+  const views = await Promise.all(ids.map((id) => stayView(sf, checkIn, checkOut, adults, [id])));
+  const v = { cards: views.flatMap((x) => x.cards), nights: views[0]!.nights, error: views.every((x) => x.error) ? views[0]!.error : null };
   const hotels = await Promise.all(pinIds.map((id) => db().hotel(id).catch(() => null)));
   const dist = new Map<number, number>(near.map((n) => [n.ebcId, n.km]));
   for (const h of hotels) if (h?.lat != null && h.lng != null && pick.lat != null && pick.lng != null) dist.set(h.ebcId, km(pick.lat, pick.lng, h.lat, h.lng));
