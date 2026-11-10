@@ -11,6 +11,9 @@ import { importHotel } from "@/lib/links/directory";
 
 const KEEP_S = 7 * 86400;
 const RADIUS_KM = 2.5;
+/** Listings that are flats or rooms, not hotels: shown under a hotel they read as a different product. */
+const NOT_HOTEL = /\b(apartment|apartments|appartement|apt|flat|loft|studio|residence|résidence|suite[s]? in|holidays?|airbnb|duplex|room in|chambre|maison|house|villa in|rue|avenue|boulevard|bd)\b/i;
+export const looksLikeHotel = (name: string) => !NOT_HOTEL.test(name);
 
 export function km(aLat: number, aLng: number, bLat: number, bLng: number): number {
   const r = (d: number) => (d * Math.PI) / 180;
@@ -23,27 +26,31 @@ export function km(aLat: number, aLng: number, bLat: number, bLng: number): numb
 export function rankNearby(pick: { ebcId: number; lat: number; lng: number; stars: number | null }, rows: DirectoryHotel[], exclude: Set<number>, radiusKm = RADIUS_KM): Array<DirectoryHotel & { km: number }> {
   const want = pick.stars ?? 0;
   return rows
-    .filter((r) => r.ebcId !== pick.ebcId && !exclude.has(r.ebcId) && r.lat != null && r.lng != null)
+    .filter((r) => r.ebcId !== pick.ebcId && !exclude.has(r.ebcId) && r.lat != null && r.lng != null && looksLikeHotel(r.name))
     .map((r) => ({ ...r, km: km(pick.lat, pick.lng, r.lat!, r.lng!) }))
     .filter((r) => r.km <= radiusKm && (!want || (r.stars != null && Math.abs(r.stars - want) <= 1)))
     .sort((a, b) => a.km - b.km);
 }
 
 /**
- * Up to `n` hotels near `pick`, by ID, nearest first. The creator's other picks nearby are left to the caller
+ * Up to `n` candidate hotels near `pick`, by ID, nearest first (ask for about twice what you show: some have no
+ * rooms on given dates). The creator's other picks nearby are left to the caller
  * (they are shown with their own badge). Waits at most `waitMs` for first time imports; whatever is not ready
  * in time is finished in the background and joins the list for the next reader.
  */
 export async function similarTo(pick: Hotel, exclude: number[], n = 6, waitMs = 7000): Promise<Array<{ ebcId: number; km: number }>> {
   if (pick.lat == null || pick.lng == null) return [];
-  const key = `similar:v1:${pick.ebcId}:${n}`;
+  const key = `similar:v2:${pick.ebcId}:${n}`;
   const hit = await db().cacheGet<Array<{ ebcId: number; km: number }>>(key).catch(() => null);
   const skip = new Set(exclude);
   if (hit?.length) return hit.filter((h) => !skip.has(h.ebcId)).slice(0, n);
 
   const dLat = RADIUS_KM / 111, dLng = RADIUS_KM / (111 * Math.cos((pick.lat * Math.PI) / 180));
-  const rows = await db().directoryNear(pick.lat, pick.lng, dLat, dLng, 400).catch(() => []);
-  const ranked = rankNearby({ ebcId: pick.ebcId, lat: pick.lat, lng: pick.lng, stars: pick.stars }, rows, skip).slice(0, n + 4);
+  // a tight box first (dense city centres hold hundreds of hotels), the full radius when that is thin
+  let rows = await db().directoryNear(pick.lat, pick.lng, dLat / 2, dLng / 2, 1000).catch(() => []);
+  let ranked = rankNearby({ ebcId: pick.ebcId, lat: pick.lat, lng: pick.lng, stars: pick.stars }, rows, skip);
+  if (ranked.length < n * 2) { rows = await db().directoryNear(pick.lat, pick.lng, dLat, dLng, 1000).catch(() => []); ranked = rankNearby({ ebcId: pick.ebcId, lat: pick.lat, lng: pick.lng, stars: pick.stars }, rows, skip); }
+  ranked = ranked.slice(0, n);
 
   const imported = ranked.map((r) => importHotel(r.ebcId).then((h) => ({ ok: h.images.length > 0, ebcId: r.ebcId, km: r.km })).catch(() => ({ ok: false, ebcId: r.ebcId, km: r.km })));
   const all = Promise.all(imported);

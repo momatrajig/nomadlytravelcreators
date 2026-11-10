@@ -102,7 +102,7 @@ async function PickBlock({ t, f, sf, pick, checkIn, checkOut, adults, qs }: { t:
 }
 
 async function SimilarList({ t, f, sf, pick, pinIds, allPins, checkIn, checkOut, adults, qs }: { t: Dict; f: ReaderFmt; sf: Storefront; pick: Hotel; pinIds: number[]; allPins: number[]; checkIn: string; checkOut: string; adults: number; qs: string }) {
-  const near = await similarTo(pick, [pick.ebcId, ...allPins]).catch(() => []);
+  const near = await similarTo(pick, [pick.ebcId, ...allPins], 14).catch(() => []);
   const ids = [...pinIds, ...near.map((n) => n.ebcId)];
   if (!ids.length) return <p className="mute">{t.noRoomsDates}</p>;
   const v = await stayView(sf, checkIn, checkOut, adults, ids);
@@ -110,7 +110,9 @@ async function SimilarList({ t, f, sf, pick, pinIds, allPins, checkIn, checkOut,
   const dist = new Map<number, number>(near.map((n) => [n.ebcId, n.km]));
   for (const h of hotels) if (h?.lat != null && h.lng != null && pick.lat != null && pick.lng != null) dist.set(h.ebcId, km(pick.lat, pick.lng, h.lat, h.lng));
   // the creator's own nearby picks first, then the rest nearest first
-  const cards = [...v.cards].sort((a, b) => Number(!!b.creatorPick) - Number(!!a.creatorPick) || (dist.get(a.ebcId) ?? 99) - (dist.get(b.ebcId) ?? 99));
+  const sorted = [...v.cards].sort((a, b) => Number(!!b.creatorPick) - Number(!!a.creatorPick) || (dist.get(a.ebcId) ?? 99) - (dist.get(b.ebcId) ?? 99));
+  // the creator's nearby picks, then the six nearest that have rooms on these dates
+  const cards = [...sorted.filter((c) => c.creatorPick), ...sorted.filter((c) => !c.creatorPick).slice(0, 6)];
   return (
     <>
       {v.error && <div className="notice warn" role="alert">{t.supplierDown}</div>}
