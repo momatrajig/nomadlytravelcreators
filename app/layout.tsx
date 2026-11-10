@@ -20,7 +20,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const sf = await currentStorefront();
   // the dashboard switch shows on platform and preview hosts (and to a signed in creator); readers on a creator's domain do not see it
   const host = ((await headers()).get("x-forwarded-host") ?? (await headers()).get("host") ?? "").toLowerCase();
-  const showCreator = host.endsWith(".vercel.app") || host.startsWith("localhost") || host.endsWith(env().PLATFORM_HOST) || !!(await signedInUser());
+  // readers land here from creator links, so creator controls show only to a signed in creator (and in local development)
+  const showCreator = host.startsWith("localhost") || !!(await signedInUser());
   const brand = sf?.brandColor ?? "#2458d6";
   const t = dict(langOf(sf?.locale));
   return (
