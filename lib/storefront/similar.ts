@@ -12,7 +12,7 @@ import { importHotel } from "@/lib/links/directory";
 const KEEP_S = 7 * 86400;
 const RADIUS_KM = 2.5;
 /** Listings that are flats or rooms, not hotels: shown under a hotel they read as a different product. */
-const NOT_HOTEL = /\b(apartment|apartments|appartement|apt|flat|loft|studio|residence|résidence|suite[s]? in|holidays?|airbnb|duplex|room in|chambre|maison|house|villa in|rue|avenue|boulevard|bd)\b/i;
+const NOT_HOTEL = /\b(apartments?|appartements?|apartamentos?|apt|flat|loft|studio|residence|résidence|suite[s]? in|holidays?|airbnb|duplex|room in|chambre|maison|house|villa in|rue|avenue|boulevard|bd)\b/i;
 export const looksLikeHotel = (name: string) => !NOT_HOTEL.test(name);
 
 export function km(aLat: number, aLng: number, bLat: number, bLng: number): number {
@@ -40,7 +40,7 @@ export function rankNearby(pick: { ebcId: number; lat: number; lng: number; star
  */
 export async function similarTo(pick: Hotel, exclude: number[], n = 6, waitMs = 7000): Promise<Array<{ ebcId: number; km: number }>> {
   if (pick.lat == null || pick.lng == null) return [];
-  const key = `similar:v2:${pick.ebcId}:${n}`;
+  const key = `similar:v3:${pick.ebcId}:${n}`;
   const hit = await db().cacheGet<Array<{ ebcId: number; km: number }>>(key).catch(() => null);
   const skip = new Set(exclude);
   if (hit?.length) return hit.filter((h) => !skip.has(h.ebcId)).slice(0, n);

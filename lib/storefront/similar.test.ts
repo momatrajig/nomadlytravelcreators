@@ -17,7 +17,7 @@ describe("similar stays nearby", () => {
     expect(r[0]!.km).toBeLessThan(r[2]!.km);
   });
   it("leaves out flats and rooms listed as hotels", () => {
-    expect(rankNearby(pick, [row(9, 48.87, 2.357, 4), { ...row(10, 48.87, 2.357, 4), name: "Exclusive Loft In le Marais" }, { ...row(11, 48.87, 2.357, 4), name: "5 Rue de Moussy" }], new Set()).map((x) => x.ebcId)).toEqual([9]);
+    expect(rankNearby(pick, [row(9, 48.87, 2.357, 4), { ...row(10, 48.87, 2.357, 4), name: "Exclusive Loft In le Marais" }, { ...row(12, 48.87, 2.357, 4), name: "Blue Nights Appartements 108" }, { ...row(11, 48.87, 2.357, 4), name: "5 Rue de Moussy" }], new Set()).map((x) => x.ebcId)).toEqual([9]);
   });
   it("any class when the pick has no stars", () => {
     expect(rankNearby({ ...pick, stars: null }, [row(4, 48.87, 2.357, 2), row(8, 48.87, 2.357, null)], new Set()).map((x) => x.ebcId)).toEqual([4, 8]);
