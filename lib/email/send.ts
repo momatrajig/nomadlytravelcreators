@@ -9,7 +9,7 @@ import { env } from "@/lib/env";
 import type { Booking } from "@/lib/db/types";
 import { db } from "@/lib/db";
 import { fmtDay, money, type Lang } from "@/lib/i18n";
-import { cancelStages, priceLines, requestsLine, tripSteps, tripWords } from "@/lib/booking/itinerary";
+import { cancelStages, changesFor, priceLines, requestsLine, tripSteps, tripWords } from "@/lib/booking/itinerary";
 
 export async function sendEmail(to: string, subject: string, html: string, text: string): Promise<boolean> {
   const key = env().RESEND_API_KEY;
@@ -65,7 +65,7 @@ ${req ? `<p style="background:#f4f5f7;border-radius:10px;padding:10px 12px;font-
 <h2 style="font-size:17px;margin:18px 0 8px">${e.cancel}</h2>
 <table role="presentation" width="100%" style="border-collapse:separate;border-spacing:0 6px">${stages.map((s) => `<tr><td style="background:${tone[s.tone][0]};padding:10px 12px;border-radius:10px;font-size:14px"><b>${esc(s.title)}</b>${s.to || s.from ? `<br><span style="color:#5b6270">${s.from ? esc(d(s.from)) + " " : ""}${s.to ? "→ " + esc(d(s.to)) : ""}</span>` : ""}</td><td style="background:${tone[s.tone][0]};padding:10px 12px;border-radius:10px;text-align:right;font-size:14px;white-space:nowrap"><b style="color:${tone[s.tone][1]}">${e.penalty} ${esc(m(s.charge))}</b><br><span style="color:#5b6270">${e.refund} ${esc(m(s.refund))}</span></td></tr>`).join("")}</table>
 <h2 style="font-size:17px;margin:18px 0 8px">${e.change}</h2>
-<ul style="padding-left:18px;margin:0 0 18px;font-size:14px;color:#3a404b">${(b.refundable ? w.changes : w.changesNonRef).map((c) => `<li style="margin-bottom:6px">${esc(c)}</li>`).join("")}</ul>
+<ul style="padding-left:18px;margin:0 0 18px;font-size:14px;color:#3a404b">${changesFor(b, lang).map((c) => `<li style="margin-bottom:6px">${esc(c)}</li>`).join("")}</ul>
 <p style="text-align:center;margin:22px 0 4px"><a href="${esc(link)}" style="background:${color};color:#fff;text-decoration:none;padding:13px 22px;border-radius:999px;font-weight:700;display:inline-block">${e.manage}</a></p>
 </div><p style="color:#8a909a;font-size:12px;text-align:center">${esc(e.footer(brand))}</p></div></body></html>`;
 
@@ -77,7 +77,7 @@ ${req ? `<p style="background:#f4f5f7;border-radius:10px;padding:10px 12px;font-
     ...(req ? [`${e.requests}: ${req}`] : []),
     `${e.price}:\n${lines.map((l) => `  ${l.label}: ${m(l.amount)}`).join("\n")}\n  ${e.total}: ${m(total)}`,
     `${e.cancel}:\n${stages.map((s) => `  ${s.title}${s.to ? ` (→ ${d(s.to)})` : ""}: ${e.penalty} ${m(s.charge)}, ${e.refund} ${m(s.refund)}`).join("\n")}`,
-    `${e.change}:\n${(b.refundable ? w.changes : w.changesNonRef).map((c) => `  ${c}`).join("\n")}`,
+    `${e.change}:\n${changesFor(b, lang).map((c) => `  ${c}`).join("\n")}`,
     `${e.manage}: ${link}`, e.footer(brand),
   ].join("\n\n");
   return sendEmail(b.leadEmail, subject, html, text);

@@ -23,6 +23,7 @@ const T = {
       "A name change, an extra request, or anything else: write to us with your reference and we arrange it with the hotel.",
       "Running late: the hotel keeps the room for the whole first night; tell us if you arrive after midnight.",
     ],
+    changesFee: "Different dates or another room: rates cannot be moved, so cancel (the fee below applies) and book again at today's price.",
     changesNonRef: [
       "This rate cannot be changed or refunded. A name change or a request: write to us with your reference and we ask the hotel.",
       "Running late: the hotel keeps the room for the whole first night; tell us if you arrive after midnight.",
@@ -38,6 +39,7 @@ const T = {
       "Změna jména, další požadavek nebo cokoli jiného: napište nám s číslem rezervace a domluvíme to s hotelem.",
       "Zpoždění: hotel drží pokoj celou první noc; dejte vědět, pokud přijedete po půlnoci.",
     ],
+    changesFee: "Jiné termíny nebo jiný pokoj: cenu nelze přesunout, takže zrušte (platí poplatek níže) a zarezervujte znovu za dnešní cenu.",
     changesNonRef: [
       "Tuto cenu nelze změnit ani vrátit. Změna jména nebo požadavek: napište nám s číslem rezervace a zeptáme se hotelu.",
       "Zpoždění: hotel drží pokoj celou první noc; dejte vědět, pokud přijedete po půlnoci.",
@@ -91,3 +93,11 @@ export function cancelStages(b: Booking, lang: Lang, now = Date.now()): CancelSt
 }
 
 export const requestsLine = (b: Booking) => requestComments(b.requests);
+
+/** How to change the booking, matched to its policy: free period ahead, fee already due, or no refunds. */
+export function changesFor(b: Booking, lang: Lang): string[] {
+  const w = tripWords(lang);
+  if (!b.refundable) return w.changesNonRef;
+  const hadFree = !b.cancelDeadline || Date.parse(b.cancelDeadline) > Date.parse(b.paidAt ?? b.createdAt);
+  return hadFree ? w.changes : [w.changesFee, ...w.changes.slice(1)];
+}

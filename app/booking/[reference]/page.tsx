@@ -10,7 +10,7 @@ import { readerOf } from "@/lib/storefront/reader";
 import { requireStorefront } from "@/lib/tenant";
 import CancelButton from "@/components/CancelButton";
 import PrintButton from "@/components/PrintButton";
-import { cancelStages, priceLines, requestsLine, tripSteps, tripWords } from "@/lib/booking/itinerary";
+import { cancelStages, changesFor, priceLines, requestsLine, tripSteps, tripWords } from "@/lib/booking/itinerary";
 import { photoSrc } from "@/lib/media/photo";
 
 export const dynamic = "force-dynamic";
@@ -130,7 +130,7 @@ export default async function BookingPage({ params, searchParams }: { params: Pr
       {live && (
         <section className="bk-card" aria-labelledby="ch-h">
           <h2 id="ch-h">{L.changeH}</h2>
-          <ul className="bk-changes">{(b.refundable ? w.changes : w.changesNonRef).map((c) => <li key={c}>{c}</li>)}</ul>
+          <ul className="bk-changes">{changesFor(b, f.lang).map((c) => <li key={c}>{c}</li>)}</ul>
           <h3 className="bk-sub">{t.cancellation}</h3>
           <ol className="stages">
             {stages.map((s) => (
