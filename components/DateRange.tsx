@@ -24,6 +24,7 @@ export default function DateRange({ checkIn, checkOut, onChange, lang = "en", ad
   const [open, setOpen] = useState(inline);
   const [a, setA] = useState(checkIn), [b, setB] = useState<string | null>(checkOut);
   const [hover, setHover] = useState<string | null>(null);
+  const [alignRight, setAlignRight] = useState(false);
   const [view, setView] = useState(() => { const d = new Date(`${checkIn}T12:00:00Z`); return { y: d.getUTCFullYear(), m: d.getUTCMonth() }; });
   const [prices, setPrices] = useState<Record<string, number | null>>({});
   const [loading, setLoading] = useState<Set<string>>(new Set());
@@ -35,7 +36,7 @@ export default function DateRange({ checkIn, checkOut, onChange, lang = "en", ad
   const compact = (v: number) => new Intl.NumberFormat(lang === "cs" ? "cs-CZ" : "en-US", { style: "currency", currency, currencyDisplay: "narrowSymbol", notation: v >= 10000 ? "compact" : "standard", maximumFractionDigits: v >= 10000 ? 1 : 0 }).format(v);
 
   const months = [view, view.m === 11 ? { y: view.y + 1, m: 0 } : { y: view.y, m: view.m + 1 }];
-  // ask for the visible months a week at a time, two weeks in flight, skipping what was asked already
+  // ask for the visible months a week at a time, four weeks in flight, skipping what was asked already
   const load = useCallback(async () => {
     if (!scope) return;
     const starts: string[] = [];
@@ -57,7 +58,7 @@ export default function DateRange({ checkIn, checkOut, onChange, lang = "en", ad
         setLoading((l) => { const n = new Set(l); span.forEach((x) => n.delete(x)); return n; });
       }
     };
-    await Promise.all([run(), run()]);
+    await Promise.all([run(), run(), run(), run()]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scope, adults, view.y, view.m, today]);
   useEffect(() => { if (open) void load(); }, [open, load]);
@@ -83,7 +84,7 @@ export default function DateRange({ checkIn, checkOut, onChange, lang = "en", ad
   const canPrev = ymd(view.y, view.m, 1) > today.slice(0, 8) + "01" || false;
 
   const panel = (
-    <div className={`dr-pop${inline ? " inline" : ""}`} role="dialog" aria-label={`${w.in}, ${w.out}`}>
+    <div className={`dr-pop${inline ? " inline" : ""}${alignRight ? " right" : ""}`} role="dialog" aria-label={`${w.in}, ${w.out}`}>
       <div className="dr-status" aria-live="polite">{b ? <><b>{fmtShort(a)}</b> → <b>{fmtShort(b)}</b>, {w.nights(daysBetween(a, b))}</> : <>{w.pickOut}{nights ? `: ${w.nights(nights)}` : ""}</>}</div>
       <div className="dr-nav">
         <button type="button" aria-label={w.prev} onClick={() => shift(-1)} disabled={!canPrev}>‹</button>
@@ -133,7 +134,7 @@ export default function DateRange({ checkIn, checkOut, onChange, lang = "en", ad
   if (inline) return <div className="dr" ref={box}>{panel}</div>;
   return (
     <div className="dr" ref={box}>
-      <button type="button" className="dr-trigger" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
+      <button type="button" className="dr-trigger" aria-expanded={open} onClick={(e) => { const r = e.currentTarget.getBoundingClientRect(); setAlignRight(r.left + 720 > window.innerWidth - 16); setOpen((o) => !o); }}>
         <span className="dr-f"><small>{w.in}</small><b>{fmtShort(a)}</b></span>
         <span className="dr-arrow" aria-hidden="true">→</span>
         <span className="dr-f"><small>{w.out}</small><b>{b ? fmtShort(b) : "…"}</b></span>

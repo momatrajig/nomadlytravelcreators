@@ -587,3 +587,4 @@ p { margin: 0; }
 .was { display: inline-flex; align-items: center; justify-content: flex-end; color: var(--mute); }
 .shelf-price .save-pct { justify-self: start; margin: 3px 0 0; }
 .opt-txt b.warn, .sum-room i.warn { color: var(--warn); }
+.dr-pop.right { left: auto; right: 0; } @media (max-width: 760px) { .dr-pop.right { right: 8px; } }
