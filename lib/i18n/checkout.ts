@@ -41,7 +41,7 @@ const en = {
   errFirst: "Enter a first name.", errLast: "Enter a last name.", errEmail: "Enter a valid email address.", errPhone: "Enter a phone number.",
   errCountry: "Choose a country or region.", errTerms: "Tick the box to confirm you read the terms.", errBooker: "Enter your own name.",
   errFix: (n: number) => `${n} ${n === 1 ? "field needs" : "fields need"} attention.`,
-  freeCancel: "Free cancellation", nonRef: "Non refundable",
+  freeCancel: "Free cancellation", nonRef: "Non refundable", feeCancel: "Cancellation fee applies", cancelNow: "Cancel from today",
   sampleCompare: "Demo: the struck through prices are samples until checked retail prices are loaded.",
   youSave: (v: string) => `You save ${v} on add ons`, 
 };
@@ -87,7 +87,7 @@ const cs: Co = {
   errFirst: "Zadejte jméno.", errLast: "Zadejte příjmení.", errEmail: "Zadejte platný e-mail.", errPhone: "Zadejte telefon.",
   errCountry: "Vyberte zemi nebo oblast.", errTerms: "Potvrďte, že jste četli podmínky.", errBooker: "Zadejte své jméno.",
   errFix: (n) => `${n} ${n === 1 ? "pole potřebuje" : n < 5 ? "pole potřebují" : "polí potřebuje"} opravit.`,
-  freeCancel: "Storno zdarma", nonRef: "Bez možnosti storna",
+  freeCancel: "Storno zdarma", nonRef: "Bez možnosti storna", feeCancel: "Platí storno poplatek", cancelNow: "Zrušení od dneška",
   sampleCompare: "Demo: přeškrtnuté ceny jsou ukázkové, dokud nenahrajeme ověřené ceny.",
   youSave: (v) => `Na doplňcích ušetříte ${v}`,
 };
@@ -117,7 +117,7 @@ const roomsEn = {
   sleeps: (n: number) => `For ${n} ${n === 1 ? "adult" : "adults"}`, choose: "Choose your option",
   more: (v: string) => `+${v}`, perNight: (v: string) => `${v} a night`, reserve: "Reserve", holding: "Holding the price…",
   photo: "Hotel photo", prev: "Previous rooms", next: "More rooms", none: "No rooms match. Clear the filter to see all.",
-  freeUntil: (d: string) => `Free cancellation until ${d}`, nonRef: "Non refundable", onReq: "Confirmed by the hotel within 24 hours",
+  freeUntil: (d: string) => `Free cancellation until ${d}`, nonRef: "Non refundable", feeNow: (v: string) => `Cancellation fee ${v} from today`, onReq: "Confirmed by the hotel within 24 hours",
   total: (n: number) => `Total for ${n} ${n === 1 ? "night" : "nights"}, taxes included`,
 };
 const roomsCs: typeof roomsEn = {
@@ -126,7 +126,7 @@ const roomsCs: typeof roomsEn = {
   sleeps: (n) => `Pro ${n} ${n === 1 ? "dospělého" : "dospělé"}`, choose: "Vyberte možnost",
   more: (v) => `+${v}`, perNight: (v) => `${v} za noc`, reserve: "Rezervovat", holding: "Držím cenu…",
   photo: "Foto hotelu", prev: "Předchozí pokoje", next: "Další pokoje", none: "Žádný pokoj neodpovídá. Zrušte filtr.",
-  freeUntil: (d) => `Storno zdarma do ${d}`, nonRef: "Bez možnosti storna", onReq: "Hotel potvrdí do 24 hodin",
+  freeUntil: (d) => `Storno zdarma do ${d}`, nonRef: "Bez možnosti storna", feeNow: (v) => `Storno poplatek ${v} již nyní`, onReq: "Hotel potvrdí do 24 hodin",
   total: (n) => `Celkem za ${n} ${n === 1 ? "noc" : n < 5 ? "noci" : "nocí"} vč. daní`,
 };
 export const roomsDict = (lang: Lang) => (lang === "cs" ? roomsCs : roomsEn);

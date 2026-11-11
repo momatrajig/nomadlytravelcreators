@@ -1,4 +1,5 @@
 "use client";
+import { freeNow } from "@/lib/booking/policy";
 import { useMemo, useState } from "react";
 import CoverFlow from "./CoverFlow";
 import { I, esc } from "./icons";
@@ -31,7 +32,7 @@ function card(h: StayCardData, i: number, nights: number, checkedAt: string | nu
   return `<div class="nf-pic">${img}<div class="nf-shade"></div></div>
   <div class="nf-top">${badge}${count}</div>
   <div class="nf-body"><div class="nf-kicker">${esc([h.area, h.city].filter(Boolean).join(", "))}</div><div class="nf-title">${esc(h.name)}</div>
-   <div class="nf-meta">${h.stars ? `<span>${I.star}${esc(f.lang === "cs" ? `${h.stars}` : `${h.stars} star`)}${h.rating ? `, ${h.rating.toFixed(1)}` : ""}</span>` : ""}${h.refundable && h.cancelDeadline ? `<span>${I.clock}${esc(t.freeCancelUntil(fmtDay(h.cancelDeadline, f.lang)))}</span>` : h.refundable ? "" : `<span>${I.info}${esc(t.noRefunds)}</span>`}</div>
+   <div class="nf-meta">${h.stars ? `<span>${I.star}${esc(f.lang === "cs" ? `${h.stars}` : `${h.stars} star`)}${h.rating ? `, ${h.rating.toFixed(1)}` : ""}</span>` : ""}${freeNow(h) && h.cancelDeadline ? `<span>${I.clock}${esc(t.freeCancelUntil(fmtDay(h.cancelDeadline, f.lang)))}</span>` : h.refundable ? "" : `<span>${I.info}${esc(t.noRefunds)}</span>`}</div>
    <div class="nf-price">${h.saving && h.saving > 0 ? `<span class="was">${esc(price(f, h.lowestReference!.price))}</span>` : ""}<span class="now">${esc(price(f, h.readerPrice))}</span><span class="per">${esc(t.nightsN(nights))}${ap ? `, ${esc(ap)}` : ""}${checked}</span></div>
    <div class="nf-cta"><a class="nf-primary" href="/hotel/${h.ebcId}?${qs}">${esc(t.seeRooms)} ${I.arrow}</a>${h.photos.length ? `<button type="button" class="nf-ghost" data-nf-open aria-label="${esc(t.allPhotosOf(h.photos.length, h.name))}">${esc(t.photos)}</button>` : ""}</div></div>`;
 }

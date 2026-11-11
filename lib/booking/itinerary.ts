@@ -17,7 +17,7 @@ const T = {
     room: (n: number, room: string) => `${room}, ${n} ${n === 1 ? "night" : "nights"}`, roomDetail: (avg: string) => `${avg} a night on average, taxes included`,
     promo: (c: string) => `Code ${c}`, booked: "Booked and paid", deadline: "Last day to cancel free", ride: "Airport ride", checkin: "Check in", checkout: "Check out",
     checkinTime: "From the hotel's check in time, usually 15:00", checkoutTime: "Usually by 12:00",
-    nights: (n: number) => `${n} ${n === 1 ? "night" : "nights"}`, free: "Free cancellation", after: "After the free period", noShow: "No show or after check in", nonRef: "Non refundable",
+    nights: (n: number) => `${n} ${n === 1 ? "night" : "nights"}`, free: "Free cancellation", after: "After the free period", noShow: "No show or after check in", nonRef: "Non refundable", feeFromBooking: "Cancellation fee",
     changes: [
       "Different dates or another room: rates cannot be moved, so cancel (free in the green period) and book again at today's price.",
       "A name change, an extra request, or anything else: write to us with your reference and we arrange it with the hotel.",
@@ -32,7 +32,7 @@ const T = {
     room: (n: number, room: string) => `${room}, ${n} ${n === 1 ? "noc" : n < 5 ? "noci" : "nocí"}`, roomDetail: (avg: string) => `v průměru ${avg} za noc, vč. daní`,
     promo: (c: string) => `Kód ${c}`, booked: "Rezervováno a zaplaceno", deadline: "Poslední den bezplatného storna", ride: "Odvoz z letiště", checkin: "Příjezd", checkout: "Odjezd",
     checkinTime: "Od času příjezdu hotelu, obvykle 15:00", checkoutTime: "Obvykle do 12:00",
-    nights: (n: number) => `${n} ${n === 1 ? "noc" : n < 5 ? "noci" : "nocí"}`, free: "Storno zdarma", after: "Po bezplatné lhůtě", noShow: "Nedostavení nebo po příjezdu", nonRef: "Bez možnosti storna",
+    nights: (n: number) => `${n} ${n === 1 ? "noc" : n < 5 ? "noci" : "nocí"}`, free: "Storno zdarma", after: "Po bezplatné lhůtě", noShow: "Nedostavení nebo po příjezdu", nonRef: "Bez možnosti storna", feeFromBooking: "Storno poplatek",
     changes: [
       "Jiné termíny nebo jiný pokoj: cenu nelze přesunout, takže zrušte (v zelené lhůtě zdarma) a zarezervujte znovu za dnešní cenu.",
       "Změna jména, další požadavek nebo cokoli jiného: napište nám s číslem rezervace a domluvíme to s hotelem.",
@@ -62,7 +62,8 @@ export function tripSteps(b: Booking, lang: Lang): TripStep[] {
   const toHotel = ride && (both || /to the hotel/.test(ride.detail ?? ""));
   const toAirport = ride && (both || /^Hotel to/.test(ride.detail ?? ""));
   const steps: TripStep[] = [{ kind: "booked", date: (b.paidAt ?? b.createdAt).slice(0, 10), title: w.booked }];
-  if (b.refundable && b.cancelDeadline) steps.push({ kind: "deadline", date: b.cancelDeadline.slice(0, 10), title: w.deadline, time: b.cancelDeadline.length > 10 ? b.cancelDeadline.slice(11, 16) : undefined });
+  const bookedAt = Date.parse(b.paidAt ?? b.createdAt);
+  if (b.refundable && b.cancelDeadline && Date.parse(b.cancelDeadline) > bookedAt) steps.push({ kind: "deadline", date: b.cancelDeadline.slice(0, 10), title: w.deadline, time: b.cancelDeadline.length > 10 ? b.cancelDeadline.slice(11, 16) : undefined });
   if (toHotel) steps.push({ kind: "ride", date: b.checkIn, title: w.ride, detail: ride!.detail ?? undefined });
   steps.push({ kind: "checkin", date: b.checkIn, title: w.checkin, detail: `${w.checkinTime}. ${w.nights(b.nights)}.` });
   steps.push({ kind: "checkout", date: b.checkOut, title: w.checkout, detail: w.checkoutTime });
@@ -81,9 +82,10 @@ export function cancelStages(b: Booking, lang: Lang, now = Date.now()): CancelSt
   const pastDeadline = !!b.cancelDeadline && Date.parse(b.cancelDeadline) < now;
   const inStay = Date.parse(`${b.checkIn}T00:00:00Z`) <= now;
   const r2 = (v: number) => Math.round(v * 100) / 100;
+  const hadFree = !b.cancelDeadline || Date.parse(b.cancelDeadline) > Date.parse(b.paidAt ?? b.createdAt);
   return [
-    { title: w.free, from: null, to: b.cancelDeadline?.slice(0, 10) ?? b.checkIn, charge: 0, refund: total, now: current === 0 && !inStay, tone: "ok" },
-    { title: w.after, from: b.cancelDeadline?.slice(0, 10) ?? null, to: b.checkIn, charge: late, refund: r2(total - late), now: pastDeadline && !inStay, tone: "warn" },
+    ...(hadFree ? [{ title: w.free, from: null, to: b.cancelDeadline?.slice(0, 10) ?? b.checkIn, charge: 0, refund: total, now: current === 0 && !inStay, tone: "ok" as const }] : []),
+    { title: hadFree ? w.after : w.feeFromBooking, from: hadFree ? b.cancelDeadline?.slice(0, 10) ?? null : null, to: b.checkIn, charge: late, refund: r2(total - late), now: pastDeadline && !inStay, tone: "warn" },
     { title: w.noShow, from: b.checkIn, to: null, charge: b.readerPrice, refund: r2(extrasBack), now: inStay, tone: "bad" },
   ];
 }

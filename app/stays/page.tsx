@@ -13,6 +13,7 @@ import { readDates } from "@/lib/dates";
 import { destination, stayView, storefrontDestinations } from "@/lib/storefront/data";
 import { underPick, km } from "@/lib/storefront/similar";
 import { requireStorefront } from "@/lib/tenant";
+import { freeNow } from "@/lib/booking/policy";
 import { db } from "@/lib/db";
 import { photoSet, photoSrc } from "@/lib/media/photo";
 
@@ -139,7 +140,7 @@ function StayRow({ t, f, sf, h, nights, href, featured, soldOut, km: away }: { t
         {!featured && h.creatorPick && <div className="also-pick"><CreatorMark sf={sf} size={16} /><span>{t.alsoPick(sf.brandName)}</span></div>}
         <div className="stay-where">{[h.area, h.city].filter(Boolean).join(", ")}{away != null ? `${h.area || h.city ? ". " : ""}${t.kmAway(away)}` : ""}</div>
         <h2><Link href={href}>{h.name}</Link></h2>
-        <div className="stay-facts">{h.stars ? t.star(h.stars) : ""}{h.rating ? t.fromReviews(h.rating.toFixed(1), h.ratingCount?.toLocaleString(f.lang === "cs" ? "cs-CZ" : "en-US") ?? "") : ""}{h.refundable && h.cancelDeadline ? `. ${t.freeCancelUntil(fmtDate(h.cancelDeadline))}` : ""}</div>
+        <div className="stay-facts">{h.stars ? t.star(h.stars) : ""}{h.rating ? t.fromReviews(h.rating.toFixed(1), h.ratingCount?.toLocaleString(f.lang === "cs" ? "cs-CZ" : "en-US") ?? "") : ""}{freeNow(h) && h.cancelDeadline ? `. ${t.freeCancelUntil(fmtDate(h.cancelDeadline))}` : ""}</div>
         {h.tip && <p className="stay-tip">{h.tip}</p>}
       </div>
       <div className="stay-price">

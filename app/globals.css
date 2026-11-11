@@ -586,3 +586,4 @@ p { margin: 0; }
 .save-pct { display: inline-block; background: var(--save); color: #fff; font: 700 11.5px var(--font-body); padding: 2px 7px; border-radius: 999px; margin-left: 6px; font-variant-numeric: tabular-nums; vertical-align: 1px; }
 .was { display: inline-flex; align-items: center; justify-content: flex-end; color: var(--mute); }
 .shelf-price .save-pct { justify-self: start; margin: 3px 0 0; }
+.opt-txt b.warn, .sum-room i.warn { color: var(--warn); }

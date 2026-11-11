@@ -38,3 +38,13 @@ describe("booking itinerary", () => {
     expect(s[0]).toMatchObject({ tone: "bad", charge: 900, refund: 156, now: true });
   });
 });
+
+describe("a free period that ended before booking", () => {
+  const late = b({ cancelDeadline: "2026-11-07T17:17:00", cancelCharge: 835.67, paidAt: "2026-11-11T10:00:00Z" });
+  it("is never shown as free: no deadline step, no green stage, the fee applies now", () => {
+    expect(tripSteps(late, "en").some((s) => s.kind === "deadline")).toBe(false);
+    const st = cancelStages(late, "en", Date.parse("2026-11-12T10:00:00Z"));
+    expect(st.map((s) => s.tone)).toEqual(["warn", "bad"]);
+    expect(st[0]).toMatchObject({ title: "Cancellation fee", charge: 835.67, now: true });
+  });
+});

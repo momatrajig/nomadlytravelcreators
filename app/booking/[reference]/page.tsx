@@ -54,7 +54,9 @@ export default async function BookingPage({ params, searchParams }: { params: Pr
   if (sp.dev === "1" && !env().STRIPE_SECRET_KEY && b.status === "paying") {
     try { b = await confirmPaid(b.id, "pi_dev", ""); } catch { b = (await db().booking(b.id))!; }
   }
-  const hotel = await db().hotel(b.ebcId);
+  const [hotel, quote] = await Promise.all([db().hotel(b.ebcId), b.quoteId ? db().quote(b.quoteId).catch(() => null) : null]);
+  // the booking stores the lead guest's name; the party size is on the quote it came from
+  const party = quote?.occupancy.reduce((a, r) => a + r.adults, 0) || b.guests.length || 1;
   const base = STATUS[b.status] ?? STATUS.confirmed!;
   const tr = t.status[b.status] ?? t.status.confirmed!;
   const mailOn = !!env().RESEND_API_KEY;
@@ -92,7 +94,7 @@ export default async function BookingPage({ params, searchParams }: { params: Pr
           <dl className="bk-facts">
             <div><dt>{t.yourRef}</dt><dd className="ref">{b.reference}</dd></div>
             {b.hotelConfirmation && <div><dt>{t.hotelConf}</dt><dd className="ref">{b.hotelConfirmation}</dd></div>}
-            {lead && <div><dt>{L.guest}</dt><dd>{lead.firstName} {lead.lastName}, {L.adults(b.guests.length || 1)}</dd></div>}
+            {lead && <div><dt>{L.guest}</dt><dd>{lead.firstName} {lead.lastName}, {L.adults(party)}</dd></div>}
             <div><dt>{t.room}</dt><dd>{b.roomName ?? t.room}, {t.board[b.board ?? "RO"]?.toLowerCase()}</dd></div>
           </dl>
           {live && <div className="bk-actions no-print"><PrintButton label={L.print} /><a className="btn" href={`data:text/calendar;charset=utf-8,${encodeURIComponent(ics)}`} download={`${b.reference.replace(/\s+/g, "")}.ics`}>{L.calendar}</a></div>}
@@ -121,7 +123,7 @@ export default async function BookingPage({ params, searchParams }: { params: Pr
           </ul>
           <div className="sum-total"><span>{L.totalPaid}<small>{L.taxes}</small></span><span><b className="num">{usd(total)}</b></span></div>
           {saved > 0 && <p className="sum-save">{L.saved(usd(saved), b.lowestReferenceSource ?? "")} <s className="num">{usd(b.lowestReference!)}</s></p>}
-          <p className="small mute">{L.cityTax} {t.payNote(sf.brandName.normalize("NFD").replace(/[^A-Za-z0-9]/g, "").toUpperCase().slice(0, 12))}</p>
+          <p className="small mute">{t.payNote(sf.brandName.normalize("NFD").replace(/[^A-Za-z0-9]/g, "").toUpperCase().slice(0, 12))}</p>
         </section>
       </div>
 

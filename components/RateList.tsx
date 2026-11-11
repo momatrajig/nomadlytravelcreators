@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import { useMemo, useRef, useState } from "react";
 import { approxOf, dict, fmtDay, price, type ReaderFmt } from "@/lib/i18n";
 import { roomsDict } from "@/lib/i18n/checkout";
+import { freeNow } from "@/lib/booking/policy";
 import { photoSrc, photoSet } from "@/lib/media/photo";
 
 export interface RateView { packageCode: string; roomName: string; board: string; refundable: boolean; onRequest: boolean; cancelDeadline: string | null; cancelCharge: number | null; readerPrice: number }
@@ -35,9 +36,9 @@ export default function RateList({ ebcId, rates, nights, checkIn, checkOut, adul
   const [err, setErr] = useState<string | null>(null);
   const [filter, setFilter] = useState<"all" | "flex" | "breakfast">("all");
   const [chosen, setChosen] = useState<Record<string, string>>({});
-  const rooms = useMemo(() => groupRooms(rates.filter((x) => filter === "all" || (filter === "flex" ? x.refundable : x.board !== "RO"))), [rates, filter]);
+  const rooms = useMemo(() => groupRooms(rates.filter((x) => filter === "all" || (filter === "flex" ? freeNow(x) : x.board !== "RO"))), [rates, filter]);
   const cheapest = Math.min(...rates.map((x) => x.readerPrice));
-  const flexCount = rates.filter((x) => x.refundable).length, bbCount = rates.filter((x) => x.board !== "RO").length;
+  const flexCount = rates.filter((x) => freeNow(x)).length, bbCount = rates.filter((x) => x.board !== "RO").length;
   const pics = photos.length > 1 ? photos.slice(1) : photos;
 
   const book = async (packageCode: string) => {
@@ -69,7 +70,7 @@ export default function RateList({ ebcId, rates, nights, checkIn, checkOut, adul
           const base = room.rates[0]!.readerPrice;
           const pic = pics.length ? pics[i % pics.length]! : null;
           const isLowest = room.rates[0]!.readerPrice === cheapest;
-          const flexiest = !isLowest && room.rates.some((x) => x.refundable && x.board !== "RO");
+          const flexiest = !isLowest && room.rates.some((x) => freeNow(x) && x.board !== "RO");
           return (
             <li key={room.name} className="room">
               <div className="room-pic">
@@ -85,7 +86,7 @@ export default function RateList({ ebcId, rates, nights, checkIn, checkOut, adul
                     <label key={o.packageCode} className={`opt${o.packageCode === sel.packageCode ? " on" : ""}`}>
                       <input type="radio" name={`r-${i}`} checked={o.packageCode === sel.packageCode} onChange={() => setChosen({ ...chosen, [room.name]: o.packageCode })} />
                       <span className="opt-txt">
-                        <b className={o.refundable ? "ok" : "bad"}>{o.refundable ? (o.cancelDeadline ? rd.freeUntil(fmtDay(o.cancelDeadline, f.lang)) : t.refundableNoDate) : rd.nonRef}</b>
+                        <b className={freeNow(o) ? "ok" : o.refundable ? "warn" : "bad"}>{freeNow(o) ? (o.cancelDeadline ? rd.freeUntil(fmtDay(o.cancelDeadline, f.lang)) : t.refundableNoDate) : o.refundable ? rd.feeNow(p$(o.cancelCharge ?? o.readerPrice)) : rd.nonRef}</b>
                         <span>{t.board[o.board] ?? o.board}{o.onRequest ? `. ${rd.onReq}` : ""}</span>
                       </span>
                       <span className="opt-price num">{o.readerPrice === base ? p$(o.readerPrice) : rd.more(p$(o.readerPrice - base))}</span>
@@ -100,7 +101,7 @@ export default function RateList({ ebcId, rates, nights, checkIn, checkOut, adul
                   </div>
                   <button className="btn btn-brand" type="button" onClick={() => book(sel.packageCode)} aria-disabled={busy !== null} disabled={busy !== null}>{busy === sel.packageCode ? rd.holding : rd.reserve}</button>
                 </div>
-                {sel.refundable && sel.cancelCharge ? <p className="small mute room-note">{t.cancelFreeUntil(sel.cancelDeadline ? fmtDay(sel.cancelDeadline, f.lang) : t.checkInWord, p$(sel.cancelCharge, false))}</p> : !sel.refundable ? <p className="small mute room-note">{t.noRefundKept(p$(sel.readerPrice))}</p> : null}
+                {freeNow(sel) && sel.cancelCharge ? <p className="small mute room-note">{t.cancelFreeUntil(sel.cancelDeadline ? fmtDay(sel.cancelDeadline, f.lang) : t.checkInWord, p$(sel.cancelCharge, false))}</p> : !sel.refundable ? <p className="small mute room-note">{t.noRefundKept(p$(sel.readerPrice))}</p> : null}
               </div>
             </li>
           );

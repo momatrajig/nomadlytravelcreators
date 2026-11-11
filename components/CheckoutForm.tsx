@@ -6,6 +6,7 @@ import { approxOf, dict, fmtDay, money, price, type ReaderFmt } from "@/lib/i18n
 import { coDict, countryList, DIAL, type Co } from "@/lib/i18n/checkout";
 import { priceExtra, type ExtraPick } from "@/lib/extras/catalog";
 import AddOns from "@/components/checkout/AddOns";
+import { freeNow } from "@/lib/booking/policy";
 import { photoSrc } from "@/lib/media/photo";
 
 export interface CheckoutHotel { name: string; stars: number | null; address: string | null; photo: { url: string; w?: number } | null; roomName: string | null; board: string | null }
@@ -202,6 +203,13 @@ export default function CheckoutForm(p: Props) {
 function Policy({ co, p, P }: { co: Co; p: Props; P: (v: number, whole?: boolean) => string }) {
   const d = (iso: string) => fmtDay(iso, p.f.lang);
   if (!p.refundable) return <div className="policy nonref"><span className="dot bad" /><p><b>{co.nonRef}.</b> {co.noRefund}</p></div>;
+  // refundable on paper but the free period is already over: a fee from the first minute, never "free"
+  if (!freeNow(p)) return (
+    <ol className="timeline" aria-label={co.policyH} style={{ gridTemplateColumns: "1fr 1fr" }}>
+      <li className="warn"><b>{co.cancelNow}</b><span>{`→ ${d(p.checkIn)}`}</span><em>{p.cancelCharge ? P(p.cancelCharge) : co.fullCharge}</em></li>
+      <li className="bad"><b>{co.noShow}</b><span>{d(p.checkIn)}</span><em>{P(p.amount)}</em></li>
+    </ol>
+  );
   return (
     <ol className="timeline" aria-label={co.policyH}>
       <li className="ok"><b>{co.freeUntil}</b><span>{p.cancelDeadline ? `→ ${d(p.cancelDeadline)}` : ""}</span><em>{P(0, true)}</em></li>
@@ -229,7 +237,7 @@ function Summary({ co, p, lines, total, P, mobile }: { co: Co; p: Props; lines: 
       <p className="sum-stay">{co.stay(p.nights, p.adults)}</p>
       <div className="sum-room">
         <span>{co.room}</span><b>{p.hotel.roomName ?? t.board[p.hotel.board ?? "RO"]}</b>
-        <span className="small">{p.hotel.roomName ? `${t.board[p.hotel.board ?? "RO"]}. ` : ""}<i className={p.refundable ? "ok" : "bad"}>{p.refundable ? co.freeCancel : co.nonRef}</i></span>
+        <span className="small">{p.hotel.roomName ? `${t.board[p.hotel.board ?? "RO"]}. ` : ""}<i className={freeNow(p) ? "ok" : p.refundable ? "warn" : "bad"}>{freeNow(p) ? co.freeCancel : p.refundable ? co.feeCancel : co.nonRef}</i></span>
       </div>
       <ul className="sum-lines">
         <li><span>{t.roomNights(p.nights)}</span><span className="num">{P(p.amount)}</span></li>
