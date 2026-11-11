@@ -42,6 +42,8 @@ const en = {
   errCountry: "Choose a country or region.", errTerms: "Tick the box to confirm you read the terms.", errBooker: "Enter your own name.",
   errFix: (n: number) => `${n} ${n === 1 ? "field needs" : "fields need"} attention.`,
   freeCancel: "Free cancellation", nonRef: "Non refundable",
+  sampleCompare: "Demo: the struck through prices are samples until checked retail prices are loaded.",
+  youSave: (v: string) => `You save ${v} on add ons`, 
 };
 type Co = typeof en;
 
@@ -86,6 +88,8 @@ const cs: Co = {
   errCountry: "Vyberte zemi nebo oblast.", errTerms: "Potvrďte, že jste četli podmínky.", errBooker: "Zadejte své jméno.",
   errFix: (n) => `${n} ${n === 1 ? "pole potřebuje" : n < 5 ? "pole potřebují" : "polí potřebuje"} opravit.`,
   freeCancel: "Storno zdarma", nonRef: "Bez možnosti storna",
+  sampleCompare: "Demo: přeškrtnuté ceny jsou ukázkové, dokud nenahrajeme ověřené ceny.",
+  youSave: (v) => `Na doplňcích ušetříte ${v}`,
 };
 
 export const coDict = (lang: Lang): Co => (lang === "cs" ? cs : en);

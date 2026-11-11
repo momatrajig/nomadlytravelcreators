@@ -1,5 +1,5 @@
 "use client";
-import { EXTRAS, airportsFor, priceExtra, recommendedPlan, type Direction, type ExtraKind, type ExtraPick } from "@/lib/extras/catalog";
+import { ELSEWHERE_CHECKED, EXTRAS, airportsFor, priceExtra, recommendedPlan, type Direction, type ExtraKind, type ExtraPick } from "@/lib/extras/catalog";
 import { price, type ReaderFmt } from "@/lib/i18n";
 import type { Co } from "@/lib/i18n/checkout";
 import { dict } from "@/lib/i18n";
@@ -18,8 +18,10 @@ export const ICONS: Record<string, string> = {
 const TINT: Record<ExtraKind, string> = { transfer: "#e9f0ff", esim: "#e8f7ef", bag: "#fff3e3", delay: "#f3ecff" };
 const INK: Record<ExtraKind, string> = { transfer: "#2453c7", esim: "#127a4a", bag: "#a35b00", delay: "#6b3fc4" };
 
-export default function AddOns({ co, f, picks, setPicks, destination, adults, nights }: {
+export default function AddOns({ co, f, picks, setPicks, destination, adults, nights, compare = false }: {
   co: Co; f: ReaderFmt; picks: ExtraPick[]; setPicks: (p: ExtraPick[]) => void; destination: string | null; adults: number; nights: number;
+  /** show struck through "bought on its own" prices (checked prices, or labelled samples in the demo) */
+  compare?: boolean;
 }) {
   const t = dict(f.lang);
   const P = (v: number) => price(f, v);
@@ -38,6 +40,7 @@ export default function AddOns({ co, f, picks, setPicks, destination, adults, ni
     <section className="co-card" aria-labelledby="add-h">
       <h2 id="add-h">{co.addH}</h2>
       <p className="co-sub">{co.addSub}</p>
+      {compare && !ELSEWHERE_CHECKED && <p className="small mute" style={{ margin: "-6px 0 0" }}>{co.sampleCompare}</p>}
       <ul className="shelf" role="list">
         {EXTRAS.map((x) => {
           const pick = get(x.kind);
@@ -53,7 +56,8 @@ export default function AddOns({ co, f, picks, setPicks, destination, adults, ni
                 <div className="shelf-txt"><h3>{name}</h3><p>{short}</p></div>
                 <div className="shelf-price">
                   {priced ? <b>{P(priced.price)}</b> : <><span className="from">{co.from}</span> <b>{P(x.price)}</b></>}
-                  <s>{P(priced?.elsewhere ?? x.elsewhere)} {co.onItsOwn}</s>
+                  {compare && <s>{P(priced?.elsewhere ?? x.elsewhere)} {co.onItsOwn}</s>}
+                  {compare && <span className="save-pct">−{Math.round((1 - (priced?.price ?? x.price) / (priced?.elsewhere ?? x.elsewhere)) * 100)}%</span>}
                 </div>
                 <button type="button" className={`shelf-btn${on ? " on" : ""}`} aria-pressed={on} onClick={() => set(x.kind, on ? null : {})}>
                   {on ? <><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>{co.added}</> : <><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>{co.add}</>}

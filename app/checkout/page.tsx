@@ -7,6 +7,8 @@ import { env } from "@/lib/env";
 import { readerOf } from "@/lib/storefront/reader";
 import { requireStorefront } from "@/lib/tenant";
 import { searchStays } from "@/lib/booking/service";
+import { ELSEWHERE_CHECKED } from "@/lib/extras/catalog";
+import { bookingClosedReason } from "@/lib/booking/guard";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -40,7 +42,7 @@ export default async function Checkout({ searchParams }: { searchParams: Promise
             brandName={sf.brandName} brandColor={sf.brandColor} stripeKey={env().NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? null} expiresAt={quote.expiresAt} f={f}
             hotel={{ name: hotel?.name ?? "", stars: hotel?.stars ?? null, address: [hotel?.address, hotel?.cityName].filter(Boolean).join(", ") || null, photo: hotel?.images[0] ? { url: hotel.images[0].url, w: hotel.images[0].w } : null, roomName, board: quote.board }}
             checkIn={quote.checkIn} checkOut={quote.checkOut} nights={nights} adults={adults} destination={hotel?.destination ?? null} country={country}
-            lowestReference={quote.lowestReference} lowestSource={quote.lowestReferenceSource}
+            lowestReference={quote.lowestReference} lowestSource={quote.lowestReferenceSource} compare={ELSEWHERE_CHECKED || !!bookingClosedReason()}
           />}
     </>
   );

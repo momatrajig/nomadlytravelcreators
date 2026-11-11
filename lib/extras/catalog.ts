@@ -7,6 +7,13 @@
  * here stays a pilot price until the live KOI and eSIM rate cards are loaded. "elsewhere" is what the same
  * service costs bought on its own, shown struck through; it must be replaced by checked prices before launch.
  */
+/**
+ * Whether the "elsewhere" prices below were checked against real retail prices (KOI's own app, eSIM shops,
+ * insurers). Until they are, struck through comparisons show only in the demo, labelled as samples: a reference
+ * price shown to EU readers must be one they could actually have paid (Omnibus directive).
+ */
+export const ELSEWHERE_CHECKED = false;
+
 export type ExtraKind = "transfer" | "esim" | "bag" | "delay";
 export type Direction = "arrival" | "departure" | "both";
 

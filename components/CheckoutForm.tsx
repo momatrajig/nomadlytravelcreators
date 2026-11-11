@@ -14,6 +14,8 @@ interface Props {
   brandName: string; brandColor: string; stripeKey: string | null; expiresAt: string; f: ReaderFmt;
   hotel: CheckoutHotel; checkIn: string; checkOut: string; nights: number; adults: number; destination: string | null; country: string | null;
   lowestReference: number | null; lowestSource: string | null;
+  /** struck through add on comparisons: checked prices, or labelled samples in the demo */
+  compare: boolean;
 }
 type Person = { firstName: string; lastName: string };
 const REQUESTS = ["early_checkin", "late_checkout", "quiet", "high_floor", "twin", "double", "cot", "accessible"];
@@ -148,7 +150,7 @@ export default function CheckoutForm(p: Props) {
             </div>
           </section>
 
-          {!locked && <AddOns co={co} f={p.f} picks={picks} setPicks={setPicks} destination={p.destination} adults={p.adults} nights={p.nights} />}
+          {!locked && <AddOns co={co} f={p.f} picks={picks} setPicks={setPicks} destination={p.destination} adults={p.adults} nights={p.nights} compare={p.compare} />}
 
           <section className="co-card" aria-labelledby="req-h">
             <h2 id="req-h">{co.requestsH}</h2>
@@ -209,7 +211,8 @@ function Policy({ co, p, P }: { co: Co; p: Props; P: (v: number, whole?: boolean
   );
 }
 
-function Summary({ co, p, lines, total, P, mobile }: { co: Co; p: Props; lines: Array<{ kind: string; name: string; detail: string; price: number }>; total: number; P: (v: number, whole?: boolean) => string; mobile?: boolean }) {
+function Summary({ co, p, lines, total, P, mobile }: { co: Co; p: Props; lines: Array<{ kind: string; name: string; detail: string; price: number; elsewhere: number }>; total: number; P: (v: number, whole?: boolean) => string; mobile?: boolean }) {
+  const addSave = p.compare ? lines.reduce((a, l) => a + Math.max(0, l.elsewhere - l.price), 0) : 0;
   const t = dict(p.f.lang);
   const day = (iso: string) => new Intl.DateTimeFormat(p.f.lang === "cs" ? "cs-CZ" : "en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" }).format(new Date(`${iso}T12:00:00Z`));
   const approx = approxOf(p.f, total);
@@ -232,6 +235,7 @@ function Summary({ co, p, lines, total, P, mobile }: { co: Co; p: Props; lines: 
         <li><span>{t.roomNights(p.nights)}</span><span className="num">{P(p.amount)}</span></li>
         {lines.map((l) => <li key={l.kind}><span>{l.name}<small>{l.detail}</small></span><span className="num">{P(l.price)}</span></li>)}
       </ul>
+      {addSave > 0 && <p className="sum-save">{co.youSave(P(addSave))}</p>}
       {p.lowestReference && p.lowestReference > p.amount && <p className="sum-save">{t.showed(p.lowestSource ?? "")} <s className="num">{P(p.lowestReference)}</s></p>}
       <div className="sum-total"><span>{co.total}<small>{co.taxesIn}</small></span><span><b className="num">{P(total)}</b>{approx && <small className="num">{approx}</small>}</span></div>
       <p className="small mute sum-tax"><span>{co.cityTax}</span><span>{co.perPN}</span></p>

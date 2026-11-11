@@ -7,6 +7,7 @@ import HotelMap from "@/components/StaticMap";
 import TravelTimes from "@/components/TravelTimes";
 import GalleryOpener from "@/components/GalleryOpener";
 import CreatorMark from "@/components/CreatorMark";
+import HotelDates from "@/components/HotelDates";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
 import { checkedLabel } from "@/lib/format";
@@ -45,7 +46,8 @@ export default async function HotelPage({ params, searchParams }: { params: Prom
           </header>
           {pin?.tip && <blockquote className="tip"><p>{pin.tip}</p><footer>{first}{pin.stayedWhen ? t.stayed(pin.stayedWhen) : ""}</footer></blockquote>}
 
-          <h2 className="rates-h">{t.roomsFor(fmtDate(checkIn), fmtDate(checkOut), adults)}</h2>
+          <h2 className="rates-h" id="rooms">{t.roomsFor(fmtDate(checkIn), fmtDate(checkOut), adults)}</h2>
+          <HotelDates ebcId={ebcId} checkIn={checkIn} checkOut={checkOut} adults={adults} lang={f.lang} currency={sf.currency || "USD"} />
           <Suspense fallback={<div className="list-wait" role="status" aria-label="Loading live rates">{[0, 1, 2].map((k) => <div key={k} style={{ gridTemplateColumns: "1fr 200px" }}><div><div className="skel line" style={{ width: "60%", height: 22 }} /><div className="skel line" style={{ width: "80%" }} /></div><div className="skel line" style={{ height: 32 }} /></div>)}</div>}>
             <Rates t={t} f={f} sf={sf} ebcId={ebcId} checkIn={checkIn} checkOut={checkOut} adults={adults} qs={qs} photos={hotel.images} />
           </Suspense>

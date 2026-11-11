@@ -147,7 +147,7 @@ function StayRow({ t, f, sf, h, nights, href, featured, soldOut, km: away }: { t
           {h.saving !== null && h.lowestReference && (h.saving > 0
             ? <span className="save">{t.lessThan(usd(h.saving), h.lowestReference.source)}</span>
             : <span className="above">{t.above(usd(-h.saving), h.lowestReference.source)}</span>)}
-          {h.saving && h.saving > 0 ? <s>{usd(h.lowestReference!.price)}</s> : null}
+          {h.saving && h.saving > 0 ? <span className="was"><s>{usd(h.lowestReference!.price)}</s><span className="save-pct">−{Math.round((h.saving / h.lowestReference!.price) * 100)}%</span></span> : null}
           <strong>{usd(h.readerPrice)}</strong>
           <span className="per">{t.aNight(usd(h.readerPrice / nights))}{approxOf(f, h.readerPrice) ? <><br />{approxOf(f, h.readerPrice)}</> : null}</span>
         </>}
