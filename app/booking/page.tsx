@@ -1,3 +1,5 @@
+import { CircleAlert, Ticket } from "lucide-react";
+import { Ico } from "@/components/Icon";
 import { redirect } from "next/navigation";
 import { requireStorefront } from "@/lib/tenant";
 import { dict, langOf } from "@/lib/i18n";
@@ -14,13 +16,14 @@ export default async function Lookup({ searchParams }: { searchParams: Promise<R
   const lang = langOf((await requireStorefront()).locale);
   const t = dict(lang);
   return (
-    <div className="panel" style={{ marginTop: 18, maxWidth: 520 }}>
-      <h1 style={{ fontSize: 26 }}>{t.lookupTitle}</h1>
-      <p className="mute" style={{ margin: "6px 0 14px" }}>{t.lookupSub}</p>
-      {sp.missing && <p className="notice warn" role="alert">{MISSING[lang] ?? MISSING.en}</p>}
-      <form action={find} style={{ display: "grid", gap: 12 }}>
-        <div className="field"><label htmlFor="r">{t.reference}</label><input id="r" name="reference" placeholder="NMD 231821" defaultValue={sp.ref ?? ""} required /></div>
-        <div className="field"><label htmlFor="e">{t.email}</label><input id="e" name="email" type="email" autoComplete="email" required /></div>
+    <div className="auth">
+      <form action={find} className="auth-card auth-form">
+        <span className="auth-ic"><Ico of={Ticket} size={24} /></span>
+        <h1>{t.lookupTitle}</h1>
+        <p className="mute">{t.lookupSub}</p>
+        {sp.missing && <p className="auth-err" role="alert"><Ico of={CircleAlert} size={16} />{MISSING[lang] ?? MISSING.en}</p>}
+        <div className="field"><label htmlFor="r">{t.reference}</label><input id="r" name="reference" placeholder="NMD 231821" defaultValue={sp.ref ?? ""} autoCapitalize="characters" autoComplete="off" spellCheck={false} required /></div>
+        <div className="field"><label htmlFor="e">{t.email}</label><input id="e" name="email" type="email" inputMode="email" autoComplete="email" autoCapitalize="none" spellCheck={false} required /></div>
         <button className="btn btn-brand" type="submit">{t.findMy}</button>
       </form>
     </div>

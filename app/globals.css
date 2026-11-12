@@ -229,7 +229,7 @@ p { margin: 0; }
 .credits img { width: 72px; height: 48px; object-fit: cover; border-radius: 6px; }
 
 /* footer */
-.site-foot { margin: 72px 0 96px; padding-top: 22px; border-top: 1px solid var(--line); color: var(--mute); font-size: 14px; display: grid; gap: 10px; }
+.site-foot { margin: 72px auto 96px; padding-top: 22px; border-top: 1px solid var(--line); color: var(--mute); font-size: 14px; display: grid; gap: 10px; }
 .site-foot p:last-child { display: flex; gap: 18px; flex-wrap: wrap; }
 .site-foot a { color: var(--ink-2); }
 
@@ -821,3 +821,14 @@ html { scroll-behavior: smooth; }
 .shelf-price { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; }
 .shelf-price s { white-space: nowrap; } .shelf-price .save-pct { margin: 0; align-self: center; }
 @media (max-width: 620px) { .shelf-item.open .shelf-top { grid-template-columns: 52px minmax(0, 1fr) auto; grid-template-areas: "ico txt txt" "price price btn"; } }
+/* sign in and lookup: one centered card, an icon that says what is happening, nothing else on the page competing */
+.auth { display: grid; place-items: center; padding: 40px 0 8px; }
+.auth-card { width: 100%; max-width: 440px; border: 1px solid var(--line); border-radius: 20px; background: var(--paper); padding: 28px; box-shadow: var(--shadow-sm); display: grid; gap: 12px; }
+.auth-card h1 { font-size: 28px; } .auth-card p { margin: 0; }
+.auth-form { display: grid; gap: 12px; }
+.auth-ic { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 14px; background: var(--select); color: var(--brand); }
+.auth-ic.ok { background: var(--save-bg); color: var(--save); }
+.auth-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.auth-err { display: flex; gap: 8px; align-items: center; color: var(--bad); background: var(--bad-bg); border-radius: 10px; padding: 10px 12px; font-size: 14px; }
+.auth-foot { display: flex; gap: 6px; align-items: center; padding-top: 4px; }
+@media (max-width: 520px) { .auth { padding-top: 20px; } .auth-card { padding: 22px 18px; border-radius: 16px; } }

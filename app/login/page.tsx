@@ -1,3 +1,5 @@
+import { CircleAlert, LayoutDashboard, LogOut, Mail, MailCheck, ShieldCheck, UserRound } from "lucide-react";
+import { Ico } from "@/components/Icon";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
@@ -28,23 +30,34 @@ export default async function Login({ searchParams }: { searchParams: Promise<Re
   }
   const msg: Record<string, string> = { email: "Enter a valid email address.", config: "Sign in is not configured on this deployment yet.", send: "We could not send the link. Wait a minute and try again.", link: "That link expired or was already used. Ask for a new one.", notcreator: "This email is not on a creator account yet. Reply to your invitation email and we add you." };
   return (
-    <div className="panel" style={{ marginTop: 18, maxWidth: 480 }}>
-      <h1 style={{ fontSize: 24 }}>Creator sign in</h1>
-      {user ? (
-        <>
-          <p className="mute">Signed in as <b>{user.email}</b>.</p>
-          <div style={{ display: "flex", gap: 10 }}><Link className="btn btn-brand" href="/dashboard">Open my dashboard</Link><form action={out}><button className="btn" type="submit">Sign out</button></form></div>
-        </>
-      ) : sp.sent ? (
-        <p>We sent a sign in link to <b>{sp.sent}</b>. Open it on this device; it works once and for one hour.</p>
-      ) : (
-        <form action={send} style={{ display: "grid", gap: 12, marginTop: 10 }}>
-          <p className="mute" style={{ margin: 0 }}>No password. We email you a link that signs you in.</p>
-          <div className="field"><label htmlFor="em">Email</label><input id="em" name="email" type="email" autoComplete="email" required /></div>
-          {sp.error && <p role="alert" style={{ color: "var(--bad)", margin: 0 }}>{msg[sp.error] ?? "Something went wrong."}</p>}
-          <button className="btn btn-brand" type="submit">Email me a sign in link</button>
-        </form>
-      )}
+    <div className="auth">
+      <div className="auth-card">
+        {user ? (
+          <>
+            <span className="auth-ic"><Ico of={UserRound} size={24} /></span>
+            <h1>Signed in</h1>
+            <p className="mute">As <b>{user.email}</b>.</p>
+            <div className="auth-row"><Link className="btn btn-brand" href="/dashboard"><Ico of={LayoutDashboard} size={17} />Open my dashboard</Link><form action={out}><button className="btn" type="submit"><Ico of={LogOut} size={17} />Sign out</button></form></div>
+          </>
+        ) : sp.sent ? (
+          <>
+            <span className="auth-ic ok"><Ico of={MailCheck} size={24} /></span>
+            <h1>Check your inbox</h1>
+            <p>We sent a sign in link to <b>{sp.sent}</b>. Open it on this device; it works once, for 1 hour.</p>
+            <p className="small mute">Nothing after 2 minutes? Look in spam, or <Link href="/login">send it again</Link>.</p>
+          </>
+        ) : (
+          <form action={send} className="auth-form">
+            <span className="auth-ic"><Ico of={Mail} size={24} /></span>
+            <h1>Creator sign in</h1>
+            <p className="mute">No password. We email you a link that signs you in.</p>
+            <div className="field"><label htmlFor="em">Email</label><input id="em" name="email" type="email" inputMode="email" autoComplete="email" autoCapitalize="none" spellCheck={false} placeholder="you@yourblog.com" required aria-invalid={sp.error === "email" || undefined} aria-describedby={sp.error ? "em-err" : undefined} /></div>
+            {sp.error && <p id="em-err" role="alert" className="auth-err"><Ico of={CircleAlert} size={16} />{msg[sp.error] ?? "Something went wrong."}</p>}
+            <button className="btn btn-brand" type="submit">Email me a sign in link</button>
+            <p className="small mute auth-foot"><Ico of={ShieldCheck} size={15} />Readers never need an account. This is for creators only.</p>
+          </form>
+        )}
+      </div>
     </div>
   );
 }
