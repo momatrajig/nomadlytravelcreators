@@ -30,7 +30,6 @@ export const maxDuration = 60;
 export default async function Stays({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const sf = await requireStorefront();
   const { t, f } = await readerOf(sf);
-  const fmtDate = (d: string) => fmtDay(d, f.lang);
   const sp = await searchParams;
   const { checkIn, checkOut, adults, qs } = readDates(sp, env().EBC_MODE);
   const pickId = Number(typeof sp.pick === "string" ? sp.pick : NaN);
@@ -55,7 +54,7 @@ export default async function Stays({ searchParams }: { searchParams: Promise<Re
       )}
       <header className="list-head">
         <h1>{title}</h1>
-        <p>{t.listMeta(fmtDate(checkIn), fmtDate(checkOut), nightsOf(checkIn, checkOut), adults)}</p>
+        <p>{t.totalFor(nightsOf(checkIn, checkOut))}</p>
       </header>
       {pick ? (
         <>
@@ -140,7 +139,11 @@ function StayRow({ t, f, sf, h, nights, href, featured, soldOut, km: away }: { t
         {!featured && h.creatorPick && <div className="also-pick"><CreatorMark sf={sf} size={16} /><span>{t.alsoPick(sf.brandName)}</span></div>}
         <div className="stay-where">{[h.area, h.city].filter(Boolean).join(", ")}{away != null ? `${h.area || h.city ? ". " : ""}${t.kmAway(away)}` : ""}</div>
         <h2><Link href={href}>{h.name}</Link></h2>
-        <div className="stay-facts">{h.stars ? t.star(h.stars) : ""}{h.rating ? t.fromReviews(h.rating.toFixed(1), h.ratingCount?.toLocaleString(f.lang === "cs" ? "cs-CZ" : "en-US") ?? "") : ""}{freeNow(h) && h.cancelDeadline ? `. ${t.freeCancelUntil(fmtDate(h.cancelDeadline))}` : ""}</div>
+        <div className="stay-facts hotel-facts">
+          {h.stars ? <span className="stars" aria-label={t.star(h.stars)}>{"★".repeat(h.stars)}</span> : null}
+          {h.rating ? <span className="score"><b className="num">{h.rating.toFixed(1)}</b><span>{t.scoreWord(h.rating)}</span><small className="num">{t.reviewsN(h.ratingCount?.toLocaleString(f.lang === "cs" ? "cs-CZ" : "en-US") ?? "")}</small></span> : null}
+        </div>
+        {freeNow(h) && h.cancelDeadline ? <div className="free-chip">{t.freeCancelUntil(fmtDate(h.cancelDeadline))}</div> : null}
         {h.tip && <p className="stay-tip">{h.tip}</p>}
       </div>
       <div className="stay-price">
