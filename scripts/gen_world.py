@@ -145,8 +145,8 @@ for h in PT_KEEP:
 sql.append(f"delete from collections where storefront_id = {SF};")
 ids = lambda xs: "array[" + ",".join(str(x) for x in xs) + "]::int[]"
 season = [
- ("new-year", "New Year's Eve", "Four nights over New Year, 29 December to 2 January, two adults. Where the fireworks are.", "2026-12-29", "2027-01-02", ["cip", "burj", "plaza-ny", "mbs", "ritz-london", "peninsula-paris", "mamounia"]),
- ("christmas", "Christmas week", "Four nights, 22 to 26 December, two adults. Markets, lights and long lunches.", "2026-12-22", "2026-12-26", ["savoy", "amstel", "meurice", "pera", "majestic", "excelsior-rome", "reids"]),
+ ("new-year", "New Year's Eve", "4 nights over New Year, 29 December to 2 January, 2 adults. Where the fireworks are.", "2026-12-29", "2027-01-02", ["cip", "burj", "plaza-ny", "mbs", "ritz-london", "peninsula-paris", "mamounia"]),
+ ("christmas", "Christmas week", "4 nights, 22 to 26 December, 2 adults. Markets, lights and long lunches.", "2026-12-22", "2026-12-26", ["savoy", "amstel", "meurice", "pera", "majestic", "excelsior-rome", "reids"]),
 ]
 slug2id = {h["slug"]: h["ebcId"] for h in pins}
 pos = 0
