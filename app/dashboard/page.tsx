@@ -49,7 +49,7 @@ export default async function Overview({ searchParams }: { searchParams: Promise
       <div className="kpis">
         <div className="kpi"><span>Clicks</span><b>{num(s.clicks)}</b><small>{num(s.visitors)} unique visitors{prev.clicks ? `. ${delta(s.clicks, prev.clicks)}` : ""}</small></div>
         <div className="kpi"><span>Bookings</span><b>{num(s.hotelBookings)}</b><small>{[s.addOns ? `Plus ${num(s.addOns)} add ${s.addOns === 1 ? "on" : "ons"}` : null, s.canceled ? `${s.canceled} canceled` : null].filter(Boolean).join(", ") || "Hotel stays"}</small></div>
-        <div className="kpi"><span>Conversion</span><b>{pct(s.conversion, 2)}</b><small>Bookings per click</small></div>
+        <div className="kpi"><span>Conversion</span><b>{pct(s.conversion, s.conversion > 0 && s.conversion < 0.1 ? 2 : 1).replace(/\.0+%$/, "%")}</b><small>Bookings per click</small></div>
         <div className="kpi"><span>EPC</span><b>{usd(s.epc)}</b><small>Earnings per click</small></div>
         <div className="kpi"><span>Commission</span><b>{usd(s.commission)}</b><small>{s.bookingValue ? `${pct(s.ofValue)} of booking value` : "Pending and approved"}</small></div>
       </div>
@@ -177,11 +177,19 @@ function Activity({ clicks, txs, name, slug }: { clicks: Click[]; txs: Tx[]; nam
       title: k.target === "hotel" && k.ebcId ? `Clicked ${name(k.ebcId)}` : k.target === "city" ? `Clicked ${k.query?.city ?? k.query?.address ?? "a destination"}` : k.query?.hotelname ? `Clicked ${k.query.hotelname}` : "Clicked your storefront",
       detail: [k.source ? `from ${k.source}` : "direct", k.country ? FLAG[k.country] ?? k.country : null, k.device].filter(Boolean).join(", "),
     })),
-    ...txs.slice(0, 40).map((t): Ev => ({
-      at: t.date, key: `b${t.id}`, kind: t.tx === "Canceled" ? "cancel" : "booking",
-      title: `${t.tx === "Canceled" ? "Canceled" : "Booked"}: ${t.info}`, detail: [t.reference, t.source ? `from ${t.source}` : "direct", t.demo ? "demo, test card" : null].filter(Boolean).join(", "),
-      amount: `${usd(t.price)}, you earn ${usd(t.commission)}`, status: t.tx,
-    })),
+    // one line per booking: the stay with its add ons, the total and what the creator earns on all of it
+    ...[...new Map(txs.slice(0, 120).map((t) => [t.bookingId, t])).keys()].slice(0, 40).map((id): Ev => {
+      const parts = txs.filter((t) => t.bookingId === id);
+      const stay = parts.find((t) => t.category === "hotel") ?? parts[0]!;
+      const extras = parts.filter((t) => t !== stay).map((t) => t.info.replace(/,\s*(Standard|Business|Van|First class)$/i, ""));
+      const price = parts.reduce((a, t) => a + t.price, 0), earn = parts.reduce((a, t) => a + t.commission, 0);
+      return {
+        at: stay.date, key: `b${id}`, kind: stay.tx === "Canceled" ? "cancel" : "booking",
+        title: `${stay.tx === "Canceled" ? "Canceled" : "Booked"}: ${stay.info}`,
+        detail: [extras.length ? `with ${extras.join(", ")}` : null, stay.reference, stay.source ? `from ${stay.source}` : "direct", stay.demo ? "test card" : null].filter(Boolean).join(" · "),
+        amount: `${usd(price)}, you earn ${usd(earn)}`, status: stay.tx,
+      };
+    }),
   ].sort((a, b) => b.at.localeCompare(a.at)).slice(0, 12);
   return (
     <section className="dcard" aria-labelledby="act-h">
