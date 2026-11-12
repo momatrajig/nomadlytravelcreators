@@ -3,6 +3,8 @@ import { Suspense } from "react";
 import type { Collection, Storefront } from "@/lib/db/types";
 import SearchBar from "@/components/SearchBar";
 import StaysFlow from "@/components/StaysFlow";
+import { ELSEWHERE_CHECKED } from "@/lib/extras/catalog";
+import { bookingClosedReason } from "@/lib/booking/guard";
 import ExtrasRow from "@/components/ExtrasRow";
 import HeroCycle from "@/components/HeroCycle";
 import { db } from "@/lib/db";
@@ -43,16 +45,23 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
           <h2 id="dest-h">{t.whereStayed}</h2>
           <p>{t.placesHotels(dests.length, pins.length)} {t.pricesFor(fmtDate(checkIn), fmtDate(checkOut))}</p>
         </div>
-        <ul className="rail" role="list">
+        {/* one place: a wide banner with its hotels, so the row never looks half empty */}
+        <ul className={`rail${dests.length === 1 ? " single" : ""}`} role="list">
           {dests.map((d) => {
+            const hs = dests.length === 1 ? pins.filter((p) => d.hotels.includes(p.ebcId) && p.images[0]).slice(0, 4) : [];
             return (
               <li key={d.slug}>
                 <Link href={`/stays?d=${d.slug}&${qs}`} className="place">
-                  <img src={photoSrc(d.hero, 800)} srcSet={photoSet(d.hero)} sizes="(max-width: 600px) 70vw, 280px" alt="" loading="lazy" />
+                  <img src={photoSrc(d.hero, dests.length === 1 ? 1600 : 800)} srcSet={photoSet(d.hero)} sizes={dests.length === 1 ? "100vw" : "(max-width: 600px) 70vw, 280px"} alt="" loading="lazy" />
                   <span className="place-text">
                     <span className="place-name">{d.name}</span>
                     <span className="place-meta">{t.hotelsN(d.hotels.length)}<Suspense fallback={null}><FromPrice sf={sf} ids={d.hotels} checkIn={checkIn} checkOut={checkOut} adults={adults} t={t} f={f} /></Suspense></span>
                   </span>
+                  {hs.length > 0 && (
+                    <span className="place-hotels" aria-hidden="true">
+                      {hs.map((h) => <span key={h.ebcId} className="ph"><img src={photoSrc(h.images[0]!.url, 320, h.images[0]!.w)} alt="" loading="lazy" /><span>{h.name}</span></span>)}
+                    </span>
+                  )}
                 </Link>
               </li>
             );
@@ -70,7 +79,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
         <AllBand sf={sf} checkIn={checkIn} checkOut={checkOut} adults={adults} qs={qs} t={t} f={f} />
       </Suspense>
 
-      <ExtrasRow f={f} />
+      <ExtrasRow f={f} compare={ELSEWHERE_CHECKED || !!bookingClosedReason()} />
 
       <section className="how" aria-labelledby="how-h">
         <h2 id="how-h">{t.howTitle}</h2>

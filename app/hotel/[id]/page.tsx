@@ -71,11 +71,10 @@ async function Rates({ t, f, sf, ebcId, checkIn, checkOut, adults, qs, photos }:
   void approxOf;
   return (
     <>
-          {card?.saving != null && card.lowestReference && (
-            <div className={`proof ${card.saving > 0 ? "" : "warn"}`}>
-              {card.saving > 0
-                ? <><b>{t.lessThan(usd(card.saving), card.lowestReference.source)}.</b> {card.lowestReference.source}: {usd(card.lowestReference.price)}{v.checkedAt && f.lang === "en" ? `, ${checkedLabel(v.checkedAt)}` : ""}.</>
-                : <><b>{t.above(usd(-card.saving), card.lowestReference.source)}.</b></>}
+          {/* a saving is shown only when it is real; a dearer price is not advertised against us */}
+          {card?.saving != null && card.saving > 0 && card.lowestReference && (
+            <div className="proof">
+              <b>{t.lessThan(usd(card.saving), card.lowestReference.source)}.</b> {card.lowestReference.source}: {usd(card.lowestReference.price)}{v.checkedAt && f.lang === "en" ? `, ${checkedLabel(v.checkedAt)}` : ""}.
             </div>
           )}
           {flex && <ul className="terms">

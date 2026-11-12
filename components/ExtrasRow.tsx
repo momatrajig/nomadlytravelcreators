@@ -1,4 +1,4 @@
-import { EXTRAS } from "@/lib/extras/catalog";
+import { ELSEWHERE_CHECKED, EXTRAS } from "@/lib/extras/catalog";
 import { dict, price, type ReaderFmt } from "@/lib/i18n";
 
 const ICON: Record<string, string> = {
@@ -9,7 +9,8 @@ const ICON: Record<string, string> = {
 };
 
 /** Veny services as a quiet row. They are added at checkout, with the stay, in one payment. */
-export default function ExtrasRow({ f = { lang: "en", currency: "USD", disp: null, rate: null } }: { f?: ReaderFmt }) {
+/** compare: struck through retail prices, shown when checked (or labelled samples in the demo, by the caller) */
+export default function ExtrasRow({ f = { lang: "en", currency: "USD", disp: null, rate: null }, compare = ELSEWHERE_CHECKED }: { f?: ReaderFmt; compare?: boolean }) {
   const t = dict(f.lang);
   return (
     <section className="block extras" aria-labelledby="extras">
@@ -22,7 +23,7 @@ export default function ExtrasRow({ f = { lang: "en", currency: "USD", disp: nul
           <li key={x.kind}>
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d={ICON[x.icon]} /></svg>
             <div><h3>{t.extras?.[x.kind]?.name ?? x.name}</h3><p>{t.extras?.[x.kind]?.short ?? x.short}</p></div>
-            <div className="extra-price"><b>{price(f, x.price)}</b><s>{t.onItsOwn(price(f, x.elsewhere))}</s></div>
+            <div className="extra-price"><span className="from">{t.fromWord}</span> <b>{price(f, x.price)}</b>{compare && <s>{t.onItsOwn(price(f, x.elsewhere))}</s>}</div>
           </li>
         ))}
       </ul>

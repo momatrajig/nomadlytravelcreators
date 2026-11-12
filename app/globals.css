@@ -588,3 +588,15 @@ p { margin: 0; }
 .shelf-price .save-pct { justify-self: start; margin: 3px 0 0; }
 .opt-txt b.warn, .sum-room i.warn { color: var(--warn); }
 .dr-pop.right { left: auto; right: 0; } @media (max-width: 760px) { .dr-pop.right { right: 8px; } }
+
+/* one destination: a wide banner with its hotels */
+.rail.single { grid-auto-columns: 100%; margin: 0; padding: 4px 0 12px; overflow: visible; }
+.rail.single .place { aspect-ratio: 21 / 8; min-height: 240px; }
+.rail.single .place::after { background: linear-gradient(90deg, rgba(8, 14, 24, .72), rgba(8, 14, 24, .1) 55%, rgba(8, 14, 24, .55)); }
+.rail.single .place-text { left: 28px; bottom: 26px; right: auto; }
+.rail.single .place-name { font-size: clamp(40px, 5vw, 64px); }
+.place-hotels { position: absolute; z-index: 1; right: 20px; bottom: 20px; display: grid; grid-template-columns: repeat(2, 150px); gap: 10px; }
+.place-hotels .ph { display: grid; gap: 4px; font-size: 12.5px; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.5); }
+.place-hotels .ph img { position: static; width: 150px; height: 84px; object-fit: cover; border-radius: 10px; border: 2px solid rgba(255,255,255,.85); transform: none !important; }
+.place-hotels .ph span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 760px) { .rail.single .place { aspect-ratio: 4 / 5; } .place-hotels { display: none; } }

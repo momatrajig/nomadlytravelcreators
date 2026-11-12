@@ -21,9 +21,8 @@ interface Props { items: StayCardData[]; nights: number; checkedAt: string | nul
 function card(h: StayCardData, i: number, nights: number, checkedAt: string | null, qs: string, f: ReaderFmt) {
   const t = dict(f.lang);
   const p = h.photos[0];
-  const badge = h.saving === null ? "" : h.saving > 0
-    ? `<span class="nf-badge save">${esc(t.below(price(f, h.saving), h.lowestReference!.source))}</span>`
-    : `<span class="nf-badge soft">${esc(t.above(price(f, -h.saving), h.lowestReference!.source))}</span>`;
+  // a saving only when it is real; a dearer price is not advertised against us
+  const badge = h.saving !== null && h.saving > 0 ? `<span class="nf-badge save">${esc(t.below(price(f, h.saving), h.lowestReference!.source))}</span>` : "";
   const set = p ? photoSet(p.url, p.w) : undefined;
   const img = p ? `<img class="nf-img" ${i < 3 ? `src="${photoSrc(p.url, 960, p.w)}"${set ? ` srcset="${set}"` : ""}` : `data-src="${photoSrc(p.url, 960, p.w)}"`} sizes="(max-width: 600px) 80vw, 340px" alt="${esc(h.name)}">` : "";
   const count = h.photos.length > 1 ? `<span class="nf-badge soft nf-count">${esc(t.photosN(h.photos.length))}</span>` : "";
@@ -40,13 +39,15 @@ function card(h: StayCardData, i: number, nights: number, checkedAt: string | nu
 export default function StaysFlow({ items, nights, checkedAt, qs, label, tabs = true, f = EN_FMT }: Props) {
   const t = dict(f.lang);
   const [tab, setTab] = useState<"saving" | "booked">("saving");
-  const sorted = useMemo(() => [...items].sort((a, b) => tab === "saving" ? (b.saving ?? -1e9) - (a.saving ?? -1e9) : b.booked - a.booked || (b.saving ?? 0) - (a.saving ?? 0)).slice(0, 10), [items, tab]);
+  // "biggest saving" only means something once real comparisons exist; until then the first tab is the lowest price
+  const anySaving = items.some((x) => (x.saving ?? 0) > 0);
+  const sorted = useMemo(() => [...items].sort((a, b) => tab === "saving" ? (anySaving ? (b.saving ?? -1e9) - (a.saving ?? -1e9) : a.readerPrice - b.readerPrice) : b.booked - a.booked || a.readerPrice - b.readerPrice).slice(0, 10), [items, tab, anySaving]);
   if (!items.length) return <p className="nf-empty">{t.noRoomsDates}</p>;
   return (
     <>
       {tabs && (
         <div className="nf-tabs" role="tablist" aria-label="Sort">
-          <button type="button" role="tab" aria-selected={tab === "saving"} onClick={() => setTab("saving")}>{t.biggestSaving}</button>
+          <button type="button" role="tab" aria-selected={tab === "saving"} onClick={() => setTab("saving")}>{anySaving ? t.biggestSaving : t.lowestPrice}</button>
           <button type="button" role="tab" aria-selected={tab === "booked"} onClick={() => setTab("booked")}>{t.mostBooked}</button>
         </div>
       )}

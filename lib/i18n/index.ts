@@ -38,7 +38,7 @@ export function fmtDay(iso: string, lang: Lang): string {
 const en = {
   lang: "en" as Lang,
   // header, footer, nav
-  hotels: "Hotels", yourBooking: "Your booking", home: "Home", creatorDashboard: "Creator dashboard", forCreators: "For creators", dashboard: "Dashboard",
+  hotels: "Hotels", yourBooking: "Your booking", home: "Home", creatorDashboard: "Creator dashboard", forCreators: "For creators", fromWord: "from", dashboard: "Dashboard",
   recommendedBy: (b: string) => `Recommended by ${b}`, alsoPick: (b: string) => `Also a ${b} pick`, similarNearby: "Similar stays nearby", similarSub: "Same class of hotel, closest first, priced for your dates.",
   kmAway: (km: number) => km < 1 ? `${Math.round(km * 1000 / 50) * 50} m away` : `${km.toFixed(1)} km away`, pickGone: "Your pick has no rooms on these dates. Try other dates, or one of the stays below.",
   stayingIn: (p: string) => `Stays in ${p}`, theirPicks: (b: string) => `${b}'s picks`, seePicks: "See all picks", picksSub: (n: number, p: number) => `${n} ${n === 1 ? "hotel" : "hotels"} in ${p} ${p === 1 ? "place" : "places"}, each chosen and stayed in.`,
@@ -48,7 +48,7 @@ const en = {
   bannerDemo: "Live hotel prices, demo checkout: pay with Stripe test card 4242 4242 4242 4242. No room is reserved and no money moves.",
   metaTitle: (brand: string) => `${brand}: hotels with live rates`,
   // home
-  heroSub: (who: string) => `Live rates from the hotels, booked through ${who}. Where we have read Booking.com and Expedia for the same room and dates, you see their price next to ours.`,
+  heroSub: (who: string) => `Live rates for the hotels from ${who}, booked in one payment, with the airport ride and data if you want them.`,
   whereStayed: "Where we stay", placesHotels: (p: number, h: number) => `${p} ${p === 1 ? "place" : "places"}, ${h} ${h === 1 ? "hotel" : "hotels"}.`,
   pricesFor: (a: string, b: string) => `Prices per night for ${a} to ${b}.`,
   hotelsN: (n: number) => `${n} ${n === 1 ? "hotel" : "hotels"}`, fromNight: (p: string) => `, from ${p} a night`,
@@ -57,13 +57,13 @@ const en = {
   withRooms: (n: number) => `${n} with rooms.`, guestsNights: (a: number, n: number) => `${a} ${a === 1 ? "adult" : "adults"}, ${n} ${n === 1 ? "night" : "nights"}, tax included.`,
   seeList: "See the list", tryAgain: "Try again", allN: (n: number) => `All ${n} hotels`, noRoomsLeft: "These hotels have no rooms left for these dates.",
   howTitle: "How booking here works",
-  how: [["Compared where we can", "When we have read Booking.com and Expedia for the same room, dates and guests, the card shows their price. If we are not cheaper, it says so."], ["You pay Nomadly", "Nomadly buys the room at trade rates and pays the hotel. Your confirmation and reference number arrive by email."], ["Free cancellation is real", "Flexible rates cancel free until the date on the rate. The refund goes back to your card."]] as Array<[string, string]>,
+  how: [["A saving only when it is real", "When we have checked Booking.com or Expedia for the same room, dates and guests, you see their price and your saving. No check, no claim."], ["You pay Nomadly", "Nomadly buys the room at trade rates and pays the hotel. Your confirmation and reference number arrive by email."], ["Free cancellation is real", "Flexible rates cancel free until the date on the rate. The refund goes back to your card."]] as Array<[string, string]>,
   fromArticle: "From the article", readArticle: "Read the article",
   // search
   where: "Where", anywhere: "Anywhere", checkIn: "Check in", checkOut: "Check out", guests: "Guests", adultsN: (n: number) => `${n} ${n === 1 ? "adult" : "adults"}`,
   seePrices: "See prices", searching: "Searching", nightsRange: "Check out has to be 1 to 30 nights after check in.",
   // cards and list
-  biggestSaving: "Biggest saving", mostBooked: "Most booked by readers", seeRooms: "See rooms", photos: "Photos", photosN: (n: number) => `${n} photos`,
+  biggestSaving: "Biggest saving", lowestPrice: "Lowest price", mostBooked: "Most booked by readers", seeRooms: "See rooms", photos: "Photos", photosN: (n: number) => `${n} photos`,
   allPhotosOf: (n: number, name: string) => `See all ${n} photos of ${name}`, star: (n: number) => `${n} star`, freeCancelUntil: (d: string) => `Free cancellation until ${d}`, noRefunds: "No refunds",
   nightsN: (n: number) => `${n} ${n === 1 ? "night" : "nights"}`, aNight: (p: string) => `${p} a night`, below: (p: string, src: string) => `${p} below ${src}`, above: (p: string, src: string) => `${p} above ${src}`,
   lessThan: (p: string, src: string) => `${p} less than ${src}`, noRoomsDates: "No rooms for these dates at these hotels. Try other dates.", showEvery: "Show every hotel",
@@ -117,7 +117,7 @@ export type Dict = typeof en;
 
 const cs: Dict = {
   lang: "cs",
-  hotels: "Hotely", yourBooking: "Moje rezervace", home: "Domů", creatorDashboard: "Přehled pro autory", forCreators: "Pro autory", dashboard: "Přehled",
+  hotels: "Hotely", yourBooking: "Moje rezervace", home: "Domů", creatorDashboard: "Přehled pro autory", forCreators: "Pro autory", fromWord: "od", dashboard: "Přehled",
   recommendedBy: (b) => `Doporučuje ${b}`, alsoPick: (b) => `Také tip: ${b}`, similarNearby: "Podobná ubytování poblíž", similarSub: "Hotely stejné třídy, od nejbližšího, s cenou na vaše termíny.",
   kmAway: (km) => km < 1 ? `${Math.round(km * 1000 / 50) * 50} m odsud` : `${km.toFixed(1).replace(".", ",")} km odsud`, pickGone: "Doporučený hotel nemá na tyto termíny volné pokoje. Zkuste jiné termíny nebo ubytování níže.",
   stayingIn: (p) => `Ubytování: ${p}`, theirPicks: (b) => `Tipy: ${b}`, seePicks: "Všechny tipy", picksSub: (n, p) => `${n} ${plural("cs", n, "hotel", "hotely", "hotelů")} v ${p} ${plural("cs", p, "místě", "místech", "místech")}, všechny vybrané a vyzkoušené.`,
@@ -126,7 +126,7 @@ const cs: Dict = {
   bannerMock: "Náhled: ceny jsou simulované a karty běží v testovacím režimu Stripe, nejde o skutečnou rezervaci.",
   bannerDemo: "Skutečné ceny hotelů, ukázková platba: zaplaťte testovací kartou Stripe 4242 4242 4242 4242. Žádný pokoj se nerezervuje a žádné peníze se nestrhnou.",
   metaTitle: (brand) => `${brand}: hotely s aktuálními cenami`,
-  heroSub: (who) => `Aktuální ceny přímo z hotelů, rezervace přes ${who}. Kde máme cenu z Booking.com a Expedie pro stejný pokoj a termín, uvidíte ji vedle naší.`,
+  heroSub: (who) => `Aktuální ceny hotelů od ${who}, zaplacené jednou platbou, s odvozem z letiště a daty, pokud chcete.`,
   whereStayed: "Kde bydlet", placesHotels: (p, h) => `${p} ${plural("cs", p, "místo", "místa", "míst")}, ${h} ${plural("cs", h, "hotel", "hotely", "hotelů")}.`,
   pricesFor: (a, b) => `Ceny za noc, ${a} až ${b}`,
   hotelsN: (n) => `${n} ${plural("cs", n, "hotel", "hotely", "hotelů")}`, fromNight: (p) => `, od ${p} za noc`,
@@ -135,11 +135,11 @@ const cs: Dict = {
   withRooms: (n) => `${n} s volnými pokoji.`, guestsNights: (a, n) => `${a} ${plural("cs", a, "dospělý", "dospělí", "dospělých")}, ${n} ${plural("cs", n, "noc", "noci", "nocí")}, včetně daní.`,
   seeList: "Zobrazit seznam", tryAgain: "Zkusit znovu", allN: (n) => `Všech ${n} hotelů`, noRoomsLeft: "Tyto hotely nemají pro zvolený termín volné pokoje.",
   howTitle: "Jak rezervace funguje",
-  how: [["Porovnáváme, kde to jde", "Když máme cenu z Booking.com a Expedie pro stejný pokoj, termín a počet hostů, karta ji ukáže. Pokud nejsme levnější, řekneme to."], ["Platíte Nomadly", "Nomadly nakupuje pokoje za velkoobchodní ceny a platí hotelu. Potvrzení a číslo rezervace vám přijdou e-mailem."], ["Storno zdarma platí", "Flexibilní ceny lze zrušit zdarma do data uvedeného u ceny. Peníze se vrátí na kartu."]],
+  how: [["Úspora, jen když je skutečná", "Když máme ověřenou cenu z Booking.com nebo Expedie pro stejný pokoj, termín a počet hostů, uvidíte ji i svou úsporu. Bez ověření nic netvrdíme."], ["Platíte Nomadly", "Nomadly nakupuje pokoje za velkoobchodní ceny a platí hotelu. Potvrzení a číslo rezervace vám přijdou e-mailem."], ["Storno zdarma platí", "Flexibilní ceny lze zrušit zdarma do data uvedeného u ceny. Peníze se vrátí na kartu."]],
   fromArticle: "Z článku", readArticle: "Přečíst článek",
   where: "Kam", anywhere: "Kamkoli", checkIn: "Příjezd", checkOut: "Odjezd", guests: "Hosté", adultsN: (n) => `${n} ${plural("cs", n, "dospělý", "dospělí", "dospělých")}`,
   seePrices: "Zobrazit ceny", searching: "Hledáme", nightsRange: "Odjezd musí být 1 až 30 nocí po příjezdu.",
-  biggestSaving: "Největší úspora", mostBooked: "Nejčastěji rezervované", seeRooms: "Zobrazit pokoje", photos: "Fotky", photosN: (n) => `${n} ${plural("cs", n, "fotka", "fotky", "fotek")}`,
+  biggestSaving: "Největší úspora", lowestPrice: "Nejnižší cena", mostBooked: "Nejčastěji rezervované", seeRooms: "Zobrazit pokoje", photos: "Fotky", photosN: (n) => `${n} ${plural("cs", n, "fotka", "fotky", "fotek")}`,
   allPhotosOf: (n, name) => `Zobrazit všech ${n} fotek hotelu ${name}`, star: (n) => `${n}${" "}★`, freeCancelUntil: (d) => `Storno zdarma do ${d}`, noRefunds: "Bez vrácení peněz",
   nightsN: (n) => `${n} ${plural("cs", n, "noc", "noci", "nocí")}`, aNight: (p) => `${p} za noc`, below: (p, src) => `o ${p} levněji než ${src}`, above: (p, src) => `o ${p} dráž než ${src}`,
   lessThan: (p, src) => `o ${p} levněji než ${src}`, noRoomsDates: "V těchto hotelech nejsou pro zvolený termín volné pokoje. Zkuste jiný termín.", showEvery: "Zobrazit všechny hotely",
@@ -161,7 +161,7 @@ const cs: Dict = {
   extrasTitle: "Přidejte k pokoji celou cestu", extrasSub: "Přidáte v pokladně, v jedné platbě, a zruší se spolu s pobytem.", onItsOwn: (p) => `${p} samostatně`,
   extras: {
     transfer: { name: "Odvoz z letiště, soukromé auto", short: "Řidič čeká v příletové hale se jménem. Sleduje váš let." },
-    esim: { name: "eSIM, 10 GB na 30 dní", short: "Data hned po přistání. Instalace QR kódem ještě před odletem." },
+    esim: { name: "eSIM s daty", short: "Data hned po přistání. Instalace QR kódem ještě před odletem." },
     bag: { name: "Pojištění zavazadla", short: "Ztracené nebo zpožděné zavazadlo: USD 500 do 48 hodin, bez formulářů." },
     delay: { name: "Pojištění zpoždění letu", short: "Zpoždění přes 3 hodiny: USD 150 automaticky." },
   },
