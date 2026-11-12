@@ -45,6 +45,7 @@ const en = {
   footRuns: (brand: string) => `${brand} runs on Nomadly, a Veny Inc. company. Nomadly takes the payment and pays the hotel. Support every day, 08:00 to 22:00 UTC.`,
   photoCredits: "Photo credits", findBooking: "Find your booking",
   bannerMock: "Preview: prices are simulated and cards run in Stripe test mode, so nothing here is a real booking.",
+  bannerDemoShort: "Demo checkout: test card 4242 4242 4242 4242, no money moves.",
   bannerDemo: "Live hotel prices, demo checkout: pay with Stripe test card 4242 4242 4242 4242. No room is reserved and no money moves.",
   metaTitle: (brand: string) => `${brand}: hotels with live rates`,
   // home
@@ -124,6 +125,7 @@ const cs: Dict = {
   footRuns: (brand) => `${brand} běží na platformě Nomadly (Veny Inc.). Nomadly přijímá platbu a platí hotelu. Podpora každý den 08:00 až 22:00 UTC.`,
   photoCredits: "Autoři fotografií", findBooking: "Najít rezervaci",
   bannerMock: "Náhled: ceny jsou simulované a karty běží v testovacím režimu Stripe, nejde o skutečnou rezervaci.",
+  bannerDemoShort: "Ukázková platba: testovací karta 4242 4242 4242 4242, nic se nestrhne.",
   bannerDemo: "Skutečné ceny hotelů, ukázková platba: zaplaťte testovací kartou Stripe 4242 4242 4242 4242. Žádný pokoj se nerezervuje a žádné peníze se nestrhnou.",
   metaTitle: (brand) => `${brand}: hotely s aktuálními cenami`,
   heroSub: (who) => `Aktuální ceny hotelů od ${who}, zaplacené jednou platbou, s odvozem z letiště a daty, pokud chcete.`,

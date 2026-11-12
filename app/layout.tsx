@@ -36,7 +36,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         {sf ? (
           <>
             {env().EBC_MODE === "mock" ? <div className="demo" role="note">{t.bannerMock}</div>
-              : bookingClosedReason() ? <div className="demo" role="note">{t.bannerDemo}</div> : null}
+              : bookingClosedReason() ? <div className="demo" role="note"><span className="hide-sm">{t.bannerDemo}</span><span className="show-sm">{t.bannerDemoShort}</span></div> : null}
             <CreatorTabs signedIn={showCreator} labels={{ view: "Creator view", dashboard: "Dashboard", storefront: "My storefront", platform: "Booking platform" }} />
             <header className="hdr"><div className="wrap">
               <Link href="/" className="logo cobrand" aria-label={`Nomadly with ${sf.brandName}, home`}>

@@ -656,3 +656,11 @@ p { margin: 0; }
 .expired { margin: 40px auto; max-width: 520px; text-align: center; display: grid; justify-items: center; gap: 10px; padding: 36px 24px; border: 1px solid var(--line); border-radius: 20px; background: var(--paper); }
 .expired svg { width: 44px; height: 44px; fill: none; stroke: var(--warn); stroke-width: 1.6; stroke-linecap: round; }
 .expired h1 { font-size: 30px; } .expired p { margin: 0 0 8px; color: var(--ink-2); }
+@media (max-width: 620px) {
+  .hotel-dates { flex-wrap: nowrap; } .hotel-dates .dr { flex: 1 1 auto; min-width: 0; }
+  .hotel-dates select { flex: none; width: 104px; }
+  .hotel-dates .dr-n { display: none; } .hotel-dates .dr-trigger { grid-template-columns: 1fr auto 1fr; gap: 6px; padding: 6px 10px; }
+  .rooms-filters { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 0 16px; }
+  .rooms-filters .chip-btn { flex: none; }
+  .tax-line { font-size: 12.5px; }
+}
