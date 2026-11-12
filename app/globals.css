@@ -811,3 +811,5 @@ html { scroll-behavior: smooth; }
 .pick-badge .cmark { background: var(--lina); color: #fff; }
 /* phones: a results photo is a preview, not a poster; name and price stay within the first screen */
 @media (max-width: 700px) { .stay-pic { aspect-ratio: 16 / 9; } }
+.hero-place { display: inline-flex; align-items: center; gap: 6px; opacity: 0; transition: opacity 1.6s ease; font: 500 13.5px/1 var(--font-body); letter-spacing: .02em; padding: 7px 11px; border-radius: 999px; background: rgba(8, 14, 24, .35); backdrop-filter: blur(8px); color: #fff; }
+.hero-place.on { opacity: 1; }
