@@ -84,3 +84,6 @@
 .dash-side nav a svg { color: var(--mute); }
 .dash-side nav a[aria-current="page"] { background: var(--select); color: var(--brand); font-weight: 600; }
 .dash-side nav a[aria-current="page"] svg { color: var(--brand); }
+.kpi span { display: inline-flex; align-items: center; gap: 6px; }
+.kpi span svg { color: var(--brand); }
+.kpi b.kpi-na { font-size: 20px; color: var(--mute); }

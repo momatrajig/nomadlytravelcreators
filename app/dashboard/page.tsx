@@ -1,4 +1,4 @@
-import { Check, MousePointerClick, X } from "lucide-react";
+import { CalendarCheck, Check, MousePointerClick, Percent, TrendingUp, Wallet, X } from "lucide-react";
 import { Ico } from "@/components/Icon";
 import Link from "next/link";
 import { dashContext } from "@/lib/dashboard/context";
@@ -43,17 +43,17 @@ export default async function Overview({ searchParams }: { searchParams: Promise
   return (
     <>
       <div className="dash-head">
-        <div><h1>Overview</h1><p>{c.sf.brandName}, last {PERIODS.find(([d]) => d === days)![1]}. Every number is live.</p></div>
+        <div><h1>Overview</h1><p>Last {PERIODS.find(([d]) => d === days)![1]}. Every number is live.</p></div>
         <nav className="period" aria-label="Period">{PERIODS.map(([d, l]) => <Link key={d} href={`?${new URLSearchParams({ p: String(d), ...(includeDemo ? { demo: "1" } : {}) })}`} aria-current={d === days ? "page" : undefined}>{l}</Link>)}</nav>
       </div>
       {demoCount > 0 && <div className="notice small notice-inline">{includeDemo ? <>Showing {demoCount} demo {demoCount === 1 ? "booking" : "bookings"} (test card, nothing reserved). They are never paid. <Link href={q({ demo: "0" })}>Hide them</Link>.</> : <>{demoCount} demo {demoCount === 1 ? "booking" : "bookings"} made with a test card are left out. <Link href={q({ demo: "1" })}>Show them</Link> to see how a booking appears.</>}</div>}
 
       <div className="kpis">
-        <div className="kpi"><span>Clicks</span><b>{num(s.clicks)}</b><small>{num(s.visitors)} unique visitors{prev.clicks ? `. ${delta(s.clicks, prev.clicks)}` : ""}</small></div>
-        <div className="kpi"><span>Bookings</span><b>{num(s.hotelBookings)}</b><small>{[s.addOns ? `Plus ${num(s.addOns)} add ${s.addOns === 1 ? "on" : "ons"}` : null, s.canceled ? `${s.canceled} canceled` : null].filter(Boolean).join(", ") || "Hotel stays"}</small></div>
-        <div className="kpi"><span>Conversion</span><b>{pct(s.conversion, s.conversion > 0 && s.conversion < 0.1 ? 2 : 1).replace(/\.0+%$/, "%")}</b><small>Bookings per click</small></div>
-        <div className="kpi"><span>EPC</span><b>{usd(s.epc)}</b><small>Earnings per click</small></div>
-        <div className="kpi"><span>Commission</span><b>{usd(s.commission)}</b><small>{s.bookingValue ? `${pct(s.ofValue)} of booking value` : "Pending and approved"}</small></div>
+        <div className="kpi"><span><Ico of={MousePointerClick} size={16} />Clicks</span><b>{num(s.clicks)}</b><small>{num(s.visitors)} unique visitors{prev.clicks ? `. ${delta(s.clicks, prev.clicks)}` : ""}</small></div>
+        <div className="kpi"><span><Ico of={CalendarCheck} size={16} />Bookings</span><b>{num(s.hotelBookings)}</b><small>{[s.addOns ? `Plus ${num(s.addOns)} add ${s.addOns === 1 ? "on" : "ons"}` : null, s.canceled ? `${s.canceled} canceled` : null].filter(Boolean).join(", ") || "Hotel stays"}</small></div>
+        <div className="kpi"><span><Ico of={Percent} size={16} />Conversion</span>{/* bookings can arrive without a tracked click (test cards, direct visits): above 100% the ratio means nothing */}{s.conversion > 1 ? <><b className="kpi-na">Not yet</b><small>Fewer clicks than bookings so far</small></> : <><b>{pct(s.conversion, s.conversion > 0 && s.conversion < 0.1 ? 2 : 1).replace(/\.0+%$/, "%")}</b><small>Bookings per click</small></>}</div>
+        <div className="kpi"><span><Ico of={TrendingUp} size={16} />EPC</span><b>{usd(s.epc)}</b><small>Earnings per click</small></div>
+        <div className="kpi"><span><Ico of={Wallet} size={16} />Commission</span><b>{usd(s.commission)}</b><small>{s.bookingValue ? `${pct(s.ofValue)} of booking value` : "Pending and approved"}</small></div>
       </div>
 
       <Activity clicks={clicks} txs={txs.filter((t) => includeDemo || !t.demo)} name={(id) => names.get(id) ?? `Hotel ${id}`} slug={c.sf.slug} />
