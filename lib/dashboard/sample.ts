@@ -23,17 +23,17 @@ export function sampleData(hotels: Array<{ ebcId: number; name: string }>, today
   for (let d = 400; d >= 0; d--) {
     const day = end - d * 86_400_000, dow = new Date(day).getUTCDay();
     // growth through the year, a summer and December lift, quieter mid week
-    const base = 3 + (400 - d) / 40, season = 1 + 0.35 * Math.sin(((new Date(day).getUTCMonth() + 1) / 12) * Math.PI * 2 - 1.2), week = dow === 0 || dow === 6 ? 1.25 : 0.92;
+    const base = 2 + (400 - d) / 28, season = 1 + 0.18 * Math.sin(((new Date(day).getUTCMonth() + 1) / 12) * Math.PI * 2 - 1.2), week = dow === 0 || dow === 6 ? 1.25 : 0.92;
     const n = Math.max(0, Math.round(base * season * week + (r() - 0.5) * 4));
     for (let i = 0; i < n; i++) {
       const at = new Date(day + Math.floor(r() * 86_400_000)).toISOString();
       const h = pick(hs), src = pick(SOURCES);
       const id = `s${d}-${i}`;
       clicks.push({ id, storefrontId: "sample", createdAt: at, source: src, article: null, target: "hotel", ebcId: h.ebcId, query: null, country: pick(COUNTRIES), device: pick(DEVICES), visitor: r() < 0.22 ? `v${d}-${Math.max(0, i - 1)}` : `v${d}-${i}`, bot: false });
-      if (r() < 0.11) {
+      if (r() < 0.06) {
         checkouts.push({ createdAt: new Date(Date.parse(at) + 4 * 60_000).toISOString(), ebcId: h.ebcId });
         if (r() < 0.42) {
-          const nights = 1 + Math.floor(r() * 5), price = Math.round((180 + r() * 520) * nights * 100) / 100;
+          const nights = 1 + Math.floor(r() * 5), price = Math.round((140 + r() * 280) * nights * 100) / 100;
           const checkIn = new Date(Date.parse(at) + (7 + Math.floor(r() * 80)) * 86_400_000).toISOString().slice(0, 10);
           const checkOut = new Date(Date.parse(checkIn) + nights * 86_400_000).toISOString().slice(0, 10);
           const canceled = r() < 0.08, approved = !canceled && checkOut < today;

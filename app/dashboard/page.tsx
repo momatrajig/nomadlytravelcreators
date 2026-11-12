@@ -20,6 +20,13 @@ export const dynamic = "force-dynamic";
 
 const pct = (v: number) => `${(v * 100).toFixed(v > 0 && v < 0.01 ? 2 : 1).replace(/\.0$/, "")}%`;
 // outside render: the clock is read once per request on this dynamic page
+/** true when the last week or month runs past the end of the range (still in progress) */
+function bucketEndAfter(start: string | undefined, grain: string, to: string) {
+  if (!start) return false;
+  const d = new Date(`${start}T00:00:00Z`);
+  const end = grain === "week" ? new Date(d.getTime() + 6 * 86_400_000) : new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0));
+  return end.toISOString().slice(0, 10) > to;
+}
 function todayIso() { return new Date().toISOString().slice(0, 10); }
 
 export default async function Performance({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
@@ -58,7 +65,7 @@ export default async function Performance({ searchParams }: { searchParams: Prom
       {sample && <SampleNote realHref={q({ sample: "0" })} />}
       {!sample && demoCount > 0 && <div className="notice small notice-inline">{includeDemo ? <>Showing {demoCount} demo {demoCount === 1 ? "booking" : "bookings"} (test card, nothing reserved). They are never paid. <Link href={q({ demo: "0" })}>Hide them</Link>.</> : <>{demoCount} demo {demoCount === 1 ? "booking" : "bookings"} made with a test card are left out. <Link href={q({ demo: "1" })}>Show them</Link>.</>}</div>}
 
-      <PerfPanel totals={p.totals} prev={p.prev} series={p.series} prevSeries={p.prevSeries} labels={p.series.map((x) => bucketLabel(x.start, r.grain))} days={r.days} prevLabel="Period before" />
+      <PerfPanel totals={p.totals} prev={p.prev} series={p.series} prevSeries={p.prevSeries} labels={p.series.map((x) => bucketLabel(x.start, r.grain))} days={r.days} prevLabel="Period before" partialLast={r.grain !== "day" && bucketEndAfter(p.series.at(-1)?.start, r.grain, r.to)} />
 
       <div className="dgrid">
         <section className="dcard" aria-labelledby="fn-h">
@@ -72,7 +79,7 @@ export default async function Performance({ searchParams }: { searchParams: Prom
               </li>
             ))}
           </ol>
-          <p className="note">{p.totals.bookings && p.totals.value ? <>Average stay {usd(p.totals.value / Math.max(1, p.totals.bookings), true)}, you earn {usd(p.totals.commission / Math.max(1, p.totals.bookings))} a booking on average{p.totals.addOns ? `, with ${p.totals.addOns} add ${p.totals.addOns === 1 ? "on" : "ons"}` : ""}{p.totals.canceled ? `. ${p.totals.canceled} canceled` : ""}.</> : "A checkout is a reader who chose a room and held the price. Most book within the hour."}</p>
+          <p className="note">{p.totals.bookings && p.totals.value ? <>Average booking {usd(p.totals.value / Math.max(1, p.totals.bookings), true)}, you earn {usd(p.totals.commission / Math.max(1, p.totals.bookings))} a booking on average{p.totals.addOns ? `, with ${p.totals.addOns} add ${p.totals.addOns === 1 ? "on" : "ons"}` : ""}{p.totals.canceled ? `. ${p.totals.canceled} canceled` : ""}.</> : "A checkout is a reader who chose a room and held the price. Most book within the hour."}</p>
         </section>
         <section className="dcard" aria-labelledby="ps-h">
           <div className="card-head"><h2 id="ps-h">Your money</h2><Link className="btn btn-sm" href="/dashboard/transactions"><Ico of={ReceiptText} size={15} />Transactions</Link></div>

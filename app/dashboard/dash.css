@@ -201,3 +201,4 @@ td.empty-row svg { color: var(--mute); margin-right: 8px; vertical-align: -4px; 
 }
 .sample-note { display: flex; gap: 10px; align-items: flex-start; background: #f3efff; border-color: #ddd3fb; color: #3f2d86; }
 .sample-note svg { flex: none; margin-top: 2px; } .sample-note a { color: inherit; font-weight: 600; }
+.pc-wrap .cur.partial { stroke-dasharray: 4 4; }

@@ -21,7 +21,7 @@ const fmt = (m: Metric, v: number, whole = false) => (DEF[m].money ? money(v, wh
  * the period before; pressing a card puts that metric on the chart, drawn against the period before (dashed).
  * Hovering, or moving with the arrow keys, reads any day out exactly.
  */
-export default function PerfPanel({ totals, prev, series, prevSeries, labels, days, prevLabel }: { totals: Row; prev: Row; series: Row[]; prevSeries: Row[]; labels: string[]; days: number; prevLabel: string }) {
+export default function PerfPanel({ totals, prev, series, prevSeries, labels, days, prevLabel, partialLast = false }: { totals: Row; prev: Row; series: Row[]; prevSeries: Row[]; labels: string[]; days: number; prevLabel: string; partialLast?: boolean }) {
   const [m, setM] = useState<Metric>("clicks");
   return (
     <section className="perf" aria-label="Performance">
@@ -42,7 +42,7 @@ export default function PerfPanel({ totals, prev, series, prevSeries, labels, da
           );
         })}
       </div>
-      <Chart m={m} cur={series.map((r) => r[m])} was={prevSeries.map((r) => r[m])} labels={labels} prevLabel={prevLabel} />
+      <Chart m={m} cur={series.map((r) => r[m])} was={prevSeries.map((r) => r[m])} labels={labels} prevLabel={prevLabel} partial={partialLast} />
     </section>
   );
 }
@@ -58,7 +58,7 @@ function ticks(max: number, money: boolean) {
   return out;
 }
 
-function Chart({ m, cur, was, labels, prevLabel }: { m: Metric; cur: number[]; was: number[]; labels: string[]; prevLabel: string }) {
+function Chart({ m, cur, was, labels, prevLabel, partial }: { m: Metric; cur: number[]; was: number[]; labels: string[]; prevLabel: string; partial: boolean }) {
   const d = DEF[m];
   const W = 900, H = 260, L = 52, R = 12, T = 14, B = 30;
   const n = cur.length;
@@ -94,13 +94,15 @@ function Chart({ m, cur, was, labels, prevLabel }: { m: Metric; cur: number[]; w
           {shown.map((i) => <text key={i} x={x(i)} y={H - 8} textAnchor={i === 0 ? "start" : i === n - 1 ? "end" : "middle"} className="axis">{labels[i]}</text>)}
           <path d={path(was)} className="prev" />
           <path d={area} fill="url(#pc-g)" />
-          <path d={path(cur)} className="cur" />
+          {/* the running week or month is not over yet: its segment is dashed so a short period does not read as a drop */}
+          <path d={partial && n > 1 ? path(cur.slice(0, n - 1)) : path(cur)} className="cur" />
+          {partial && n > 1 && <path d={`M${x(n - 2).toFixed(1)},${y(cur[n - 2]!).toFixed(1)}L${x(n - 1).toFixed(1)},${y(cur[n - 1]!).toFixed(1)}`} className="cur partial" />}
           {n === 1 && <circle cx={x(0)} cy={y(cur[0]!)} r={4} className="dot" />}
           {hi != null && <g><line x1={x(hi)} x2={x(hi)} y1={T} y2={H - B} className="cross" /><circle cx={x(hi)} cy={y(cur[hi]!)} r={4.5} className="dot" />{was[hi] != null && <circle cx={x(hi)} cy={y(was[hi]!)} r={3} className="dot prev" />}</g>}
         </svg>
         {hi != null && (
           <div className="pc-tip" style={{ left: `${(x(hi) / W) * 100}%` }} role="status">
-            <b>{labels[hi]}</b>
+            <b>{labels[hi]}{partial && hi === n - 1 ? ", so far" : ""}</b>
             <span><i className="sw cur" />{fmt(m, cur[hi]!)}</span>
             {was[hi] != null && <span className="mute"><i className="sw prev" />{fmt(m, was[hi]!)}</span>}
           </div>
