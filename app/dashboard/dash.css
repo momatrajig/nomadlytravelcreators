@@ -216,3 +216,4 @@ td.empty-row svg { color: var(--mute); margin-right: 8px; vertical-align: -4px; 
   .dash-side nav a { flex: none; }
   .rbar { gap: 8px; } .rbar .rpick, .rbar .rbtn { width: 100%; }
 }
+@media (max-width: 800px) { .mcards .mcard:last-child:nth-child(odd) { grid-column: 1 / -1; } }
