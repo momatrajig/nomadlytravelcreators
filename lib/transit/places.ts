@@ -1,7 +1,7 @@
 import { LISBON, estimate, type CityProfile, type Estimate, type Mode } from "./model";
 import { DESTINATIONS, destination, type Destination } from "@/lib/content/destinations";
 
-export interface Place { key: string; name: string; lat: number; lng: number; modes: Mode[]; via?: string }
+export interface Place { key: string; name: string; lat: number; lng: number; modes: Mode[]; via?: string; kind: "airport" | "landmark"; code?: string }
 
 export function km(aLat: number, aLng: number, bLat: number, bLng: number): number {
   const R = 6371, dLat = ((bLat - aLat) * Math.PI) / 180, dLng = ((bLng - aLng) * Math.PI) / 180;
@@ -58,9 +58,11 @@ export function baseMinutes(mode: Mode, distKm: number, rideKmh = 28): number {
 }
 
 export function placesFor(d: Destination): Place[] {
+  const airport = (a: Destination["airport"], key: string): Place => ({ key, kind: "airport", code: a.code, name: a.name, lat: a.lat, lng: a.lng, modes: a.rail && d.metro ? ["ride", "metro"] : ["ride"], via: a.rail ?? undefined });
   return [
-    { key: "airport", name: d.airport.name, lat: d.airport.lat, lng: d.airport.lng, modes: d.airport.rail && d.metro ? ["ride", "metro"] : ["ride"], via: d.airport.rail ?? undefined },
-    { key: "centre", name: d.centre.name, lat: d.centre.lat, lng: d.centre.lng, modes: d.metro ? ["ride", "metro", "walk"] : ["ride", "walk"], via: d.metro?.label },
+    airport(d.airport, "airport"),
+    ...(d.moreAirports ?? []).map((a) => airport(a, `airport-${a.code.toLowerCase()}`)),
+    { key: "centre", kind: "landmark", name: d.centre.name, lat: d.centre.lat, lng: d.centre.lng, modes: d.metro ? ["ride", "metro", "walk"] : ["ride", "walk"], via: d.metro?.label },
   ];
 }
 

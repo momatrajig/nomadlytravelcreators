@@ -1,4 +1,5 @@
 /** In memory implementation seeded from the fixtures and the demo storefront plan. Used by tests and credential free dev. */
+import { leadWith } from "./lead";
 import { randomUUID } from "node:crypto";
 import lisbonFx from "@/lib/ebc/fixtures/lisbon.json";
 import portugalFx from "@/lib/ebc/fixtures/portugal.json";
@@ -72,7 +73,7 @@ export function localDb(): Db {
       return sf;
     },
     async storefrontBySlug(slug) { return slug === sf.slug ? sf : null; },
-    async pinnedHotels(id) { return id === sf.id ? [...pins].sort((a, b) => a.position - b.position) : []; },
+    async pinnedHotels(id) { return id === sf.id ? [...pins].sort((a, b) => a.position - b.position).map((p) => ({ ...p, images: leadWith(p.images, p.coverUrl) })) : []; },
     async collections(id) { return id === sf.id ? COLLECTIONS : []; },
     async hotel(id) { return hotels.get(id) ?? null; },
     async latestPriceChecks(ids, checkIn, checkOut, adults) { return checks.filter((c) => ids.includes(c.ebcId) && c.checkIn === checkIn && c.checkOut === checkOut && c.adults === adults); },

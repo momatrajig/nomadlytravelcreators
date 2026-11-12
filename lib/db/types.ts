@@ -20,7 +20,8 @@ export interface Hotel {
   /** destination slug (lib/content/destinations) */
   destination: string | null;
 }
-export interface PinnedHotel extends Hotel { position: number; tip: string | null; stayedWhen: string | null }
+/** A creator's pick. `images` lead with the creator's chosen cover (coverUrl) when there is one. */
+export interface PinnedHotel extends Hotel { position: number; tip: string | null; stayedWhen: string | null; coverUrl?: string | null }
 /** A curated set shown as its own band: a season (Christmas and New Year) or a destination. Dates are the band's default search. */
 export interface Collection { id: string; storefrontId: string; slug: string; kind: "season" | "destination"; title: string; subtitle: string | null; checkIn: string | null; checkOut: string | null; ebcIds: number[]; position: number; heroUrl: string | null }
 export interface PriceCheck { ebcId: number; source: "booking" | "expedia" | "agoda" | "tripcom" | "hotel"; checkIn: string; checkOut: string; adults: number; price: number; currency: string; checkedAt: string }
@@ -79,7 +80,7 @@ export interface Db {
   linkCreatorUser(creatorId: string, userId: string): Promise<void>;
   storefrontsForCreator(creatorId: string): Promise<Storefront[]>;
   updateStorefront(id: string, patch: Partial<Pick<Storefront, "brandName" | "brandColor" | "template" | "headline" | "creatorRate" | "flightFee" | "live" | "locale" | "displayCurrency" | "siteUrl" | "customDomain">>): Promise<void>;
-  updatePin(storefrontId: string, ebcId: number, patch: { tip?: string | null; stayedWhen?: string | null; position?: number }): Promise<void>;
+  updatePin(storefrontId: string, ebcId: number, patch: { tip?: string | null; stayedWhen?: string | null; position?: number; coverUrl?: string | null }): Promise<void>;
   payoutsForCreator(creatorId: string): Promise<Payout[]>;
   /** completed stays (check out plus hold days before now) not yet in a payout */
   payableBookings(creatorId: string, before: string): Promise<Booking[]>;

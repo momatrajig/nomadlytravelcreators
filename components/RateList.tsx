@@ -9,16 +9,29 @@ import { photoSrc, photoSet } from "@/lib/media/photo";
 export interface RateView { packageCode: string; roomName: string; board: string; refundable: boolean; onRequest: boolean; cancelDeadline: string | null; cancelCharge: number | null; readerPrice: number }
 type Photo = { url: string; w?: number };
 
-/** "DELUXE DOUBLE ROOM, CITY VIEW" reads as "Deluxe Double Room, City View"; mixed case is left as the hotel wrote it. */
+/**
+ * A room name a reader can read: "DELUXE ROOM, 1 KING BED(1 KING BED) - Advantage Rate" becomes "Deluxe Room, 1 King Bed".
+ * Drops a bracket that repeats what is before it, rate and package names (they belong to the price option, not the
+ * room) and stray punctuation; all capitals become title case; mixed case stays as the hotel wrote it.
+ */
 export function roomTitle(s: string) {
-  const x = s.trim().replace(/\s+/g, " ");
+  let x = s.trim().replace(/\s+/g, " ").replace(/\s*\(\s*/g, " (").replace(/\s*\)/g, ")");
+  // "1 King Bed (1 King Bed)": the bracket repeats the words before it
+  x = x.replace(/([^,()]+?)\s*\(([^()]+)\)/g, (all, before: string, inside: string) => before.trim().toLowerCase().endsWith(inside.trim().toLowerCase()) ? before.replace(/\s+$/, "") : all);
+  // rate and package names after a separator, or at the end
+  x = x.replace(/\s*(?:\s[-–|]\s|[-–|]\s)[^,|–]*\b(rate|offer|package|deal|promo(tion)?|special|advance purchase|non[- ]?refundable|flexible)\b[^,]*$/i, "");
+  x = x.replace(/\s+\b(advantage|flexible|standard|best available|member|promo)\s+rate\b.*$/i, "").replace(/[\s,.-]+$/, "");
   return x === x.toUpperCase() ? x.toLowerCase().replace(/(^|[\s,(/-])(\p{L})/gu, (_, a, b) => a + b.toUpperCase()) : x;
+}
+/** Non refundable options that cost as much as, or more than, a free cancellation option with the same meals are noise. */
+export function dropDominated<T extends { refundable: boolean; board: string; readerPrice: number; cancelDeadline: string | null }>(rates: T[], free: (r: T) => boolean): T[] {
+  return rates.filter((r) => free(r) || !rates.some((o) => o !== r && free(o) && o.board === r.board && o.readerPrice <= r.readerPrice));
 }
 /** Rates grouped by room, cheapest room first, each room's options cheapest first. */
 export function groupRooms(rates: RateView[]) {
   const by = new Map<string, RateView[]>();
   for (const r of rates) { const k = roomTitle(r.roomName); by.set(k, [...(by.get(k) ?? []), r]); }
-  return [...by.entries()].map(([name, rs]) => ({ name, rates: rs.sort((a, b) => a.readerPrice - b.readerPrice) })).sort((a, b) => a.rates[0]!.readerPrice - b.rates[0]!.readerPrice);
+  return [...by.entries()].map(([name, rs]) => ({ name, rates: dropDominated(rs, (r) => freeNow(r)).sort((a, b) => a.readerPrice - b.readerPrice) })).sort((a, b) => a.rates[0]!.readerPrice - b.rates[0]!.readerPrice);
 }
 
 /**

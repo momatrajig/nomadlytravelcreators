@@ -30,7 +30,7 @@
   "deposit": "Pre authorization by card at check in",
   "onRequest": false,
   "bookingSoldOut": false,
-  "tip": "Ask for a sixth floor room on the Kléber side. The rooftop bar has the Eiffel Tower straight ahead and is open to hotel guests first.",
+  "tip": "Ask for a 6th floor room on the Kléber side. The rooftop bar has the Eiffel Tower straight ahead and is open to hotel guests first.",
   "images": [
    {
     "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/483658/0",
@@ -220,7 +220,7 @@
   "deposit": "Pre authorization by card at check in",
   "onRequest": false,
   "bookingSoldOut": false,
-  "tip": "The Concorde facing rooms are the reason to stay here. The pool in the basement is quiet before ten.",
+  "tip": "The Concorde facing rooms are the reason to stay here. The pool in the basement is quiet before 10 am.",
   "images": [
    {
     "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/284440/0",
@@ -287,7 +287,7 @@
   "deposit": "Pre authorization by card at check in",
   "onRequest": false,
   "bookingSoldOut": false,
-  "tip": "Courtyard rooms are quieter than the avenue side. The bar turns into the best people watching in Paris after nine.",
+  "tip": "Courtyard rooms are quieter than the avenue side. After 9 pm the bar is the best people watching in Paris.",
   "images": [
    {
     "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/285550/0",
@@ -429,7 +429,7 @@
   "deposit": "Pre authorization by card at check in",
   "onRequest": false,
   "bookingSoldOut": false,
-  "tip": "Ten minutes on foot to Oxford Circus and still quiet at night. Tea in the Palm Court is the one to book.",
+  "tip": "10 minutes on foot to Oxford Circus and still quiet at night. Tea in the Palm Court is the one to book.",
   "images": [
    {
     "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/287987/0",
@@ -748,7 +748,7 @@
   "deposit": "Pre authorization by card at check in",
   "onRequest": false,
   "bookingSoldOut": false,
-  "tip": "The infinity pool is for hotel guests only; go at seven in the morning. City view rooms beat the harbor side at night.",
+  "tip": "The infinity pool is for hotel guests only; go at 7 am. City view rooms beat the harbor side at night.",
   "images": [
    {
     "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/421077/0",
@@ -815,7 +815,7 @@
   "deposit": "Pre authorization by card at check in",
   "onRequest": false,
   "bookingSoldOut": false,
-  "tip": "Every room is a suite with a butler. Skip the queue at the Long Bar by going before five.",
+  "tip": "Every room is a suite with a butler. Skip the queue at the Long Bar by going before 5 pm.",
   "images": [
    {
     "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/421119/0",
@@ -965,7 +965,7 @@
   "deposit": "Pre authorization by card at check in",
   "onRequest": false,
   "bookingSoldOut": false,
-  "tip": "Room 411 is the Agatha Christie room if you ask early. Five minutes on foot to İstiklal, and the bar is from 1892.",
+  "tip": "Room 411 is the Agatha Christie room if you ask early. 5 minutes on foot to İstiklal, and the bar is from 1892.",
   "images": [
    {
     "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/283296/0",
@@ -1190,7 +1190,7 @@
   "deposit": "Pre authorization by card at check in",
   "onRequest": false,
   "bookingSoldOut": false,
-  "tip": "The rooftop pool looks at Sagrada Família. Casa Batlló is a three minute walk; book the first slot of the day.",
+  "tip": "The rooftop pool looks at Sagrada Família. Casa Batlló is a 3 minute walk; book the first slot of the day.",
   "images": [
    {
     "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/309521/0",
@@ -1249,7 +1249,7 @@
   "deposit": "Pre authorization by card at check in",
   "onRequest": false,
   "bookingSoldOut": false,
-  "tip": "Sea view above the 20th floor. The beach is across the road, the old town a ten minute taxi.",
+  "tip": "Sea view above the 20th floor. The beach is across the road, the old town a 10 minute taxi.",
   "images": [
    {
     "url": "https://yssrtmwluzgbviiqnxvu.supabase.co/storage/v1/object/public/media/photos/h/309165/0",

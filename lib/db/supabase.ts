@@ -2,6 +2,7 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { env } from "@/lib/env";
 import type { Booking, Click, Collection, Creator, Db, DirectoryHotel, Hotel, Payout, PinnedHotel, PriceCheck, PromoCode, Quote, Storefront } from "./types";
+import { leadWith } from "./lead";
 
 const snake = (s: string) => s.replace(/[A-Z]/g, (m) => `_${m.toLowerCase()}`);
 const camel = (s: string) => s.replace(/_([a-z])/g, (_, c: string) => c.toUpperCase());
@@ -66,8 +67,8 @@ export function supabaseDb(): Db {
     },
     async storefrontBySlug(slug) { const r = await sb.from("storefronts").select("*").eq("slug", slug).maybeSingle(); return r.data ? fromRow<Storefront>(r.data) : null; },
     async pinnedHotels(storefrontId) {
-      const rows = must(await sb.from("storefront_hotels").select("position, tip, stayed_when, hotels(*)").eq("storefront_id", storefrontId).order("position")) as Array<Record<string, unknown>>;
-      return rows.map((r) => ({ ...hotelFrom(r.hotels as Record<string, unknown>), position: r.position as number, tip: (r.tip as string) ?? null, stayedWhen: (r.stayed_when as string) ?? null }));
+      const rows = must(await sb.from("storefront_hotels").select("position, tip, stayed_when, cover_url, hotels(*)").eq("storefront_id", storefrontId).order("position")) as Array<Record<string, unknown>>;
+      return rows.map((r) => { const h = hotelFrom(r.hotels as Record<string, unknown>); const cover = (r.cover_url as string) ?? null; return { ...h, images: leadWith(h.images, cover), position: r.position as number, tip: (r.tip as string) ?? null, stayedWhen: (r.stayed_when as string) ?? null, coverUrl: cover }; });
     },
     async collections(storefrontId) { const rows = must(await sb.from("collections").select("*").eq("storefront_id", storefrontId).order("position")) as Array<Record<string, unknown>>; return rows.map((r) => fromRow<Collection>(r)); },
     async hotel(ebcId) { const r = await sb.from("hotels").select("*").eq("ebc_id", ebcId).maybeSingle(); return r.data ? hotelFrom(r.data) : null; },

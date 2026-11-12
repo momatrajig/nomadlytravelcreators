@@ -72,3 +72,10 @@
 .act-cancel .act-ico { background: var(--bad-bg, #fdecec); color: var(--bad, #b42318); }
 .act-r { text-align: right; display: grid; gap: 2px; justify-items: end; }
 @media (max-width: 620px) { .act li { grid-template-columns: 28px 1fr; } .act-r { grid-column: 2; justify-items: start; text-align: left; } }
+.covers { border: 0; padding: 0; margin: 0; } .covers legend { margin-bottom: 6px; color: var(--ink-2); }
+.covers > div { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; }
+.cover-opt { position: relative; flex: none; cursor: pointer; }
+.cover-opt input { position: absolute; opacity: 0; }
+.cover-opt img { width: 84px; height: 60px; object-fit: cover; border-radius: 8px; border: 2px solid transparent; display: block; }
+.cover-opt input:checked + img { border-color: var(--ink); box-shadow: 0 0 0 2px var(--paper) inset; }
+.cover-opt input:focus-visible + img { outline: 2px solid var(--brand); outline-offset: 2px; }

@@ -20,7 +20,11 @@ export default async function Hotels({ searchParams }: { searchParams: Promise<R
     "use server";
     const { sf } = await editableContext();
     const ebcId = Number(fd.get("ebcId")); const tip = String(fd.get("tip") ?? "").trim().slice(0, 240); const stayedWhen = String(fd.get("stayedWhen") ?? "").trim().slice(0, 40);
-    await db().updatePin(sf.id, ebcId, { tip: tip || null, stayedWhen: stayedWhen || null });
+    // the cover must be one of this hotel's own photos; anything else is ignored
+    const cover = String(fd.get("cover") ?? "");
+    const hotel = cover ? await db().hotel(ebcId) : null;
+    const coverUrl = hotel?.images.some((x) => x.url === cover) ? cover : undefined;
+    await db().updatePin(sf.id, ebcId, { tip: tip || null, stayedWhen: stayedWhen || null, ...(coverUrl ? { coverUrl } : {}) });
     revalidatePath("/dashboard/hotels");
   }
   async function add(fd: FormData) {
@@ -74,6 +78,13 @@ export default async function Hotels({ searchParams }: { searchParams: Promise<R
               <form action={saveTip} className="dform">
                 <input type="hidden" name="ebcId" value={h.ebcId} />
                 <div className="field"><label htmlFor={`t${h.ebcId}`}>Your tip, shown under the hotel name (240 characters)</label><textarea id={`t${h.ebcId}`} name="tip" maxLength={240} defaultValue={h.tip ?? ""} rows={2} style={{ minHeight: 64, font: "inherit" }} /></div>
+                {h.images.length > 1 && (
+                  <fieldset className="covers"><legend className="small">Cover photo, the one readers see first</legend>
+                    <div>{h.images.slice(0, 12).map((im, i) => (
+                      <label key={im.url} className="cover-opt"><input type="radio" name="cover" value={im.url} defaultChecked={i === 0} disabled={!c.canEdit} /><img src={photoThumb(im.url)} alt={`Photo ${i + 1}`} loading="lazy" /></label>
+                    ))}</div>
+                  </fieldset>
+                )}
                 <div style={{ display: "flex", gap: 10, alignItems: "end", flexWrap: "wrap" }}>
                   <div className="field"><label htmlFor={`w${h.ebcId}`}>When you stayed, optional</label><input id={`w${h.ebcId}`} name="stayedWhen" defaultValue={h.stayedWhen ?? ""} placeholder="March 2026" /></div>
                   <button className="btn" type="submit" disabled={!c.canEdit}>Save</button>
