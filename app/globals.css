@@ -805,3 +805,7 @@ svg.lucide.i-star { fill: var(--gold); color: var(--gold); stroke-width: 1; }
 /* motion is a courtesy: anyone who asked the system for less gets none */
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
 html { scroll-behavior: smooth; }
+/* Lina's pick: her warm editorial tone, not a loud brand frame; the row stays comparable with the others */
+.stay.stay-pick { border-width: 1.5px; border-color: color-mix(in srgb, var(--lina) 28%, var(--line)); background: linear-gradient(180deg, var(--lina-bg), var(--paper) 140px); box-shadow: none; }
+.pick-badge { background: var(--lina-bg); color: var(--lina); box-shadow: 0 0 0 3px var(--paper), 0 0 0 4px color-mix(in srgb, var(--lina) 28%, var(--line)); }
+.pick-badge .cmark { background: var(--lina); color: #fff; }
