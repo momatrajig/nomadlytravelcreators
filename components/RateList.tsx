@@ -109,7 +109,7 @@ export default function RateList({ ebcId, rates, nights, checkIn, checkOut, adul
                       <div className="rr-meal"><Ico of={o.board === "RO" ? DoorClosed : Coffee} className="ic" /><span>{t.board[o.board] ?? o.board}{o.onRequest ? <small>{rd.onReq}</small> : null}</span></div>
                       <div className={`rr-cancel ${tone}`}>
                         <b>{freeNow(o) ? (o.cancelDeadline ? rd.freeUntil(dl(o.cancelDeadline)) : rd.freeNoDate) : o.refundable ? rd.feeNow(p$(o.cancelCharge ?? o.readerPrice)) : rd.nonRef}</b>
-                        {freeNow(o) && o.cancelCharge && o.cancelDeadline ? <small>{rd.after(dl(o.cancelDeadline), p$(o.cancelCharge))}</small> : !o.refundable ? <small>{rd.noRefundShort}</small> : null}
+                        {freeNow(o) && o.cancelCharge && o.cancelDeadline ? <small>{rd.thenFee(p$(o.cancelCharge))}</small> : !o.refundable ? <small>{rd.noRefundShort}</small> : null}
                       </div>
                       <div className="rr-price">
                         <b className="num">{p$(o.readerPrice)}</b>
