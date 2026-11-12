@@ -1,3 +1,4 @@
+import ColorField from "@/components/dash/ColorField";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { dashContext, editableContext } from "@/lib/dashboard/context";
@@ -42,7 +43,7 @@ export default async function Settings() {
           <div className="field"><label htmlFor="dc">Also show prices in</label><select id="dc" name="displayCurrency" defaultValue={sf.displayCurrency ?? ""}><option value="">USD only</option><option value="CZK">CZK, approximate</option><option value="EUR">EUR, approximate</option><option value="GBP">GBP, approximate</option></select></div>
         </div>
         <div className="grid2">
-          <div className="field"><label htmlFor="bc">Brand color</label><input id="bc" name="brandColor" type="color" defaultValue={sf.brandColor} style={{ height: 46, padding: 4 }} /></div>
+          <ColorField name="brandColor" defaultValue={sf.brandColor} />
           <div className="field"><label htmlFor="tp">Template</label><select id="tp" name="template" defaultValue={sf.template}><option value="postcard">Postcard</option><option value="editorial">Editorial</option><option value="grid">Grid</option></select></div>
         </div>
         <div className="field"><label htmlFor="su">Your site, linked in the footer</label><input id="su" name="siteUrl" defaultValue={sf.siteUrl ?? ""} placeholder="https://yourblog.com" /></div>

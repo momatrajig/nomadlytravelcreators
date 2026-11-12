@@ -93,3 +93,10 @@
 td.empty-row svg { color: var(--mute); margin-right: 8px; vertical-align: -4px; }
 .cover-opt::after { content: ""; position: absolute; top: 5px; right: 5px; width: 18px; height: 18px; border-radius: 50%; background: var(--ink) var(--i-check-white) center / 11px no-repeat; opacity: 0; transition: opacity .15s; }
 .cover-opt:has(input:checked)::after { opacity: 1; }
+.color-field { display: flex; align-items: center; gap: 12px; min-height: 46px; border: 1px solid var(--field); border-radius: 10px; padding: 6px 8px; background: var(--paper); }
+.color-field input[type="color"] { width: 32px; height: 32px; padding: 0; border: 0; border-radius: 50%; background: none; cursor: pointer; flex: none; }
+.color-field input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; } .color-field input[type="color"]::-webkit-color-swatch { border: 1px solid rgba(0,0,0,.12); border-radius: 50%; }
+.color-field input[type="color"]::-moz-color-swatch { border: 1px solid rgba(0,0,0,.12); border-radius: 50%; }
+.color-field code { font-size: 14px; color: var(--ink-2); flex: 1 1 auto; }
+.color-demo { color: #fff; font: 600 13px var(--font-body); padding: 6px 12px; border-radius: 8px; }
+.warn-text { color: var(--warn); font-weight: 600; }
