@@ -1,3 +1,5 @@
+import { Check, Search, Trash2 } from "lucide-react";
+import { Ico } from "@/components/Icon";
 import { revalidatePath } from "next/cache";
 import { dashContext, editableContext } from "@/lib/dashboard/context";
 import { db } from "@/lib/db";
@@ -54,7 +56,7 @@ export default async function Hotels({ searchParams }: { searchParams: Promise<R
             <div className="field"><label htmlFor="hp">City</label><input id="hp" name="place" defaultValue={place} placeholder="Paris, or Paříž" required /></div>
             <div className="field"><label htmlFor="hq">Hotel name, or part of it</label><input id="hq" name="q" defaultValue={q} placeholder="Grands Hommes" required minLength={2} /></div>
           </div>
-          <button className="btn" type="submit" style={{ justifySelf: "start" }}>Search the supplier&apos;s list</button>
+          <button className="btn" type="submit" style={{ justifySelf: "start" }}><Ico of={Search} size={16} />Search the supplier&apos;s list</button>
         </form>
         {searchErr && <div className="notice warn" style={{ marginTop: 10 }}>{searchErr}</div>}
         {place && q && !searchErr && (
@@ -74,7 +76,7 @@ export default async function Hotels({ searchParams }: { searchParams: Promise<R
             <div style={{ borderRadius: 10, overflow: "hidden", aspectRatio: "4/3", background: "var(--mist)" }}>{h.images[0] && <img src={photoThumb(h.images[0].url)} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />}</div>
             <div style={{ display: "grid", gap: 8 }}>
               <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}><b>{h.name}<span className="small mute" style={{ fontWeight: 400 }}>{h.cityName ? `, ${h.cityName}` : ""}, {h.images.length} photos</span></b>
-                <form action={remove}><input type="hidden" name="ebcId" value={h.ebcId} /><button className="btn btn-quiet small" type="submit" disabled={!c.canEdit}>Remove</button></form></div>
+                <form action={remove}><input type="hidden" name="ebcId" value={h.ebcId} /><button className="btn btn-quiet small" type="submit" disabled={!c.canEdit}><Ico of={Trash2} size={15} />Remove</button></form></div>
               <form action={saveTip} className="dform">
                 <input type="hidden" name="ebcId" value={h.ebcId} />
                 <div className="field"><label htmlFor={`t${h.ebcId}`}>Your tip, shown under the hotel name (240 characters)</label><textarea id={`t${h.ebcId}`} name="tip" maxLength={240} defaultValue={h.tip ?? ""} rows={2} style={{ minHeight: 64, font: "inherit" }} /></div>
@@ -87,7 +89,7 @@ export default async function Hotels({ searchParams }: { searchParams: Promise<R
                 )}
                 <div style={{ display: "flex", gap: 10, alignItems: "end", flexWrap: "wrap" }}>
                   <div className="field"><label htmlFor={`w${h.ebcId}`}>When you stayed, optional</label><input id={`w${h.ebcId}`} name="stayedWhen" defaultValue={h.stayedWhen ?? ""} placeholder="March 2026" /></div>
-                  <button className="btn" type="submit" disabled={!c.canEdit}>Save</button>
+                  <button className="btn" type="submit" disabled={!c.canEdit}><Ico of={Check} size={16} />Save</button>
                 </div>
               </form>
             </div>
