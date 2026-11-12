@@ -88,7 +88,7 @@ const en = {
   extrasTitle: "Add the trip around the room", extrasSub: "Added at checkout, in the same payment, and canceled with the stay.", onItsOwn: (p: string) => `${p} on its own`,
   extras: null as Record<string, { name: string; short: string }> | null,
   // checkout
-  checkout: "Checkout", heldExpired: "This price was held for 20 minutes and has expired.", freshPrice: "Get a fresh price", roomNights: (n: number) => `Room, ${n} ${n === 1 ? "night" : "nights"}, tax included`,
+  checkout: "Checkout", heldExpired: "This price was held for 20 minutes and has expired.", freshPrice: "Get a fresh price", roomNights: (n: number) => `Room, ${n} ${n === 1 ? "night" : "nights"}`,
   showed: (s: string) => `${s} showed`, payNow: "You pay now", cityTax: "At the hotel, city tax", perPersonNight: "per person per night",
   freeUntilShort: (d: string, then: string | null) => `Free cancellation until ${d}${then ? `, then ${then}` : ""}.`, checkInWord: "check in", rateNoRefunds: "This rate has no refunds.",
   heldFor: "Price held for 20 minutes.", heldLeft: (m: string) => `Price held for ${m} more. After that we re-check it.`, whoTravels: "Who is traveling", firstName: "First name", lastName: "Last name", emailVoucher: "Email, for the voucher", mobileOpt: "Mobile, optional",
@@ -165,7 +165,7 @@ const cs: Dict = {
     bag: { name: "Pojištění zavazadla", short: "Ztracené nebo zpožděné zavazadlo: USD 500 do 48 hodin, bez formulářů." },
     delay: { name: "Pojištění zpoždění letu", short: "Zpoždění přes 3 hodiny: USD 150 automaticky." },
   },
-  checkout: "Pokladna", heldExpired: "Cenu jsme drželi 20 minut a vypršela.", freshPrice: "Získat aktuální cenu", roomNights: (n) => `Pokoj, ${n} ${plural("cs", n, "noc", "noci", "nocí")}, včetně daní`,
+  checkout: "Pokladna", heldExpired: "Cenu jsme drželi 20 minut a vypršela.", freshPrice: "Získat aktuální cenu", roomNights: (n) => `Pokoj, ${n} ${plural("cs", n, "noc", "noci", "nocí")}`,
   showed: (s) => `${s} ukazoval`, payNow: "Platíte nyní", cityTax: "V hotelu, městská daň", perPersonNight: "za osobu a noc",
   freeUntilShort: (d, then) => `Storno zdarma do ${d}${then ? `, potom ${then}` : ""}.`, checkInWord: "příjezdu", rateNoRefunds: "Tato cena je nevratná.",
   heldFor: "Cenu držíme 20 minut.", heldLeft: (m) => `Cenu držíme ještě ${m}. Potom ji znovu ověříme.`, whoTravels: "Kdo cestuje", firstName: "Jméno", lastName: "Příjmení", emailVoucher: "E-mail pro voucher", mobileOpt: "Mobil, nepovinné",

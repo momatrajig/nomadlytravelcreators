@@ -652,3 +652,7 @@ p { margin: 0; }
 .stay-facts.hotel-facts { margin-top: 4px; font-size: 14px; gap: 6px 12px; }
 .free-chip { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 13.5px; font-weight: 600; color: var(--save); }
 .free-chip::before { content: "✓"; display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; background: var(--save-bg); font-size: 11px; }
+.co-req { margin: -10px 0 0; }
+.expired { margin: 40px auto; max-width: 520px; text-align: center; display: grid; justify-items: center; gap: 10px; padding: 36px 24px; border: 1px solid var(--line); border-radius: 20px; background: var(--paper); }
+.expired svg { width: 44px; height: 44px; fill: none; stroke: var(--warn); stroke-width: 1.6; stroke-linecap: round; }
+.expired h1 { font-size: 30px; } .expired p { margin: 0 0 8px; color: var(--ink-2); }

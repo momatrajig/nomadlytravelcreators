@@ -36,7 +36,14 @@ export default async function Checkout({ searchParams }: { searchParams: Promise
     <>
       <nav className="crumbs" aria-label="Breadcrumb"><Link href={`/hotel/${quote.ebcId}?in=${quote.checkIn}&out=${quote.checkOut}&adults=${adults}`}>{hotel?.name ?? t.allHotels}</Link><span aria-hidden="true">/</span><span aria-current="page">{t.checkout}</span></nav>
       {expired
-        ? <div className="notice warn" role="alert" style={{ marginTop: 18 }}>{t.heldExpired} <a href={`/hotel/${quote.ebcId}?in=${quote.checkIn}&out=${quote.checkOut}&adults=${adults}`}>{t.freshPrice}</a>.</div>
+        ? (
+          <section className="expired" role="alert">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v5l3 2M21 12a9 9 0 11-9-9 9 9 0 019 9z" /></svg>
+            <h1>{hotel?.name}</h1>
+            <p>{t.heldExpired}</p>
+            <a className="btn btn-brand btn-lg" href={`/hotel/${quote.ebcId}?in=${quote.checkIn}&out=${quote.checkOut}&adults=${adults}#rooms`}>{t.freshPrice}</a>
+          </section>
+        )
         : <CheckoutForm
             quoteId={quote.id} amount={quote.readerPrice} currency={quote.currency} refundable={quote.refundable} cancelDeadline={quote.cancelDeadline} cancelCharge={quote.cancelCharge}
             brandName={sf.brandName} brandColor={sf.brandColor} stripeKey={env().NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? null} expiresAt={quote.expiresAt} f={f}

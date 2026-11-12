@@ -113,7 +113,7 @@ export default function CheckoutForm(p: Props) {
 
           <section className="co-card" aria-labelledby="det-h">
             <h2 id="det-h">{co.detailsH}</h2>
-            <p className="co-sub">{co.detailsSub} <span className="mute small">* {co.required}</span></p>
+            <p className="co-req mute small">* {co.required}</p>
             <fieldset className="who" disabled={locked}><legend>{co.forWhom}</legend>
               <div className="seg seg-sm">{([["self", co.forMe], ["other", co.forOther]] as const).map(([k, l]) => <button key={k} type="button" aria-pressed={forWhom === k} onClick={() => setForWhom(k)}>{l}</button>)}</div>
             </fieldset>
@@ -246,7 +246,7 @@ function Summary({ co, p, lines, total, P, mobile }: { co: Co; p: Props; lines: 
       {addSave > 0 && <p className="sum-save">{co.youSave(P(addSave))}</p>}
       {p.lowestReference && p.lowestReference > p.amount && <p className="sum-save">{t.showed(p.lowestSource ?? "")} <s className="num">{P(p.lowestReference)}</s></p>}
       <div className="sum-total"><span>{co.total}<small>{co.taxesIn}</small></span><span><b className="num">{P(total)}</b>{approx && <small className="num">{approx}</small>}</span></div>
-      <p className="small mute sum-tax"><span>{co.cityTax}</span><span>{co.perPN}</span></p>
+      <p className="small mute sum-tax">{co.cityTax}</p>
     </>
   );
   if (mobile) return <details className="sum sum-mobile"><summary><span>{co.summaryH}</span><b className="num">{P(total)}</b></summary>{body}</details>;
