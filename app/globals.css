@@ -802,3 +802,6 @@ svg.lucide.to { color: var(--mute); margin: 0 2px; vertical-align: -0.12em; }
 .bottomnav a[aria-current="page"] { color: var(--ink); }
 svg.lucide.i-star { fill: var(--gold); color: var(--gold); stroke-width: 1; }
 .ctabs a { display: inline-flex; align-items: center; gap: 6px; }
+/* motion is a courtesy: anyone who asked the system for less gets none */
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
+html { scroll-behavior: smooth; }
