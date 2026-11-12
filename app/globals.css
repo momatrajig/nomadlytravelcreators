@@ -833,3 +833,4 @@ html { scroll-behavior: smooth; }
 .auth-foot { display: flex; gap: 6px; align-items: center; padding-top: 4px; }
 @media (max-width: 520px) { .auth { padding-top: 20px; } .auth-card { padding: 22px 18px; border-radius: 16px; } }
 .auth-ic.warn { background: var(--warn-bg); color: var(--warn); }
+@keyframes spin { to { transform: rotate(360deg); } } svg.spin { animation: spin .9s linear infinite; }

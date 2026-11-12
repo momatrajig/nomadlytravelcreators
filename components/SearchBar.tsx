@@ -1,5 +1,5 @@
 "use client";
-import { Search } from "lucide-react";
+import { LoaderCircle, Search } from "lucide-react";
 import { Ico, To } from "@/components/Icon";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -43,7 +43,7 @@ export default function SearchBar({ checkIn, checkOut, adults, dest = "", destin
         <DateRange key={`${d}:${n}`} lang={lang} checkIn={a} checkOut={b} adults={n} dest={d || undefined} onChange={(x, y) => { setA(x); setB(y); setErr(null); }} />
       </div>
       <div className="field f-guests"><label htmlFor="s-ad">{t.guests}</label><select id="s-ad" value={n} onChange={(e) => setN(Number(e.target.value))}>{[1, 2, 3, 4].map((k) => <option key={k} value={k}>{t.adultsN(k)}</option>)}</select></div>
-      <button className="btn btn-brand" type="submit" disabled={busy}>{busy ? t.searching : t.seePrices}</button>
+      <button className="btn btn-brand" type="submit" disabled={busy}>{busy ? <Ico of={LoaderCircle} size={17} className="spin" /> : <Ico of={Search} size={17} />}{busy ? t.searching : t.seePrices}</button>
       {err && <p className="search-err" role="alert">{err}</p>}
     </form>
     </>
