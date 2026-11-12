@@ -84,7 +84,7 @@ export default function SwitchTool({ share, sharePct, signedIn }: { share: numbe
   }
 
   return (
-    <div className="sw">
+    <div className="swt">
       <div className="sw-file">
         <span><Ico of={FileSpreadsheet} size={16} />{manual ? "Your numbers" : file}{parsed.period.from ? `, ${parsed.period.from} to ${parsed.period.to}` : ""}</span>
         <button type="button" className="btn btn-sm" onClick={reset}><Ico of={RotateCcw} size={15} />Start again</button>
