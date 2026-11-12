@@ -832,3 +832,4 @@ html { scroll-behavior: smooth; }
 .auth-err { display: flex; gap: 8px; align-items: center; color: var(--bad); background: var(--bad-bg); border-radius: 10px; padding: 10px 12px; font-size: 14px; }
 .auth-foot { display: flex; gap: 6px; align-items: center; padding-top: 4px; }
 @media (max-width: 520px) { .auth { padding-top: 20px; } .auth-card { padding: 22px 18px; border-radius: 16px; } }
+.auth-ic.warn { background: var(--warn-bg); color: var(--warn); }
