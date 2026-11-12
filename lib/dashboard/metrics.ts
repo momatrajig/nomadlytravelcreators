@@ -21,8 +21,9 @@ export type TxStatus = "Pending" | "Approved" | "Canceled";
 export type PayStatus = "Pending" | "Ready" | "Paid" | "Canceled";
 
 export interface Tx {
-  id: string; bookingId: string; date: string; reference: string; category: Category; info: string; source: string | null;
+  id: string; bookingId: string; ebcId: number; date: string; reference: string; category: Category; info: string; source: string | null;
   price: number; margin: number; costs: number; commission: number; tx: TxStatus; pay: PayStatus; demo: boolean; checkOut: string;
+  checkIn?: string; nights?: number; guests?: number;
 }
 
 /** The payout date for a stay approved on `approvedOn`: the 15th of the following month. */
@@ -45,13 +46,13 @@ export function transactions(bookings: Booking[], payouts: Payout[], hotelName: 
     const costs = b.costs ?? cardFee(b.readerPrice);
     const nights = `${b.nights} ${b.nights === 1 ? "night" : "nights"}`;
     out.push({
-      id: `${b.id}:hotel`, bookingId: b.id, date: b.createdAt, reference: b.reference, category: "hotel", info: `${hotelName(b.ebcId)}, ${nights}`, source: b.source ?? null,
-      price: b.readerPrice, margin: canceled ? 0 : margin, costs: canceled ? 0 : costs, commission: canceled ? 0 : r2(b.creatorShare - b.promoDiscount), tx, pay, demo: !!b.demo, checkOut: b.checkOut,
+      id: `${b.id}:hotel`, bookingId: b.id, ebcId: b.ebcId, date: b.createdAt, reference: b.reference, category: "hotel", info: `${hotelName(b.ebcId)}, ${nights}`, source: b.source ?? null,
+      price: b.readerPrice, margin: canceled ? 0 : margin, costs: canceled ? 0 : costs, commission: canceled ? 0 : r2(b.creatorShare - b.promoDiscount), tx, pay, demo: !!b.demo, checkOut: b.checkOut, checkIn: b.checkIn, nights: b.nights, guests: b.guests.length,
     });
     for (const x of b.extras) {
       const cat = (["transfer", "esim", "bag", "delay"].includes(x.kind) ? x.kind : "transfer") as Category;
       out.push({
-        id: `${b.id}:${x.kind}`, bookingId: b.id, date: b.createdAt, reference: b.reference, category: cat, info: x.name, source: b.source ?? null,
+        id: `${b.id}:${x.kind}`, bookingId: b.id, ebcId: b.ebcId, date: b.createdAt, reference: b.reference, category: cat, info: x.name, source: b.source ?? null,
         price: x.price, margin: canceled ? 0 : x.commission, costs: canceled ? 0 : r2(x.price * CARD_FEE_RATE), commission: canceled ? 0 : x.creatorShare, tx, pay, demo: !!b.demo, checkOut: b.checkOut,
       });
     }

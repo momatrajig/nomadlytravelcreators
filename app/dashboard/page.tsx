@@ -1,161 +1,89 @@
-import { CalendarCheck, Check, MousePointerClick, Percent, TrendingUp, Wallet, X } from "lucide-react";
+import { Check, MousePointerClick, ReceiptText, X } from "lucide-react";
 import { Ico } from "@/components/Icon";
 import Link from "next/link";
 import { dashContext } from "@/lib/dashboard/context";
 import { db } from "@/lib/db";
-import { CATEGORY_LABEL, summarize, transactions, type Tx } from "@/lib/dashboard/metrics";
-import { termsOf } from "@/lib/pricing/engine";
+import { transactions, type Tx } from "@/lib/dashboard/metrics";
+import { performance } from "@/lib/dashboard/perf";
+import { bucketLabel, parseRange, rangeLabel } from "@/lib/dashboard/range";
 import { fmtDate, usd } from "@/lib/format";
 import AutoRefresh from "@/components/dash/AutoRefresh";
+import RangeBar from "@/components/dash/RangeBar";
+import PerfPanel from "@/components/dash/PerfPanel";
+import Breakdown from "@/components/dash/Breakdown";
+import { payoutDateFor } from "@/lib/dashboard/metrics";
 import type { Click } from "@/lib/db/types";
 
 export const dynamic = "force-dynamic";
 
-const PERIODS: Array<[number, string]> = [[7, "7 days"], [30, "30 days"], [90, "90 days"], [365, "12 months"]];
-const pct = (v: number, d = 1) => `${(v * 100).toFixed(d)}%`;
-const num = (v: number) => v.toLocaleString("en-US");
+const pct = (v: number) => `${(v * 100).toFixed(v > 0 && v < 0.01 ? 2 : 1).replace(/\.0$/, "")}%`;
 // outside render: the clock is read once per request on this dynamic page
-function daysAgo(d: number) { return new Date(Date.now() - d * 86_400_000).toISOString(); }
+function todayIso() { return new Date().toISOString().slice(0, 10); }
 
-export default async function Overview({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
+export default async function Performance({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const c = (await dashContext())!;
   const sp = await searchParams;
-  const days = PERIODS.some(([d]) => String(d) === sp.p) ? Number(sp.p) : 30;
+  const today = todayIso();
+  const r = parseRange(sp, today);
   // the demo dashboard shows its test bookings by default, so a visitor sees how a booking appears
   const includeDemo = sp.demo === "1" || (c.demo && sp.demo !== "0");
-  const since = daysAgo(days);
-  const prevSince = daysAgo(2 * days);
-  const [bookings, clicks, payouts, pins] = await Promise.all([
-    db().bookingsForCreator(c.creator.id, 2000), db().clicksForStorefront(c.sf.id, prevSince), db().payoutsForCreator(c.creator.id), db().pinnedHotels(c.sf.id),
+  const [bookings, clicks, checkouts, payouts, pins] = await Promise.all([
+    db().bookingsForCreator(c.creator.id, 5000), db().clicksForStorefront(c.sf.id, r.prev.sinceIso), db().checkoutsForStorefront(c.sf.id, r.prev.sinceIso), db().payoutsForCreator(c.creator.id), db().pinnedHotels(c.sf.id),
   ]);
   const names = new Map(pins.map((p) => [p.ebcId, p.name]));
-  const missing = [...new Set(bookings.map((b) => b.ebcId).filter((id) => !names.has(id)))];
-  for (const id of missing.slice(0, 40)) { const h = await db().hotel(id); if (h) names.set(id, h.name); }
-  const txs = transactions(bookings.filter((b) => b.storefrontId === c.sf.id), payouts, (id) => names.get(id) ?? `Hotel ${id}`);
-  const s = summarize(clicks, txs, { since, days, includeDemo });
-  const prev = summarize(clicks, txs, { since: prevSince, until: since, days, includeDemo });
-  const delta = (a: number, b: number) => (b > 0 ? `${a >= b ? "+" : ""}${Math.round(((a - b) / b) * 100)}% on the ${days} days before` : "");
-  const demoCount = txs.filter((t) => t.demo && t.category === "hotel" && t.date >= since).length;
-  const terms = termsOf(c.sf);
-  const q = (o: Record<string, string>) => `?${new URLSearchParams({ p: String(days), ...(includeDemo ? { demo: "1" } : {}), ...o })}`;
-  const shown = txs.filter((t) => t.date >= since && (includeDemo || !t.demo)).slice(0, 60);
+  const missing = [...new Set([...bookings.map((b) => b.ebcId), ...clicks.map((k) => k.ebcId ?? 0), ...checkouts.map((q) => q.ebcId)].filter((id) => id && !names.has(id)))];
+  await Promise.all(missing.slice(0, 40).map(async (id) => { const h = await db().hotel(id); if (h) names.set(id, h.name); }));
+  const name = (id: number) => names.get(id) ?? `Hotel ${id}`;
+  const txs = transactions(bookings.filter((b) => b.storefrontId === c.sf.id), payouts, name);
+  const p = performance(clicks, checkouts, txs, r, { includeDemo, hotelName: name });
+  const demoCount = txs.filter((t) => t.demo && t.category === "hotel" && t.date >= r.sinceIso && t.date < r.untilIso).length;
+  const q = (o: Record<string, string>) => `?${new URLSearchParams({ ...Object.fromEntries(Object.entries(sp).filter(([, v]) => v != null)) as Record<string, string>, ...o })}`;
+  const live = txs.filter((t) => t.tx !== "Canceled" && (includeDemo || !t.demo));
+  const sum = (s: Tx["pay"]) => live.filter((t) => t.pay === s).reduce((a, t) => a + t.commission, 0);
+  const ready = live.filter((t) => t.pay === "Ready");
+  const nextPayout = ready.length ? ready.map((t) => payoutDateFor(t.checkOut)).sort()[0]! : null;
+  const f = p.funnel;
 
   return (
     <>
       <div className="dash-head">
-        <div><h1>Overview</h1><p>Last {PERIODS.find(([d]) => d === days)![1]}. Every number is live.</p></div>
-        <nav className="period" aria-label="Period">{PERIODS.map(([d, l]) => <Link key={d} href={`?${new URLSearchParams({ p: String(d), ...(includeDemo ? { demo: "1" } : {}) })}`} aria-current={d === days ? "page" : undefined}>{l}</Link>)}</nav>
+        <div><h1>Performance</h1><p>How your links and storefront turn readers into stays. Live, to the second.</p></div>
       </div>
-      {demoCount > 0 && <div className="notice small notice-inline">{includeDemo ? <>Showing {demoCount} demo {demoCount === 1 ? "booking" : "bookings"} (test card, nothing reserved). They are never paid. <Link href={q({ demo: "0" })}>Hide them</Link>.</> : <>{demoCount} demo {demoCount === 1 ? "booking" : "bookings"} made with a test card are left out. <Link href={q({ demo: "1" })}>Show them</Link> to see how a booking appears.</>}</div>}
+      <RangeBar from={r.from} to={r.to} preset={r.preset} grain={r.grain} label={rangeLabel(r)} today={today} />
+      {demoCount > 0 && <div className="notice small notice-inline">{includeDemo ? <>Showing {demoCount} demo {demoCount === 1 ? "booking" : "bookings"} (test card, nothing reserved). They are never paid. <Link href={q({ demo: "0" })}>Hide them</Link>.</> : <>{demoCount} demo {demoCount === 1 ? "booking" : "bookings"} made with a test card are left out. <Link href={q({ demo: "1" })}>Show them</Link>.</>}</div>}
 
-      <div className="kpis">
-        <div className="kpi"><span><Ico of={MousePointerClick} size={16} />Clicks</span><b>{num(s.clicks)}</b><small>{num(s.visitors)} unique visitors{prev.clicks ? `. ${delta(s.clicks, prev.clicks)}` : ""}</small></div>
-        <div className="kpi"><span><Ico of={CalendarCheck} size={16} />Bookings</span><b>{num(s.hotelBookings)}</b><small>{[s.addOns ? `Plus ${num(s.addOns)} add ${s.addOns === 1 ? "on" : "ons"}` : null, s.canceled ? `${s.canceled} canceled` : null].filter(Boolean).join(", ") || "Hotel stays"}</small></div>
-        <div className="kpi"><span><Ico of={Percent} size={16} />Conversion</span>{/* bookings can arrive without a tracked click (test cards, direct visits): above 100% the ratio means nothing */}{s.conversion > 1 ? <><b className="kpi-na">Not yet</b><small>Fewer clicks than bookings so far</small></> : <><b>{pct(s.conversion, s.conversion > 0 && s.conversion < 0.1 ? 2 : 1).replace(/\.0+%$/, "%")}</b><small>Bookings per click</small></>}</div>
-        <div className="kpi"><span><Ico of={TrendingUp} size={16} />EPC</span><b>{usd(s.epc)}</b><small>Earnings per click</small></div>
-        <div className="kpi"><span><Ico of={Wallet} size={16} />Commission</span><b>{usd(s.commission)}</b><small>{s.bookingValue ? `${pct(s.ofValue)} of booking value` : "Pending and approved"}</small></div>
-      </div>
-
-      <Activity clicks={clicks} txs={txs.filter((t) => includeDemo || !t.demo)} name={(id) => names.get(id) ?? `Hotel ${id}`} slug={c.sf.slug} />
+      <PerfPanel totals={p.totals} prev={p.prev} series={p.series} prevSeries={p.prevSeries} labels={p.series.map((x) => bucketLabel(x.start, r.grain))} days={r.days} prevLabel="Period before" />
 
       <div className="dgrid">
-        <section className="dcard" aria-labelledby="ch-h">
-          <h2 id="ch-h">Clicks and bookings by {days <= 31 ? "day" : "week"}</h2>
-          <Chart series={s.series} />
-          <div className="legend"><span><i style={{ background: "var(--mist-2)" }} />Clicks</span><span><i style={{ background: "var(--ink)" }} />Bookings</span></div>
+        <section className="dcard" aria-labelledby="fn-h">
+          <h2 id="fn-h">From click to stay</h2>
+          <ol className="funnel" role="list">
+            {([["Clicks", f.clicks, null], ["Checkouts", f.checkouts, f.clicks ? f.checkouts / f.clicks : null], ["Bookings", f.bookings, f.checkouts ? f.bookings / f.checkouts : null]] as const).map(([l, v, rate], i) => (
+              <li key={l} style={{ ["--w" as string]: `${Math.max(6, f.clicks ? (v / Math.max(f.clicks, f.checkouts, f.bookings, 1)) * 100 : i === 0 ? 100 : 6)}%` }}>
+                <div className="fn-top"><span>{l}</span>{rate != null && <small>{pct(Math.min(rate, 1))} of the step before</small>}</div>
+                <div className="fn-bar"><i /></div>
+                <b className="num">{v.toLocaleString("en-US")}</b>
+              </li>
+            ))}
+          </ol>
+          <p className="note">{p.totals.bookings && p.totals.value ? <>Average stay {usd(p.totals.value / Math.max(1, p.totals.bookings), true)}, you earn {usd(p.totals.commission / Math.max(1, p.totals.bookings))} a booking on average{p.totals.addOns ? `, with ${p.totals.addOns} add ${p.totals.addOns === 1 ? "on" : "ons"}` : ""}{p.totals.canceled ? `. ${p.totals.canceled} canceled` : ""}.</> : "A checkout is a reader who chose a room and held the price. Most book within the hour."}</p>
         </section>
         <section className="dcard" aria-labelledby="ps-h">
-          <h2 id="ps-h">Payment status</h2>
+          <div className="card-head"><h2 id="ps-h">Your money</h2><Link className="btn btn-sm" href="/dashboard/transactions"><Ico of={ReceiptText} size={15} />Transactions</Link></div>
           <div className="paystat">
-            <div><span>Paid</span><span>{usd(s.byStatus.paid)}</span></div>
-            <div><span>Ready{s.byStatus.nextPayout ? `, pays ${fmtDate(s.byStatus.nextPayout)}` : ""}</span><span>{usd(s.byStatus.ready)}</span></div>
-            <div><span>Pending</span><span>{usd(s.byStatus.pending)}</span></div>
-            <div><span>Canceled{s.byStatus.canceledCount ? `, ${s.byStatus.canceledCount} ${s.byStatus.canceledCount === 1 ? "booking" : "bookings"}` : ""}</span><span>{usd(0)}</span></div>
-            <div><span>Total commission</span><span>{usd(s.commission)}</span></div>
+            <div><span><i className="dot st-Paid" />Paid</span><span>{usd(sum("Paid"))}</span></div>
+            <div><span><i className="dot st-Ready" />Ready{nextPayout ? `, pays ${fmtDate(nextPayout)}` : ""}</span><span>{usd(sum("Ready"))}</span></div>
+            <div><span><i className="dot st-Pending" />Pending, stay ahead</span><span>{usd(sum("Pending"))}</span></div>
+            <div><span>All time</span><span>{usd(live.reduce((a, t) => a + t.commission, 0))}</span></div>
           </div>
           <p className="note">Paid monthly on the 15th for stays completed the month before. No minimum.</p>
         </section>
       </div>
 
-      <section className="dcard" aria-labelledby="src-h">
-        <h2 id="src-h">Top sources</h2>
-        <div className="scroll"><table className="dtable">
-          <thead><tr><th>Source</th><th className="n">Clicks</th><th className="n">Visitors</th><th className="n">Bookings</th><th className="n">Conversion</th><th className="n">Commission</th><th className="n">EPC</th></tr></thead>
-          <tbody>
-            {s.sources.slice(0, 12).map((r) => <tr key={r.source}><td>{r.source}</td><td className="n">{num(r.clicks)}</td><td className="n">{num(r.visitors)}</td><td className="n">{num(r.bookings)}</td><td className="n">{r.clicks ? pct(r.conversion, 2) : "n/a"}</td><td className="n">{usd(r.commission)}</td><td className="n">{r.clicks ? usd(r.epc) : "n/a"}</td></tr>)}
-            {!s.sources.length && <tr><td colSpan={7} className="mute">No clicks yet. Put one of your links in an article (<Link href="/dashboard/links">Links</Link>) and the first click shows here within a second.</td></tr>}
-          </tbody>
-        </table></div>
-        <p className="note">A source is the name you give a link (src=), usually the article. Clicks from bots and link previews are left out. Every booking on your storefront is yours whether or not it came through a link; the source only says where it came from.</p>
-      </section>
+      <Breakdown data={{ source: p.bySource, hotel: p.byHotel, country: p.byCountry, device: p.byDevice }} range={`${r.from}_${r.to}`} />
 
-      <section className="dcard" aria-labelledby="cat-h">
-        <h2 id="cat-h">By category</h2>
-        <div className="scroll"><table className="dtable">
-          <thead><tr><th>Category</th><th className="n">Bookings</th><th className="n">Booking value</th><th>Your share</th><th className="n">Commission</th></tr></thead>
-          <tbody>
-            {s.byCategory.map((r) => <tr key={r.category}><td>{CATEGORY_LABEL[r.category]}</td><td className="n">{num(r.bookings)}</td><td className="n">{usd(r.value)}</td><td>{Math.round((r.category === "hotel" ? terms.hotelShare : terms.extrasShare) * 100)}% of net</td><td className="n">{usd(r.commission)}</td></tr>)}
-            <tr className="soon"><td>Flights</td><td colSpan={4}>Coming soon, fixed margin per ticket</td></tr>
-            <tr className="total"><td>Total</td><td className="n">{num(s.byCategory.reduce((a, r) => a + r.bookings, 0))}</td><td className="n">{usd(s.bookingValue)}</td><td /><td className="n">{usd(s.commission)}</td></tr>
-          </tbody>
-        </table></div>
-      </section>
-
-      <section className="dcard" aria-labelledby="tx-h">
-        <h2 id="tx-h">Transactions</h2>
-        <div className="scroll"><table className="dtable">
-          <thead><tr><th>Date</th><th>Info</th><th>Source</th><th className="n">Price</th><th className="n">Our margin</th><th className="n">Costs</th><th className="n">Commission</th><th className="n">Of price</th><th>Transaction</th><th>Payment</th></tr></thead>
-          <tbody>
-            {shown.map((t) => <TxRow key={t.id} t={t} />)}
-            {!shown.length && <tr><td colSpan={10} className="mute">No bookings in this period yet.</td></tr>}
-          </tbody>
-        </table></div>
-        <div className="gloss" style={{ marginTop: 12 }}>
-          <span><span className="status st-Pending">Pending</span> Booked; the stay is not completed yet.</span>
-          <span><span className="status st-Approved">Approved</span> Stay completed; commission is final.</span>
-          <span><span className="status st-Ready">Ready</span> In the next monthly payout.</span>
-          <span><span className="status st-Paid">Paid</span> Sent to your account.</span>
-          <span><span className="status st-Canceled">Canceled</span> Refunded; no commission.</span>
-        </div>
-        <p className="note">Commission is {Math.round(terms.hotelShare * 100)}% of Nomadly&apos;s net revenue on hotels and {Math.round(terms.extrasShare * 100)}% on add ons. Net revenue is our margin less the card and payout costs we pay. Every line shows both.</p>
-      </section>
+      <Activity clicks={clicks} txs={txs.filter((t) => includeDemo || !t.demo)} name={name} slug={c.sf.slug} />
     </>
-  );
-}
-
-function TxRow({ t }: { t: Tx }) {
-  return (
-    <tr>
-      <td style={{ whiteSpace: "nowrap" }}>{fmtDate(t.date)}<div className="small mute">{t.reference}</div></td>
-      <td>{t.info}{t.demo && <span className="chip" style={{ marginLeft: 6 }}>demo</span>}</td>
-      <td className="small">{t.source ?? <span className="mute">direct</span>}</td>
-      <td className="n">{usd(t.price)}</td><td className="n">{usd(t.margin)}</td><td className="n">{usd(t.costs)}</td>
-      <td className="n"><b>{usd(t.commission)}</b></td><td className="n">{t.price ? pct(t.commission / t.price) : ""}</td>
-      <td><span className={`status st-${t.tx}`}>{t.tx}</span></td><td><span className={`status st-${t.pay}`}>{t.pay}</span></td>
-    </tr>
-  );
-}
-
-function Chart({ series }: { series: Array<{ label: string; clicks: number; bookings: number }> }) {
-  const W = 640, H = 180, pad = 22, n = Math.max(series.length, 1);
-  const maxC = Math.max(1, ...series.map((s) => s.clicks)), maxB = Math.max(1, ...series.map((s) => s.bookings));
-  const bw = (W - pad) / n;
-  const every = Math.ceil(n / 8);
-  return (
-    <svg className="chart" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Clicks per period, highest ${maxC}`}>
-      {series.map((s, i) => {
-        const h = ((H - pad - 8) * s.clicks) / maxC, x = pad + i * bw;
-        const bh = s.bookings ? Math.max(4, ((H - pad - 8) * 0.45 * s.bookings) / maxB) : 0;
-        return (
-          <g key={i}>
-            <rect className="bar" x={x + 1} y={H - pad - h} width={Math.max(1, bw - 3)} height={h} rx={2}><title>{`${s.label}: ${s.clicks} clicks, ${s.bookings} bookings`}</title></rect>
-            {bh > 0 && <rect className="bk" x={x + bw * 0.3} y={H - pad - bh} width={Math.max(1, bw * 0.4 - 1)} height={bh} rx={2} />}
-            {i % every === 0 && <text x={x + bw / 2} y={H - 6} textAnchor="middle">{s.label}</text>}
-          </g>
-        );
-      })}
-      <text x={0} y={12}>{maxC}</text>
-    </svg>
   );
 }
 

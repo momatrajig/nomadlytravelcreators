@@ -113,6 +113,8 @@ export interface Db {
   logClick(c: Omit<Click, "id" | "createdAt">): Promise<Click>;
   click(id: string): Promise<Click | null>;
   clicksForStorefront(storefrontId: string, sinceIso: string): Promise<Click[]>;
+  /** each "Select rate" a reader pressed (a held price at checkout), for the funnel */
+  checkoutsForStorefront(storefrontId: string, sinceIso: string): Promise<Array<{ createdAt: string; ebcId: number }>>;
   // ---------- hotel content and directory ----------
   upsertHotel(h: Hotel & { cityId?: number | null; countryIso?: string | null; description?: string | null }): Promise<void>;
   pinHotel(storefrontId: string, ebcId: number, patch?: { tip?: string | null; position?: number }): Promise<void>;

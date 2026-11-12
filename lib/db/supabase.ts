@@ -109,6 +109,15 @@ export function supabaseDb(): Db {
       }
       return out;
     },
+    async checkoutsForStorefront(storefrontId, since) {
+      const out: Array<{ createdAt: string; ebcId: number }> = [];
+      for (let from = 0; ; from += 1000) {
+        const rows = must(await sb.from("quotes").select("created_at,ebc_id").eq("storefront_id", storefrontId).gte("created_at", since).order("created_at", { ascending: false }).range(from, from + 999)) as Array<{ created_at: string; ebc_id: number }>;
+        out.push(...rows.map((r) => ({ createdAt: r.created_at, ebcId: r.ebc_id })));
+        if (rows.length < 1000 || out.length >= 50000) break;
+      }
+      return out;
+    },
     async upsertHotel(h) {
       must(await sb.from("hotels").upsert({ ebc_id: h.ebcId, name: h.name, stars: h.stars, address: h.address, city_id: h.cityId ?? null, city_name: h.cityName, country_iso: h.countryIso ?? null, lat: h.lat, lng: h.lng, images: h.images, rating: h.rating, rating_count: h.ratingCount, destination_slug: h.destination, description: h.description ?? null, synced_at: new Date().toISOString() }));
     },

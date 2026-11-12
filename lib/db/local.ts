@@ -94,6 +94,7 @@ export function localDb(): Db {
     async logClick(c) { const full: Click = { ...c, id: randomUUID(), createdAt: new Date().toISOString() }; clicks.push(full); return full; },
     async click(id) { return clicks.find((c) => c.id === id) ?? null; },
     async clicksForStorefront(id, since) { return clicks.filter((c) => c.storefrontId === id && c.createdAt >= since); },
+    async checkoutsForStorefront(id, since) { return [...quotes.values()].filter((q) => q.storefrontId === id && q.createdAt >= since).map((q) => ({ createdAt: q.createdAt, ebcId: q.ebcId })); },
     async upsertHotel(h) { hotels.set(h.ebcId, { ebcId: h.ebcId, name: h.name, stars: h.stars, address: h.address, cityName: h.cityName, lat: h.lat, lng: h.lng, images: h.images, rating: h.rating, ratingCount: h.ratingCount, destination: h.destination }); },
     async pinHotel(id, ebcId, patch = {}) { if (id !== sf.id || pins.some((p) => p.ebcId === ebcId)) return; const h = hotels.get(ebcId); if (h) pins.push({ ...h, position: patch.position ?? pins.length, tip: patch.tip ?? null, stayedWhen: null }); },
     async unpinHotel(id, ebcId) { const i = pins.findIndex((p) => p.ebcId === ebcId); if (id === sf.id && i >= 0) pins.splice(i, 1); },
