@@ -209,3 +209,10 @@ td.empty-row svg { color: var(--mute); margin-right: 8px; vertical-align: -4px; 
 .txt th .mute { font-weight: 500; }
 .lines { max-width: 760px; }
 .txt td, .txt th { padding-left: 8px; padding-right: 8px; } .txt .bk-cell { min-width: 200px; }
+@media (max-width: 800px) {
+  .dash-who { display: none; }
+  .dash-side nav { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 0 16px; }
+  .dash-side nav::-webkit-scrollbar { display: none; }
+  .dash-side nav a { flex: none; }
+  .rbar { gap: 8px; } .rbar .rpick, .rbar .rbtn { width: 100%; }
+}
