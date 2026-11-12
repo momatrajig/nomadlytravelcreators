@@ -9,7 +9,9 @@ describe("room names", () => {
     expect(roomTitle("Junior Suite (Eiffel Tower view)")).toBe("Junior Suite (Eiffel Tower view)");
     expect(roomTitle("Superior Room Non-Refundable")).toBe("Superior Room Non-Refundable");
     expect(roomTitle("Superior Room - Non-Refundable")).toBe("Superior Room");
-    expect(roomTitle("Deluxe Double room (full double bed) (bed type is subject to availability)")).toBe("Deluxe Double room (full double bed)");
+    expect(roomTitle("Deluxe Double room (full double bed) (bed type is subject to availability)")).toBe("Deluxe Double room, double bed");
+    expect(roomTitle("Deluxe Double room (full double bed) (king size bed)")).toBe("Deluxe Double room, double bed, king bed");
+    expect(roomTitle("JUNIOR SUITE (KING SIZE BED)")).toBe("Junior Suite, King Bed");
   });
 });
 

@@ -35,25 +35,25 @@ export default async function HotelPage({ params, searchParams }: { params: Prom
   return (
     <>
       <nav className="crumbs" aria-label="Breadcrumb"><Link href={pin ? `/stays?pick=${ebcId}&${qs}` : `/stays?${qs}`}>{pin && d ? t.stayingIn(placeName(d.slug, d.name, f.lang)) : t.allHotels}</Link>{d && !pin && <><span aria-hidden="true">/</span><Link href={`/stays?d=${d.slug}&${qs}`}>{placeName(d.slug, d.name, f.lang)}</Link></>}<span aria-hidden="true">/</span><span aria-current="page">{hotel.name}</span></nav>
+      <header className="hotel-head">
+        {pin && <div className="also-pick" style={{ fontSize: 14 }}><CreatorMark sf={sf} size={20} /><span>{t.recommendedBy(sf.brandName)}</span></div>}
+        <div className="hotel-title">
+          <h1>{hotel.name}</h1>
+          <a className="btn btn-brand view-rooms" href="#rooms"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6" /></svg>{t.seeRooms}</a>
+        </div>
+        <div className="hotel-facts">
+          {hotel.stars ? <span className="stars" aria-label={t.star(hotel.stars)}>{"★".repeat(hotel.stars)}</span> : null}
+          {hotel.rating ? <span className="score"><b className="num">{hotel.rating.toFixed(1)}</b><span>{t.scoreWord(hotel.rating)}</span><small className="num">{t.reviewsN(hotel.ratingCount?.toLocaleString(f.lang === "cs" ? "cs-CZ" : "en-US") ?? "")}</small></span> : null}
+          <span className="addr"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21zm0-9a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" /></svg>{[hotel.address, hotel.address?.includes(hotel.cityName ?? "\u0000") ? null : hotel.cityName].filter(Boolean).join(", ")}</span>
+        </div>
+      </header>
       <GalleryOpener lang={f.lang} photos={pin ? pin.images : hotel.images} name={hotel.name} />
       <div className="hotel">
         <div className="hotel-main">
-          <header className="hotel-head">
-            {pin && <div className="also-pick" style={{ fontSize: 14 }}><CreatorMark sf={sf} size={20} /><span>{t.recommendedBy(sf.brandName)}</span></div>}
-            <div className="hotel-title">
-              <h1>{hotel.name}</h1>
-              <a className="btn btn-brand view-rooms" href="#rooms"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6" /></svg>{t.seeRooms}</a>
-            </div>
-            <div className="hotel-facts">
-              {hotel.stars ? <span className="stars" aria-label={t.star(hotel.stars)}>{"★".repeat(hotel.stars)}</span> : null}
-              {hotel.rating ? <span className="score"><b className="num">{hotel.rating.toFixed(1)}</b><span>{t.scoreWord(hotel.rating)}</span><small className="num">{t.reviewsN(hotel.ratingCount?.toLocaleString(f.lang === "cs" ? "cs-CZ" : "en-US") ?? "")}</small></span> : null}
-              <span className="addr"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21zm0-9a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" /></svg>{[hotel.address, hotel.address?.includes(hotel.cityName ?? "\u0000") ? null : hotel.cityName].filter(Boolean).join(", ")}</span>
-            </div>
-          </header>
           {pin?.tip && <blockquote className="tip"><p>{pin.tip}</p><footer>{first}{pin.stayedWhen ? t.stayed(pin.stayedWhen) : ""}</footer></blockquote>}
+          {hotel.lat != null && hotel.lng != null && <HotelMap lat={hotel.lat} lng={hotel.lng} name={hotel.name} labels={[t.mapOf(hotel.name), t.fullMap]} color={sf.brandColor} />}
         </div>
         <aside className="hotel-side">
-          {hotel.lat != null && hotel.lng != null && <HotelMap lat={hotel.lat} lng={hotel.lng} name={hotel.name} labels={[t.mapOf(hotel.name), t.fullMap]} color={sf.brandColor} />}
           {hotel.lat != null && hotel.lng != null && <TravelTimes lang={f.lang} destination={hotel.destination} lat={hotel.lat} lng={hotel.lng} />}
         </aside>
       </div>

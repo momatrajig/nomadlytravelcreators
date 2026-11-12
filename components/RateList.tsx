@@ -22,7 +22,17 @@ export function roomTitle(s: string) {
   // rate and package names after a separator, or at the end
   x = x.replace(/\s*(?:\s[-–|]\s|[-–|]\s)[^,|–]*\b(rate|offer|package|deal|promo(tion)?|special|advance purchase|non[- ]?refundable|flexible)\b[^,]*$/i, "");
   x = x.replace(/\s+\b(advantage|flexible|standard|best available|member|promo)\s+rate\b.*$/i, "").replace(/[\s,.-]+$/, "");
-  return x === x.toUpperCase() ? x.toLowerCase().replace(/(^|[\s,(/-])(\p{L})/gu, (_, a, b) => a + b.toUpperCase()) : x;
+  // bed details in brackets read as part of the name: "(king size bed)" -> ", king bed"; never adds or drops a bed
+  const caps = x === x.toUpperCase();
+  const beds: string[] = [];
+  const bare = x.replace(/\s*\([^()]*\)/g, "").toLowerCase();
+  x = x.replace(/\s*\(([^()]*\bbeds?\b[^()]*)\)/gi, (_, b: string) => {
+    const n = b.trim().replace(/\bking[- ]size\b/i, "king").replace(/\bqueen[- ]size\b/i, "queen").replace(/\bfull\s+(double)\b/i, "$1");
+    if (!beds.some((o) => o.toLowerCase() === n.toLowerCase()) && !bare.includes(n.toLowerCase())) beds.push(n);
+    return "";
+  });
+  if (beds.length) x = `${x}, ${beds.join(", ")}`;
+  return caps ? x.toLowerCase().replace(/(^|[\s,(/-])(\p{L})/gu, (_, a, b) => a + b.toUpperCase()) : x;
 }
 /** Non refundable options that cost as much as, or more than, a free cancellation option with the same meals are noise. */
 export function dropDominated<T extends { refundable: boolean; board: string; readerPrice: number; cancelDeadline: string | null }>(rates: T[], free: (r: T) => boolean): T[] {
@@ -36,9 +46,9 @@ export function groupRooms(rates: RateView[]) {
 }
 
 /**
- * Rooms as a row of cards you swipe through, the way streaming apps lay out a row: one card per room type,
+ * Rooms as groups with aligned rate rows (stacked on phones): one group per room type,
  * its price options inside it (non refundable or free cancellation, room only or breakfast), the difference
- * between them spelled out. "Reserve" holds the chosen option on the server and opens checkout.
+ * between them spelled out. "Select rate" holds the chosen option on the server and opens checkout.
  */
 export default function RateList({ ebcId, rates, nights, checkIn, checkOut, adults, f }: { ebcId: number; rates: RateView[]; nights: number; checkIn: string; checkOut: string; adults: number; f: ReaderFmt; photos?: Photo[] }) {
   const t = dict(f.lang);

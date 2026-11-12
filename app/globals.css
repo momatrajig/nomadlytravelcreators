@@ -785,3 +785,5 @@ p { margin: 0; }
   .hotel-title { flex-direction: column; gap: 12px; }
   .view-rooms { width: 100%; margin: 0; }
 }
+.hotel-head { margin: 8px 0 18px; display: grid; gap: 10px; }
+.hotel { margin-top: 24px; } .hotel-main { display: grid; gap: 18px; align-content: start; } .hotel-main .tip { margin: 0; }
