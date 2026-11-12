@@ -9,6 +9,8 @@ import { termsOf } from "@/lib/pricing/engine";
 import { usd } from "@/lib/format";
 import RangeBar from "@/components/dash/RangeBar";
 import TxTable, { type TxBooking } from "@/components/dash/TxTable";
+import { sampleData } from "@/lib/dashboard/sample";
+import SampleNote from "@/components/dash/SampleNote";
 
 export const dynamic = "force-dynamic";
 function todayIso() { return new Date().toISOString().slice(0, 10); }
@@ -22,7 +24,8 @@ export default async function Transactions({ searchParams }: { searchParams: Pro
   const [bookings, payouts, pins] = await Promise.all([db().bookingsForCreator(c.creator.id, 5000), db().payoutsForCreator(c.creator.id), db().pinnedHotels(c.sf.id)]);
   const names = new Map(pins.map((p) => [p.ebcId, p.name]));
   await Promise.all([...new Set(bookings.map((b) => b.ebcId).filter((id) => !names.has(id)))].slice(0, 60).map(async (id) => { const h = await db().hotel(id); if (h) names.set(id, h.name); }));
-  const txs = transactions(bookings.filter((b) => b.storefrontId === c.sf.id), payouts, (id) => names.get(id) ?? `Hotel ${id}`)
+  const sample = c.demo && sp.sample !== "0" ? sampleData(pins.map((x) => ({ ebcId: x.ebcId, name: x.name })), today) : null;
+  const txs = (sample ? sample.txs : transactions(bookings.filter((b) => b.storefrontId === c.sf.id), payouts, (id) => names.get(id) ?? `Hotel ${id}`))
     .filter((t) => t.date >= r.sinceIso && t.date < r.untilIso && (includeDemo || !t.demo));
 
   // one row per booking: the stay and its add ons together
@@ -52,7 +55,8 @@ export default async function Transactions({ searchParams }: { searchParams: Pro
     <>
       <div className="dash-head"><div><h1>Transactions</h1><p>Every booking from your storefront and what you earn on it. Times in UTC.</p></div></div>
       <RangeBar from={r.from} to={r.to} preset={r.preset} grain={r.grain} label={rangeLabel(r)} today={today} />
-      {demoCount > 0 && includeDemo && <div className="notice small notice-inline">Includes {demoCount} demo {demoCount === 1 ? "booking" : "bookings"} made with a test card. They are never paid. <Link href={`?${new URLSearchParams({ ...(sp as Record<string, string>), demo: "0" })}`}>Hide them</Link>.</div>}
+      {sample && <SampleNote realHref={`?${new URLSearchParams({ ...(sp as Record<string, string>), sample: "0" })}`} />}
+      {!sample && demoCount > 0 && includeDemo && <div className="notice small notice-inline">Includes {demoCount} demo {demoCount === 1 ? "booking" : "bookings"} made with a test card. They are never paid. <Link href={`?${new URLSearchParams({ ...(sp as Record<string, string>), demo: "0" })}`}>Hide them</Link>.</div>}
       <div className="kpis kpis-4">
         <div className="kpi"><span><Ico of={DollarSign} size={16} />Booking value</span><b>{usd(value)}</b><small>Paid by your readers, taxes in</small></div>
         <div className="kpi"><span><Ico of={Wallet} size={16} />Commission</span><b>{usd(commission)}</b><small>{value ? `${((commission / value) * 100).toFixed(1)}% of booking value` : "Cancellations left out"}</small></div>

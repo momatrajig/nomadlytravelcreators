@@ -13,6 +13,8 @@ import PerfPanel from "@/components/dash/PerfPanel";
 import Breakdown from "@/components/dash/Breakdown";
 import { payoutDateFor } from "@/lib/dashboard/metrics";
 import type { Click } from "@/lib/db/types";
+import { sampleData } from "@/lib/dashboard/sample";
+import SampleNote from "@/components/dash/SampleNote";
 
 export const dynamic = "force-dynamic";
 
@@ -34,8 +36,11 @@ export default async function Performance({ searchParams }: { searchParams: Prom
   const missing = [...new Set([...bookings.map((b) => b.ebcId), ...clicks.map((k) => k.ebcId ?? 0), ...checkouts.map((q) => q.ebcId)].filter((id) => id && !names.has(id)))];
   await Promise.all(missing.slice(0, 40).map(async (id) => { const h = await db().hotel(id); if (h) names.set(id, h.name); }));
   const name = (id: number) => names.get(id) ?? `Hotel ${id}`;
-  const txs = transactions(bookings.filter((b) => b.storefrontId === c.sf.id), payouts, name);
-  const p = performance(clicks, checkouts, txs, r, { includeDemo, hotelName: name });
+  // the public demo shows a year of sample traffic by default (labelled), so every chart has something to show
+  const sample = c.demo && sp.sample !== "0" ? sampleData(pins.map((x) => ({ ebcId: x.ebcId, name: x.name })), today) : null;
+  const realTx = transactions(bookings.filter((b) => b.storefrontId === c.sf.id), payouts, name);
+  const txs = sample ? sample.txs : realTx;
+  const p = performance(sample ? sample.clicks : clicks, sample ? sample.checkouts : checkouts, txs, r, { includeDemo, hotelName: name });
   const demoCount = txs.filter((t) => t.demo && t.category === "hotel" && t.date >= r.sinceIso && t.date < r.untilIso).length;
   const q = (o: Record<string, string>) => `?${new URLSearchParams({ ...Object.fromEntries(Object.entries(sp).filter(([, v]) => v != null)) as Record<string, string>, ...o })}`;
   const live = txs.filter((t) => t.tx !== "Canceled" && (includeDemo || !t.demo));
@@ -50,7 +55,8 @@ export default async function Performance({ searchParams }: { searchParams: Prom
         <div><h1>Performance</h1><p>How your links and storefront turn readers into stays. Live, to the second.</p></div>
       </div>
       <RangeBar from={r.from} to={r.to} preset={r.preset} grain={r.grain} label={rangeLabel(r)} today={today} />
-      {demoCount > 0 && <div className="notice small notice-inline">{includeDemo ? <>Showing {demoCount} demo {demoCount === 1 ? "booking" : "bookings"} (test card, nothing reserved). They are never paid. <Link href={q({ demo: "0" })}>Hide them</Link>.</> : <>{demoCount} demo {demoCount === 1 ? "booking" : "bookings"} made with a test card are left out. <Link href={q({ demo: "1" })}>Show them</Link>.</>}</div>}
+      {sample && <SampleNote realHref={q({ sample: "0" })} />}
+      {!sample && demoCount > 0 && <div className="notice small notice-inline">{includeDemo ? <>Showing {demoCount} demo {demoCount === 1 ? "booking" : "bookings"} (test card, nothing reserved). They are never paid. <Link href={q({ demo: "0" })}>Hide them</Link>.</> : <>{demoCount} demo {demoCount === 1 ? "booking" : "bookings"} made with a test card are left out. <Link href={q({ demo: "1" })}>Show them</Link>.</>}</div>}
 
       <PerfPanel totals={p.totals} prev={p.prev} series={p.series} prevSeries={p.prevSeries} labels={p.series.map((x) => bucketLabel(x.start, r.grain))} days={r.days} prevLabel="Period before" />
 
@@ -60,7 +66,7 @@ export default async function Performance({ searchParams }: { searchParams: Prom
           <ol className="funnel" role="list">
             {([["Clicks", f.clicks, null], ["Checkouts", f.checkouts, f.clicks ? f.checkouts / f.clicks : null], ["Bookings", f.bookings, f.checkouts ? f.bookings / f.checkouts : null]] as const).map(([l, v, rate], i) => (
               <li key={l} style={{ ["--w" as string]: `${Math.max(6, f.clicks ? (v / Math.max(f.clicks, f.checkouts, f.bookings, 1)) * 100 : i === 0 ? 100 : 6)}%` }}>
-                <div className="fn-top"><span>{l}</span>{rate != null && <small>{pct(Math.min(rate, 1))} of the step before</small>}</div>
+                <div className="fn-top"><span>{l}</span>{rate != null && rate <= 1 && <small>{pct(rate)} of the step before</small>}</div>
                 <div className="fn-bar"><i /></div>
                 <b className="num">{v.toLocaleString("en-US")}</b>
               </li>
@@ -82,7 +88,7 @@ export default async function Performance({ searchParams }: { searchParams: Prom
 
       <Breakdown data={{ source: p.bySource, hotel: p.byHotel, country: p.byCountry, device: p.byDevice }} range={`${r.from}_${r.to}`} />
 
-      <Activity clicks={clicks} txs={txs.filter((t) => includeDemo || !t.demo)} name={name} slug={c.sf.slug} />
+      <Activity clicks={sample ? sample.clicks : clicks} txs={txs.filter((t) => includeDemo || !t.demo)} name={name} slug={c.sf.slug} />
     </>
   );
 }

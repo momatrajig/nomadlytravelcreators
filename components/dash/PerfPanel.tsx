@@ -14,7 +14,7 @@ const DEF: Record<Metric, { label: string; desc: string; icon: LucideIcon; tint:
 };
 const ORDER: Metric[] = ["clicks", "visitors", "checkouts", "bookings", "commission"];
 const money = (v: number, whole = false) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", currencyDisplay: "narrowSymbol", maximumFractionDigits: whole ? 0 : 2, minimumFractionDigits: whole ? 0 : 2 }).format(v);
-const fmt = (m: Metric, v: number, whole = false) => (DEF[m].money ? money(v, whole) : v.toLocaleString("en-US", { maximumFractionDigits: 1 }));
+const fmt = (m: Metric, v: number, whole = false) => (DEF[m].money ? money(v, whole) : v.toLocaleString("en-US", { maximumFractionDigits: v > 0 && v < 1 ? 2 : 1 }));
 
 /**
  * The metric cards and the chart, as one control: each card shows the total, the daily average and the change on
@@ -36,7 +36,7 @@ export default function PerfPanel({ totals, prev, series, prevSeries, labels, da
               <b className="mc-v">{fmt(k, cur)}</b>
               <span className="mc-f">
                 <span>{fmt(k, cur / days)} a day</span>
-                {ch != null ? <span className={`delta ${ch >= 0 ? "up" : "down"}`} title={`${prevLabel}: ${fmt(k, was)}`}><Ico of={ch >= 0 ? ArrowUpRight : ArrowDownRight} size={13} />{Math.abs(Math.round(ch * 100))}%</span> : <span className="delta flat">New</span>}
+                {ch != null ? <span className={`delta ${ch >= 0 ? "up" : "down"}`} title={`${prevLabel}: ${fmt(k, was)}`}><Ico of={ch >= 0 ? ArrowUpRight : ArrowDownRight} size={13} />{Math.abs(Math.round(ch * 100))}%</span> : cur > 0 ? <span className="delta flat" title={`Nothing in the ${prevLabel.toLowerCase()}`}>New</span> : null}
               </span>
             </button>
           );

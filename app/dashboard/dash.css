@@ -199,3 +199,5 @@ td.empty-row svg { color: var(--mute); margin-right: 8px; vertical-align: -4px; 
   .mcards { grid-template-columns: repeat(2, minmax(0, 1fr)); } .mc-d { display: none; }
   .txbar .rpick { margin-left: 0; }
 }
+.sample-note { display: flex; gap: 10px; align-items: flex-start; background: #f3efff; border-color: #ddd3fb; color: #3f2d86; }
+.sample-note svg { flex: none; margin-top: 2px; } .sample-note a { color: inherit; font-weight: 600; }
