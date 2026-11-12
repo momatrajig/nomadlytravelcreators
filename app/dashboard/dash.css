@@ -90,3 +90,4 @@
 .copy-btn { display: inline-flex; align-items: center; gap: 6px; flex: none; }
 .copy-btn.done { color: var(--save); border-color: var(--save); }
 .linkrow { display: flex; gap: 8px; align-items: center; } .linkrow .code { flex: 1 1 auto; min-width: 0; overflow-x: auto; }
+td.empty-row svg { color: var(--mute); margin-right: 8px; vertical-align: -4px; }
