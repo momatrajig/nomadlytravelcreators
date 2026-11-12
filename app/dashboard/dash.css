@@ -20,7 +20,7 @@
 .kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
 .kpi { border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; display: grid; gap: 4px; background: var(--paper); }
 .kpi span { color: var(--mute); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
-.kpi b { font: 500 26px/1.1 var(--font-display); font-variant-numeric: tabular-nums; }
+.kpi b { font: 700 26px/1.1 var(--font-body); letter-spacing: -0.02em; font-variant-numeric: tabular-nums lining-nums; }
 .kpi small { color: var(--mute); font-size: 13px; }
 .dgrid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 14px; }
 .dcard { border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; background: var(--paper); min-width: 0; }
@@ -79,3 +79,4 @@
 .cover-opt img { width: 84px; height: 60px; object-fit: cover; border-radius: 8px; border: 2px solid transparent; display: block; }
 .cover-opt input:checked + img { border-color: var(--ink); box-shadow: 0 0 0 2px var(--paper) inset; }
 .cover-opt input:focus-visible + img { outline: 2px solid var(--brand); outline-offset: 2px; }
+.notice-inline { display: block; }
