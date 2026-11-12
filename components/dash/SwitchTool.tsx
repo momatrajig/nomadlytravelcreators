@@ -7,6 +7,9 @@ import { parseStay22, project, type Kind, type Parsed, type ProviderRow } from "
 
 const money = (v: number, d = 2) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", currencyDisplay: "narrowSymbol", minimumFractionDigits: d, maximumFractionDigits: d }).format(v);
 const n0 = (v: number) => v.toLocaleString("en-US");
+/** tiny earnings per click read in cents ("0.15¢"), never as $0.00 */
+const perClick = (v: number) => (v > 0 && v < 0.01 ? `${(v * 100).toFixed(2)}¢` : money(v));
+const pctS = (v: number) => `${(v * 100).toFixed(v < 0.001 ? 3 : v < 0.01 ? 2 : 1)}%`;
 /** Stay22 shares no booking values; their hotel partners pay around 4% of the stay, so commission / 0.04 is our first guess */
 const STAY22_RATE_GUESS = 0.04;
 
@@ -43,7 +46,13 @@ export default function SwitchTool({ share, sharePct, signedIn }: { share: numbe
   const other = rows.filter((r) => r.kind === "other");
   const guess = hotel.bookings ? Math.max(50, Math.round(hotel.commission / hotel.bookings / STAY22_RATE_GUESS / 10) * 10) : 300;
   const avgValue = avg !== "" ? Number(avg) || 0 : guess;
-  const p = project(hotel, avgValue, share);
+  // what if more of the same clicks book? Stay22's widget clicks are often low intent; a storefront converts differently
+  const [conv, setConv] = useState<number | null>(null);
+  const theirConv = hotel.clicks ? hotel.bookings / hotel.clicks : 0;
+  const scenarioBookings = conv != null && hotel.clicks ? Math.round(hotel.clicks * conv) : hotel.bookings;
+  const p0 = project(hotel, avgValue, share);
+  const ps = project({ ...hotel, bookings: scenarioBookings, commission: hotel.commission }, avgValue, share);
+  const p = { theirs: p0.theirs, ours: conv != null ? ps.ours.map((o) => ({ ...o, vsTheirs: hotel.commission > 0 ? o.total / hotel.commission - 1 : null })) : p0.ours };
   const best = p.ours[0]!, floor = p.ours[1]!;
   const max = Math.max(p.theirs.commission, best.total, floor.total, 1);
   const setKind = (i: number, kind: Kind) => setRows((rs) => rs.map((r, k) => (k === i ? { ...r, kind } : r)));
@@ -111,12 +120,21 @@ export default function SwitchTool({ share, sharePct, signedIn }: { share: numbe
       </section>
 
       <section className="dcard sw-assume" aria-labelledby="sw-a">
-        <h2 id="sw-a">Two numbers to check</h2>
+        <h2 id="sw-a">Check the numbers</h2>
         <div className="sw-fields">
           <label className="field"><span>Average hotel booking value, USD</span>
             <input inputMode="decimal" value={avg !== "" ? avg : String(guess)} onChange={(e) => setAvg(e.target.value.replace(/[^0-9.]/g, ""))} />
             <small className="mute">Stay22 does not show booking values. We guessed {money(guess, 0)} from your {money(p.theirs.perBooking)} per booking, as their hotel partners pay you about 4% of the stay. Change it if you know yours.</small>
           </label>
+          {hotel.clicks > 0 && (
+            <div className="field"><span>Bookings to compare</span>
+              <div className="seg conv" role="group" aria-label="Bookings to compare">
+                <button type="button" aria-pressed={conv == null} onClick={() => setConv(null)}>Same as Stay22, {pctS(theirConv)}</button>
+                {[0.005, 0.01, 0.02].filter((v) => v > theirConv).map((v) => <button key={v} type="button" aria-pressed={conv === v} onClick={() => setConv(v)}>{pctS(v)} of clicks</button>)}
+              </div>
+              <small className="mute">{n0(hotel.clicks)} hotel clicks became {n0(hotel.bookings)} {hotel.bookings === 1 ? "booking" : "bookings"} on Stay22. Map clicks include many readers just looking. Pick a rate to see what more bookings would mean: a scenario, not a promise.</small>
+            </div>
+          )}
           {parsed.format === "transactions" && !manual && (
             <label className="field"><span>Hotel link clicks, same dates</span>
               <input inputMode="numeric" value={clicksOverride} placeholder="From Stay22 Performance, optional" onChange={(e) => setClicksOverride(e.target.value.replace(/[^0-9]/g, ""))} />
@@ -128,17 +146,17 @@ export default function SwitchTool({ share, sharePct, signedIn }: { share: numbe
 
       {hotel.bookings > 0 ? (
         <section className="dcard sw-result" aria-labelledby="sw-r">
-          <div className="card-head"><h2 id="sw-r">The same {n0(hotel.bookings)} hotel {hotel.bookings === 1 ? "booking" : "bookings"} on Nomadly</h2><button type="button" className="btn btn-sm no-print" onClick={() => window.print()}><Ico of={Printer} size={15} />Print or save PDF</button></div>
+          <div className="card-head"><h2 id="sw-r">{conv == null ? `The same ${n0(hotel.bookings)} hotel ${hotel.bookings === 1 ? "booking" : "bookings"} on Nomadly` : `${n0(scenarioBookings)} hotel bookings on Nomadly, if ${pctS(conv)} of your hotel clicks book`}</h2><button type="button" className="btn btn-sm no-print" onClick={() => window.print()}><Ico of={Printer} size={15} />Print or save PDF</button></div>
           <div className="cmp">
             {[
-              { k: "theirs", label: "Stay22, what you earned", total: p.theirs.commission, per: p.theirs.perBooking, epc: p.theirs.epc, delta: null as number | null },
-              { k: "best", label: best.label, total: best.total, per: best.perBooking, epc: best.epc, delta: best.vsTheirs },
-              { k: "floor", label: floor.label, total: floor.total, per: floor.perBooking, epc: floor.epc, delta: floor.vsTheirs },
+              { k: "theirs", label: "Stay22, what you earned", total: p.theirs.commission, per: p.theirs.perBooking, epc: hotel.clicks ? p.theirs.commission / hotel.clicks : null, delta: null as number | null },
+              { k: "best", label: best.label, total: best.total, per: best.perBooking, epc: hotel.clicks ? best.total / hotel.clicks : null, delta: best.vsTheirs },
+              { k: "floor", label: floor.label, total: floor.total, per: floor.perBooking, epc: hotel.clicks ? floor.total / hotel.clicks : null, delta: floor.vsTheirs },
             ].map((c) => (
               <div key={c.k} className={`cmp-row cmp-${c.k}`}>
                 <div className="cmp-top"><span>{c.label}</span>{c.delta != null && <b className={`delta ${c.delta >= 0 ? "up" : "down"}`}>{c.delta >= 0 ? "+" : "-"}{Math.abs(Math.round(c.delta * 100))}%</b>}</div>
                 <div className="cmp-bar"><i style={{ width: `${Math.max(2, (c.total / max) * 100)}%` }} /></div>
-                <div className="cmp-num"><b>{money(c.total)}</b><span>{money(c.per)} a booking{c.epc != null ? `, ${money(c.epc)} a click` : ""}</span></div>
+                <div className="cmp-num"><b>{money(c.total)}</b><span>{money(c.per)} a booking{c.epc != null ? `, ${perClick(c.epc)} a click` : ""}</span></div>
               </div>
             ))}
           </div>
@@ -147,7 +165,7 @@ export default function SwitchTool({ share, sharePct, signedIn }: { share: numbe
             <li><b>Readers stay on your storefront.</b> Your name, your colors, your picks; checkout, ride and eSIM in one payment, and you earn on the add ons too.</li>
             <li><b>Paid on the 15th</b> for stays completed the month before. No minimum.</li>
           </ul>
-          <p className="note">Assumes the same number of bookings at the same average value. Your real conversion shows on Performance from the first week your links point to Nomadly. Our lowest price is what you earn on a stay where we cut our margin to beat a cheaper site.</p>
+          <p className="note">{conv == null ? "Assumes the same number of bookings at the same average value." : `A scenario: ${n0(scenarioBookings)} bookings at the same average value, against what Stay22 paid you for ${n0(hotel.bookings)}.`} Your real conversion shows on Performance from the first week your links point to Nomadly. Our lowest price is what you earn on a stay where we cut our margin to beat a cheaper site.</p>
           <div className="sw-cta no-print">
             {signedIn ? <Link className="btn btn-brand" href="/dashboard/links"><Ico of={Link2} size={17} />Switch my hotel links<Ico of={ArrowRight} size={16} /></Link>
               : <Link className="btn btn-brand" href="/login"><Ico of={ArrowRight} size={17} />Get my own storefront</Link>}

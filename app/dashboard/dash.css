@@ -250,3 +250,4 @@ td.empty-row svg { color: var(--mute); margin-right: 8px; vertical-align: -4px; 
 .sw-cta { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 12px; }
 @media (max-width: 800px) { .how { grid-template-columns: 1fr; } .cmp-num b { font-size: 20px; } }
 @media print { .dash-side, .rbar, .sw-file .btn, .sw-assume, .ctabs, .hdr, .demo, .bottomnav, .site-foot { display: none !important; } .dash { grid-template-columns: 1fr; } }
+.seg.conv { flex-wrap: wrap; } .sw-fields .field { display: grid; gap: 6px; align-content: start; }
