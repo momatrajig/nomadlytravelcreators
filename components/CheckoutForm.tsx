@@ -101,7 +101,7 @@ export default function CheckoutForm(p: Props) {
       {errs[id] ? <span className="err" id={`e-${id}`}>{errs[id]}</span> : hint ? <span className="hint" id={`h-${id}`}>{hint}</span> : null}
     </div>
   );
-  const appearance: Appearance = { theme: "stripe", variables: { colorPrimary: /^#[0-9a-f]{6}$/i.test(p.brandColor) ? p.brandColor : "#1a1a1a", colorText: "#14161a", colorDanger: "#b42318", fontFamily: "Hanken Grotesk, system-ui, sans-serif", borderRadius: "10px", spacingUnit: "4px", fontSizeBase: "16px" }, rules: { ".Input": { boxShadow: "none", border: "1px solid #d6d9de" }, ".Label": { fontWeight: "600" } } };
+  const appearance: Appearance = { theme: "stripe", variables: { colorPrimary: /^#[0-9a-f]{6}$/i.test(p.brandColor) ? p.brandColor : "#1a1a1a", colorText: "#17243a", colorTextSecondary: "#526079", colorDanger: "#a12832", fontFamily: "Hanken Grotesk, system-ui, sans-serif", borderRadius: "10px", spacingUnit: "4px", fontSizeBase: "16px" }, rules: { ".Input": { boxShadow: "none", border: "1px solid #808da5" }, ".Input:focus": { borderColor: "var(--colorPrimary)", boxShadow: "0 0 0 1px var(--colorPrimary)" }, ".Label": { fontWeight: "600" } } };
 
   return (
     <div className="co">
