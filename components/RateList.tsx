@@ -18,6 +18,8 @@ export function roomTitle(s: string) {
   let x = s.trim().replace(/\s+/g, " ").replace(/\s*\(\s*/g, " (").replace(/\s*\)/g, ")");
   // "1 King Bed (1 King Bed)": the bracket repeats the words before it
   x = x.replace(/([^,()]+?)\s*\(([^()]+)\)/g, (all, before: string, inside: string) => before.trim().toLowerCase().endsWith(inside.trim().toLowerCase()) ? before.replace(/\s+$/, "") : all);
+  // small print belongs under the name, not in it
+  x = x.replace(/\s*\((?:[^()]*\b(subject to availability|not guaranteed|on request|upon availability|depends on availability)\b[^()]*)\)/gi, "");
   // rate and package names after a separator, or at the end
   x = x.replace(/\s*(?:\s[-–|]\s|[-–|]\s)[^,|–]*\b(rate|offer|package|deal|promo(tion)?|special|advance purchase|non[- ]?refundable|flexible)\b[^,]*$/i, "");
   x = x.replace(/\s+\b(advantage|flexible|standard|best available|member|promo)\s+rate\b.*$/i, "").replace(/[\s,.-]+$/, "");
@@ -31,7 +33,7 @@ export function dropDominated<T extends { refundable: boolean; board: string; re
 export function groupRooms(rates: RateView[]) {
   const by = new Map<string, RateView[]>();
   for (const r of rates) { const k = roomTitle(r.roomName); by.set(k, [...(by.get(k) ?? []), r]); }
-  return [...by.entries()].map(([name, rs]) => ({ name, rates: dropDominated(rs, (r) => freeNow(r)).sort((a, b) => a.readerPrice - b.readerPrice) })).sort((a, b) => a.rates[0]!.readerPrice - b.rates[0]!.readerPrice);
+  return [...by.entries()].map(([name, rs]) => ({ name, bedNote: rs.some((r) => /bed type[^)]*availability/i.test(r.roomName)), rates: dropDominated(rs, (r) => freeNow(r)).sort((a, b) => a.readerPrice - b.readerPrice) })).sort((a, b) => a.rates[0]!.readerPrice - b.rates[0]!.readerPrice);
 }
 
 /**
@@ -99,7 +101,7 @@ export default function RateList({ ebcId, rates, nights, checkIn, checkOut, adul
                     <label key={o.packageCode} className={`opt${o.packageCode === sel.packageCode ? " on" : ""}`}>
                       <input type="radio" name={`r-${i}`} checked={o.packageCode === sel.packageCode} onChange={() => setChosen({ ...chosen, [room.name]: o.packageCode })} />
                       <span className="opt-txt">
-                        <b className={freeNow(o) ? "ok" : o.refundable ? "warn" : "bad"}>{freeNow(o) ? (o.cancelDeadline ? rd.freeUntil(fmtDay(o.cancelDeadline, f.lang)) : t.refundableNoDate) : o.refundable ? rd.feeNow(p$(o.cancelCharge ?? o.readerPrice)) : rd.nonRef}</b>
+                        <b className={freeNow(o) ? "ok" : o.refundable ? "warn" : "bad"}>{freeNow(o) ? (o.cancelDeadline ? rd.freeUntil(fmtDay(o.cancelDeadline, f.lang)) : rd.freeNoDate) : o.refundable ? rd.feeNow(p$(o.cancelCharge ?? o.readerPrice)) : rd.nonRef}</b>
                         <span>{t.board[o.board] ?? o.board}{o.onRequest ? `. ${rd.onReq}` : ""}</span>
                       </span>
                       <span className="opt-price num">{o.readerPrice === base ? p$(o.readerPrice) : rd.more(p$(o.readerPrice - base))}</span>
@@ -114,7 +116,9 @@ export default function RateList({ ebcId, rates, nights, checkIn, checkOut, adul
                   </div>
                   <button className="btn btn-brand" type="button" onClick={() => book(sel.packageCode)} aria-disabled={busy !== null} disabled={busy !== null}>{busy === sel.packageCode ? rd.holding : rd.reserve}</button>
                 </div>
-                {freeNow(sel) && sel.cancelCharge ? <p className="small mute room-note">{t.cancelFreeUntil(sel.cancelDeadline ? fmtDay(sel.cancelDeadline, f.lang) : t.checkInWord, p$(sel.cancelCharge, false))}</p> : !sel.refundable ? <p className="small mute room-note">{t.noRefundKept(p$(sel.readerPrice))}</p> : null}
+                {/* only what the option above does not already say: the charge after the free period */}
+                {freeNow(sel) && sel.cancelCharge && sel.cancelDeadline ? <p className="small mute room-note">{rd.after(fmtDay(sel.cancelDeadline, f.lang), p$(sel.cancelCharge, false))}</p> : !sel.refundable ? <p className="small mute room-note">{rd.noRefundShort}</p> : null}
+                {room.bedNote && <p className="small mute room-note">{rd.bedNote}</p>}
               </div>
             </li>
           );

@@ -21,7 +21,7 @@ export default function HotelMap({ lat, lng, name, labels, color = "#14161a" }: 
         await import("maplibre-gl/dist/maplibre-gl.css");
         if (cancelled) return;
         const m = new ml.Map({
-          container: el, style: "https://tiles.openfreemap.org/styles/positron", center: [lng, lat], zoom: 14.2,
+          container: el, style: "https://tiles.openfreemap.org/styles/positron", center: [lng, lat], zoom: 13.4,
           attributionControl: false, cooperativeGestures: true, dragRotate: false, pitchWithRotate: false,
         });
         m.addControl(new ml.AttributionControl({ compact: true }), "bottom-right");

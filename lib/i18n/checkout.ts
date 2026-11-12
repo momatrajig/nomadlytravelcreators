@@ -117,7 +117,7 @@ const roomsEn = {
   sleeps: (n: number) => `For ${n} ${n === 1 ? "adult" : "adults"}`, choose: "Choose your option",
   more: (v: string) => `+${v}`, perNight: (v: string) => `${v} a night`, reserve: "Reserve", holding: "Holding the price…",
   photo: "Hotel photo", prev: "Previous rooms", next: "More rooms", none: "No rooms match. Clear the filter to see all.",
-  freeUntil: (d: string) => `Free cancellation until ${d}`, nonRef: "Non refundable", feeNow: (v: string) => `Cancellation fee ${v} from today`, onReq: "Confirmed by the hotel within 24 hours",
+  freeUntil: (d: string) => `Free cancellation until ${d}`, nonRef: "Non refundable", feeNow: (v: string) => `Cancellation fee ${v} from today`, freeNoDate: "Free cancellation, date at checkout", after: (d: string, v: string) => `After ${d}: ${v}`, noRefundShort: "No refund or change after booking", bedNote: "Bed type depends on availability", onReq: "Confirmed by the hotel within 24 hours",
   total: (n: number) => `Total for ${n} ${n === 1 ? "night" : "nights"}, taxes included`,
 };
 const roomsCs: typeof roomsEn = {
@@ -126,7 +126,7 @@ const roomsCs: typeof roomsEn = {
   sleeps: (n) => `Pro ${n} ${n === 1 ? "dospělého" : "dospělé"}`, choose: "Vyberte možnost",
   more: (v) => `+${v}`, perNight: (v) => `${v} za noc`, reserve: "Rezervovat", holding: "Držím cenu…",
   photo: "Foto hotelu", prev: "Předchozí pokoje", next: "Další pokoje", none: "Žádný pokoj neodpovídá. Zrušte filtr.",
-  freeUntil: (d) => `Storno zdarma do ${d}`, nonRef: "Bez možnosti storna", feeNow: (v) => `Storno poplatek ${v} již nyní`, onReq: "Hotel potvrdí do 24 hodin",
+  freeUntil: (d) => `Storno zdarma do ${d}`, nonRef: "Bez možnosti storna", feeNow: (v) => `Storno poplatek ${v} již nyní`, freeNoDate: "Storno zdarma, termín v pokladně", after: (d, v) => `Po ${d}: ${v}`, noRefundShort: "Po rezervaci nelze zrušit ani změnit", bedNote: "Typ postele podle dostupnosti", onReq: "Hotel potvrdí do 24 hodin",
   total: (n) => `Celkem za ${n} ${n === 1 ? "noc" : n < 5 ? "noci" : "nocí"} vč. daní`,
 };
 export const roomsDict = (lang: Lang) => (lang === "cs" ? roomsCs : roomsEn);
