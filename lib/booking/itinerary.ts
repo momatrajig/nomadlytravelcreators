@@ -17,7 +17,7 @@ const T = {
     room: (n: number, room: string) => `${room}, ${n} ${n === 1 ? "night" : "nights"}`, roomDetail: (avg: string) => `${avg} a night on average, taxes included`,
     promo: (c: string) => `Code ${c}`, booked: "Booked and paid", bookedDemo: "Demo checkout complete", deadline: "Last day to cancel free", ride: "Airport ride", checkin: "Check in", checkout: "Check out",
     checkinTime: "From the hotel's check in time, usually 15:00", checkoutTime: "Usually by 12:00",
-    nights: (n: number) => `${n} ${n === 1 ? "night" : "nights"}`, free: "Free cancellation", after: "After the free period", noShow: "No show or after check in", nonRef: "Non refundable", feeFromBooking: "Cancellation fee",
+    nights: (n: number) => `${n} ${n === 1 ? "night" : "nights"}`, free: "Free cancellation", after: "After the free period", noShow: "No show or after check in", nonRef: "Non refundable", feeFromBooking: "Until check in",
     changes: [
       "Different dates or another room: rates cannot be moved, so cancel (free in the green period) and book again at today's price.",
       "A name change, an extra request, or anything else: write to us with your reference and we arrange it with the hotel.",
@@ -33,7 +33,7 @@ const T = {
     room: (n: number, room: string) => `${room}, ${n} ${n === 1 ? "noc" : n < 5 ? "noci" : "nocí"}`, roomDetail: (avg: string) => `v průměru ${avg} za noc, vč. daní`,
     promo: (c: string) => `Kód ${c}`, booked: "Rezervováno a zaplaceno", bookedDemo: "Ukázková rezervace dokončena", deadline: "Poslední den bezplatného storna", ride: "Odvoz z letiště", checkin: "Příjezd", checkout: "Odjezd",
     checkinTime: "Od času příjezdu hotelu, obvykle 15:00", checkoutTime: "Obvykle do 12:00",
-    nights: (n: number) => `${n} ${n === 1 ? "noc" : n < 5 ? "noci" : "nocí"}`, free: "Storno zdarma", after: "Po bezplatné lhůtě", noShow: "Nedostavení nebo po příjezdu", nonRef: "Bez možnosti storna", feeFromBooking: "Storno poplatek",
+    nights: (n: number) => `${n} ${n === 1 ? "noc" : n < 5 ? "noci" : "nocí"}`, free: "Storno zdarma", after: "Po bezplatné lhůtě", noShow: "Nedostavení nebo po příjezdu", nonRef: "Bez možnosti storna", feeFromBooking: "Do příjezdu",
     changes: [
       "Jiné termíny nebo jiný pokoj: cenu nelze přesunout, takže zrušte (v zelené lhůtě zdarma) a zarezervujte znovu za dnešní cenu.",
       "Změna jména, další požadavek nebo cokoli jiného: napište nám s číslem rezervace a domluvíme to s hotelem.",

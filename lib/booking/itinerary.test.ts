@@ -45,6 +45,6 @@ describe("a free period that ended before booking", () => {
     expect(tripSteps(late, "en").some((s) => s.kind === "deadline")).toBe(false);
     const st = cancelStages(late, "en", Date.parse("2026-11-12T10:00:00Z"));
     expect(st.map((s) => s.tone)).toEqual(["warn", "bad"]);
-    expect(st[0]).toMatchObject({ title: "Cancellation fee", charge: 835.67, now: true });
+    expect(st[0]).toMatchObject({ title: "Until check in", charge: 835.67, now: true });
   });
 });
