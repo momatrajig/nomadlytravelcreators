@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 
 /**
  * The hotel on a calm, modern street map (OpenFreeMap vector tiles: no key, free for commercial use) with a pin in
- * the creator's colour. The map library loads only when the map scrolls into view. Map credits are required by
+ * the creator's colour. The map library loads after the page has painted. Map credits are required by
  * the OpenStreetMap licence; they sit behind a small "i" like on the big booking sites instead of across the map.
  * Without WebGL the reader gets a plain link to the full map.
  */
@@ -35,11 +35,13 @@ export default function HotelMap({ lat, lng, name, labels, color = "#14161a" }: 
         m.on("load", () => { setState("ready"); el.querySelector(".maplibregl-ctrl-attrib")?.classList.remove("maplibregl-compact-show"); });
         m.on("error", () => setState((s) => (s === "ready" ? s : "failed")));
         map = m;
-      } catch { setState("failed"); }
+      } catch (e) { console.warn("map", e); setState("failed"); }
     };
-    const io = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) { io.disconnect(); void start(); } }, { rootMargin: "300px" });
-    io.observe(el);
-    return () => { cancelled = true; io.disconnect(); map?.remove(); };
+    // after the page has painted: the map is its own download, so it never holds up the page
+    const go = () => { void start(); };
+    const timer = document.readyState === "complete" ? window.setTimeout(go, 50) : null;
+    if (!timer) window.addEventListener("load", go, { once: true });
+    return () => { cancelled = true; if (timer) window.clearTimeout(timer); window.removeEventListener("load", go); map?.remove(); };
   }, [lat, lng, name, color]);
   const full = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=16/${lat}/${lng}`;
   return (
