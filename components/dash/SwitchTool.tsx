@@ -154,7 +154,7 @@ export default function SwitchTool({ share, sharePct, signedIn }: { share: numbe
               { k: "floor", label: floor.label, total: floor.total, per: floor.perBooking, epc: hotel.clicks ? floor.total / hotel.clicks : null, delta: floor.vsTheirs },
             ].map((c) => (
               <div key={c.k} className={`cmp-row cmp-${c.k}`}>
-                <div className="cmp-top"><span>{c.label}</span>{c.delta != null && <b className={`delta ${c.delta >= 0 ? "up" : "down"}`}>{c.delta >= 0 ? "+" : "-"}{Math.abs(Math.round(c.delta * 100))}%</b>}</div>
+                <div className="cmp-top"><span>{c.label}</span>{c.delta != null && <b className={`delta ${c.delta >= 0 ? "up" : "down"}`}>{c.delta >= 2 ? `${Number((c.delta + 1).toFixed(c.delta + 1 < 10 ? 1 : 0))}× as much` : `${c.delta >= 0 ? "+" : "-"}${Math.abs(Math.round(c.delta * 100))}%`}</b>}</div>
                 <div className="cmp-bar"><i style={{ width: `${Math.max(2, (c.total / max) * 100)}%` }} /></div>
                 <div className="cmp-num"><b>{money(c.total)}</b><span>{money(c.per)} a booking{c.epc != null ? `, ${perClick(c.epc)} a click` : ""}</span></div>
               </div>
