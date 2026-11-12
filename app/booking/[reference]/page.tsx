@@ -144,7 +144,7 @@ export default async function BookingPage({ params, searchParams }: { params: Pr
           </ul>
           <div className="sum-total"><span>{b.demo ? L.sampleTotal : b.status === "paying" ? L.toPay : L.totalPaid}<small>{L.taxes}</small></span><span><b className="num">{usd(total)}</b></span></div>
           {saved > 0 && <p className="sum-save">{L.saved(usd(saved), b.lowestReferenceSource ?? "")} <s className="num">{usd(b.lowestReference!)}</s></p>}
-          <p className="small mute">{t.payNote(sf.brandName.normalize("NFD").replace(/[^A-Za-z0-9]/g, "").toUpperCase().slice(0, 12))}</p>
+          {!b.demo && <p className="small mute">{t.payNote(sf.brandName.normalize("NFD").replace(/[^A-Za-z0-9]/g, "").toUpperCase().slice(0, 12))}</p>}
         </section>
       </div>
 

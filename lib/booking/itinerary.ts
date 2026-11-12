@@ -15,7 +15,7 @@ export interface CancelStage { title: string; from: string | null; to: string | 
 const T = {
   en: {
     room: (n: number, room: string) => `${room}, ${n} ${n === 1 ? "night" : "nights"}`, roomDetail: (avg: string) => `${avg} a night on average, taxes included`,
-    promo: (c: string) => `Code ${c}`, booked: "Booked and paid", deadline: "Last day to cancel free", ride: "Airport ride", checkin: "Check in", checkout: "Check out",
+    promo: (c: string) => `Code ${c}`, booked: "Booked and paid", bookedDemo: "Demo checkout complete", deadline: "Last day to cancel free", ride: "Airport ride", checkin: "Check in", checkout: "Check out",
     checkinTime: "From the hotel's check in time, usually 15:00", checkoutTime: "Usually by 12:00",
     nights: (n: number) => `${n} ${n === 1 ? "night" : "nights"}`, free: "Free cancellation", after: "After the free period", noShow: "No show or after check in", nonRef: "Non refundable", feeFromBooking: "Cancellation fee",
     changes: [
@@ -31,7 +31,7 @@ const T = {
   },
   cs: {
     room: (n: number, room: string) => `${room}, ${n} ${n === 1 ? "noc" : n < 5 ? "noci" : "nocí"}`, roomDetail: (avg: string) => `v průměru ${avg} za noc, vč. daní`,
-    promo: (c: string) => `Kód ${c}`, booked: "Rezervováno a zaplaceno", deadline: "Poslední den bezplatného storna", ride: "Odvoz z letiště", checkin: "Příjezd", checkout: "Odjezd",
+    promo: (c: string) => `Kód ${c}`, booked: "Rezervováno a zaplaceno", bookedDemo: "Ukázková rezervace dokončena", deadline: "Poslední den bezplatného storna", ride: "Odvoz z letiště", checkin: "Příjezd", checkout: "Odjezd",
     checkinTime: "Od času příjezdu hotelu, obvykle 15:00", checkoutTime: "Obvykle do 12:00",
     nights: (n: number) => `${n} ${n === 1 ? "noc" : n < 5 ? "noci" : "nocí"}`, free: "Storno zdarma", after: "Po bezplatné lhůtě", noShow: "Nedostavení nebo po příjezdu", nonRef: "Bez možnosti storna", feeFromBooking: "Storno poplatek",
     changes: [
@@ -63,7 +63,7 @@ export function tripSteps(b: Booking, lang: Lang): TripStep[] {
   const both = ride?.detail?.includes(" and back");
   const toHotel = ride && (both || /to the hotel/.test(ride.detail ?? ""));
   const toAirport = ride && (both || /^Hotel to/.test(ride.detail ?? ""));
-  const steps: TripStep[] = [{ kind: "booked", date: (b.paidAt ?? b.createdAt).slice(0, 10), title: w.booked }];
+  const steps: TripStep[] = [{ kind: "booked", date: (b.paidAt ?? b.createdAt).slice(0, 10), title: b.demo ? w.bookedDemo : w.booked }];
   const bookedAt = Date.parse(b.paidAt ?? b.createdAt);
   if (b.refundable && b.cancelDeadline && Date.parse(b.cancelDeadline) > bookedAt) steps.push({ kind: "deadline", date: b.cancelDeadline.slice(0, 10), title: w.deadline, time: b.cancelDeadline.length > 10 ? b.cancelDeadline.slice(11, 16) : undefined });
   if (toHotel) steps.push({ kind: "ride", date: b.checkIn, title: w.ride, detail: ride!.detail ?? undefined });
