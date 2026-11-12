@@ -208,4 +208,4 @@ td.empty-row svg { color: var(--mute); margin-right: 8px; vertical-align: -4px; 
 .st2 { display: grid; gap: 4px; justify-items: start; }
 .txt th .mute { font-weight: 500; }
 .lines { max-width: 760px; }
-.txt td, .txt th { padding-left: 8px; padding-right: 8px; } .txt .bk-cell { min-width: 230px; }
+.txt td, .txt th { padding-left: 8px; padding-right: 8px; } .txt .bk-cell { min-width: 200px; }
