@@ -9,7 +9,7 @@ const money = (v: number, d = 2) => new Intl.NumberFormat("en-US", { style: "cur
 const n0 = (v: number) => v.toLocaleString("en-US");
 /** tiny earnings per click read in cents ("0.15¢"), never as $0.00 */
 const perClick = (v: number) => (v > 0 && v < 0.01 ? `${(v * 100).toFixed(2)}¢` : money(v));
-const pctS = (v: number) => `${(v * 100).toFixed(v < 0.001 ? 3 : v < 0.01 ? 2 : 1)}%`;
+const pctS = (v: number) => `${Number((v * 100).toFixed(v < 0.001 ? 3 : v < 0.01 ? 2 : 1))}%`;
 /** Stay22 shares no booking values; their hotel partners pay around 4% of the stay, so commission / 0.04 is our first guess */
 const STAY22_RATE_GUESS = 0.04;
 
