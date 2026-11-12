@@ -796,7 +796,6 @@ svg.lucide.lucide { stroke-width: 1.75; fill: none; stroke: currentColor; stroke
 .stars { display: inline-flex; align-items: center; gap: 1px; }
 .stars svg.lucide.lucide { fill: currentColor; stroke-width: 1; }
 svg.lucide.to { color: var(--mute); margin: 0 2px; vertical-align: -0.12em; }
-.btn svg.lucide.lucide { margin-right: 2px; }
 .bottomnav a { gap: 3px; font-size: 12px; }
 .bn-ic { display: grid; place-items: center; width: 52px; height: 28px; border-radius: 999px; transition: background .2s; }
 .bottomnav a[aria-current="page"] .bn-ic { background: var(--select); color: var(--brand); }

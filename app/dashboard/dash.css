@@ -93,4 +93,3 @@
 td.empty-row svg { color: var(--mute); margin-right: 8px; vertical-align: -4px; }
 .cover-opt::after { content: ""; position: absolute; top: 5px; right: 5px; width: 18px; height: 18px; border-radius: 50%; background: var(--ink) var(--i-check-white) center / 11px no-repeat; opacity: 0; transition: opacity .15s; }
 .cover-opt:has(input:checked)::after { opacity: 1; }
-.btn { gap: 6px; }
