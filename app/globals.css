@@ -813,3 +813,11 @@ html { scroll-behavior: smooth; }
 @media (max-width: 700px) { .stay-pic { aspect-ratio: 16 / 9; } }
 .hero-place { display: inline-flex; align-items: center; gap: 6px; opacity: 0; transition: opacity 1.6s ease; font: 500 13.5px/1 var(--font-body); letter-spacing: .02em; padding: 7px 11px; border-radius: 999px; background: rgba(8, 14, 24, .35); backdrop-filter: blur(8px); color: #fff; }
 .hero-place.on { opacity: 1; }
+/* icon colour comes from `color` (the icon strokes currentColor) */
+.shelf-ico { color: var(--tink); } .expired > svg { color: var(--warn); }
+.extras .extra-ico { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 14px; background: var(--mist); color: var(--ink); }
+/* add-on tiles: the price reads on one line beside the button, never squeezed under the icon */
+.shelf-top { grid-template-columns: 52px minmax(0, 1fr) auto; grid-template-areas: "ico txt txt" "price price btn"; }
+.shelf-price { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; }
+.shelf-price s { white-space: nowrap; } .shelf-price .save-pct { margin: 0; align-self: center; }
+@media (max-width: 620px) { .shelf-item.open .shelf-top { grid-template-columns: 52px minmax(0, 1fr) auto; grid-template-areas: "ico txt txt" "price price btn"; } }

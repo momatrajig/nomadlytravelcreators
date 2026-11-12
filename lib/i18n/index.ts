@@ -164,8 +164,8 @@ const cs: Dict = {
   extras: {
     transfer: { name: "Odvoz z letiště, soukromé auto", short: "Řidič čeká v příletové hale se jménem. Sleduje váš let." },
     esim: { name: "eSIM s daty", short: "Data hned po přistání. Instalace QR kódem ještě před odletem." },
-    bag: { name: "Pojištění zavazadla", short: "Ztracené nebo zpožděné zavazadlo: USD 500 do 48 hodin, bez formulářů." },
-    delay: { name: "Pojištění zpoždění letu", short: "Zpoždění přes 3 hodiny: USD 150 automaticky." },
+    bag: { name: "Pojištění zavazadla", short: "Ztracené nebo zpožděné zavazadlo: 500 USD do 48 hodin, bez formulářů." },
+    delay: { name: "Pojištění zpoždění letu", short: "Zpoždění přes 3 hodiny: 150 USD automaticky." },
   },
   checkout: "Pokladna", heldExpired: "Cenu jsme drželi 20 minut a vypršela.", freshPrice: "Získat aktuální cenu", roomNights: (n) => `Pokoj, ${n} ${plural("cs", n, "noc", "noci", "nocí")}`,
   showed: (s) => `${s} ukazoval`, payNow: "Platíte nyní", cityTax: "V hotelu, městská daň", perPersonNight: "za osobu a noc",

@@ -11,7 +11,8 @@ const TABS: Array<[string, LucideIcon, string[]]> = [["/", House, []], ["/stays"
 export function BottomNav({ labels = ["Home", "Hotels", "Your booking"] }: { labels?: [string, string, string] | string[] }) {
   const p = usePathname();
   // creators in their dashboard have their own navigation
-  if (p?.startsWith("/dashboard")) return null;
+  // checkout is a focused task: no tabs that lead away from a held price
+  if (p?.startsWith("/dashboard") || p?.startsWith("/checkout")) return null;
   const cur = (h: string, own: string[]) => (p === h || own.some((o) => p.startsWith(o)) ? "page" : undefined);
   return (
     <nav className="bottomnav" aria-label="Sections">
