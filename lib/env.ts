@@ -15,6 +15,9 @@ const schema = z.object({
   DEFAULT_STOREFRONT: z.string().optional(),
   RESEND_API_KEY: z.string().optional(),
   EMAIL_FROM: z.string().default("Nomadly <bookings@nomadly.app>"),
+  /** support contacts shown on the voucher; digits with country code for WhatsApp, e.g. 9617xxxxxxx */
+  SUPPORT_WHATSAPP: z.string().regex(/^\d{8,15}$/).optional(),
+  SUPPORT_EMAIL: z.string().email().optional(),
 });
 
 export type Env = z.infer<typeof schema> & { DATA_MODE: "supabase" | "local" };

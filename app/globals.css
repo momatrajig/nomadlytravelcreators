@@ -674,3 +674,6 @@ p { margin: 0; }
   .search-sum b { display: block; font-size: 15.5px; } .search-sum small { color: var(--ink-2); font-size: 13px; }
   .search-sum em { font-style: normal; font-weight: 600; font-size: 14px; color: var(--brand); }
 }
+.trip-date small { font-size: 11px; letter-spacing: .04em; }
+.trip li { grid-template-columns: 52px 18px minmax(0, 1fr); align-items: center; }
+.trip li:not(:last-child)::after { left: 70px; top: 30px; }

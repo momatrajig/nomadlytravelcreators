@@ -107,9 +107,10 @@ export default async function BookingPage({ params, searchParams }: { params: Pr
           <ol className="trip">
             {steps.map((s, i) => (
               <li key={i} className={`trip-${s.kind}`}>
-                <span className="trip-date"><b>{new Intl.DateTimeFormat(f.lang === "cs" ? "cs-CZ" : "en-GB", { day: "numeric", timeZone: "UTC" }).format(new Date(`${s.date}T12:00:00Z`))}</b>{new Intl.DateTimeFormat(f.lang === "cs" ? "cs-CZ" : "en-GB", { month: "short", timeZone: "UTC" }).format(new Date(`${s.date}T12:00:00Z`))}</span>
+                <span className="trip-date"><small>{new Intl.DateTimeFormat(f.lang === "cs" ? "cs-CZ" : "en-GB", { weekday: "short", timeZone: "UTC" }).format(new Date(`${s.date}T12:00:00Z`))}</small><b>{new Intl.DateTimeFormat(f.lang === "cs" ? "cs-CZ" : "en-GB", { day: "numeric", timeZone: "UTC" }).format(new Date(`${s.date}T12:00:00Z`))}</b>{new Intl.DateTimeFormat(f.lang === "cs" ? "cs-CZ" : "en-GB", { month: "short", timeZone: "UTC" }).format(new Date(`${s.date}T12:00:00Z`))}</span>
                 <span className="trip-dot" aria-hidden="true" />
-                <div><b>{s.title}</b>{s.time ? <span className="mute">, {s.time}</span> : null}<div className="small mute">{fmtDate(s.date)}{s.detail ? `. ${s.detail}` : ""}</div></div>
+                {/* the date is in the column; times for check in and out are in the cards above: only what is new here */}
+                <div><b>{s.title}</b>{s.time ? <span className="mute">, {s.time}</span> : null}{(s.kind === "ride" || s.kind === "checkin") && s.detail ? <div className="small mute">{s.kind === "checkin" ? L.nightsN(b.nights) : s.detail}</div> : null}</div>
               </li>
             ))}
           </ol>
@@ -152,7 +153,13 @@ export default async function BookingPage({ params, searchParams }: { params: Pr
 
       <section className="bk-card" aria-labelledby="hp-h">
         <h2 id="hp-h">{t.ifWrong}</h2>
-        <p className="small" style={{ color: "var(--ink-2)", margin: 0 }}>{mailOn ? t.ifWrongText : L.ifWrongNoMail}</p>
+        <p className="small" style={{ color: "var(--ink-2)", margin: 0 }}>{env().SUPPORT_WHATSAPP || env().SUPPORT_EMAIL ? L.ifWrongShort : mailOn ? t.ifWrongText : L.ifWrongNoMail}</p>
+        {(env().SUPPORT_WHATSAPP || env().SUPPORT_EMAIL) && (
+          <div className="bk-actions no-print">
+            {env().SUPPORT_WHATSAPP && <a className="btn btn-brand" href={`https://wa.me/${env().SUPPORT_WHATSAPP}?text=${encodeURIComponent(`${b.reference}: `)}`} target="_blank" rel="noreferrer">{L.whatsapp}</a>}
+            {env().SUPPORT_EMAIL && <a className="btn" href={`mailto:${env().SUPPORT_EMAIL}?subject=${encodeURIComponent(b.reference)}`}>{L.emailUs}</a>}
+          </div>
+        )}
       </section>
       {(b.status === "paying" || b.status === "booked") && <meta httpEquiv="refresh" content="6" />}
     </div>
@@ -162,6 +169,7 @@ export default async function BookingPage({ params, searchParams }: { params: Pr
 const PAGE = {
   en: {
     confirmedNoMail: "Your room is booked. This page is your voucher: print it or keep the link.", guest: "Guest", adults: (n: number) => `${n} ${n === 1 ? "adult" : "adults"}`,
+    nightsN: (n: number) => `${n} ${n === 1 ? "night" : "nights"}`, whatsapp: "WhatsApp us", emailUs: "Email us", ifWrongShort: "If the hotel cannot find your booking, show them this page and your reference. We answer 7 days a week, 08:00 to 22:00 UTC.",
     print: "Print voucher", calendar: "Add to calendar", itinerary: "Your trip", requests: "Requests sent to the hotel", breakdown: "Price breakdown", totalPaid: "Total paid",
     taxes: "Taxes and charges included", cityTax: "City tax, if the city charges one, is paid at the hotel.", saved: (v: string, src: string) => `You saved ${v} on the price ${src} showed`,
     changeH: "Change or cancel", now: "Now", penalty: (v: string) => `Penalty ${v}`, noPenalty: "No penalty", refund: (v: string) => `You get back ${v}`,
@@ -170,6 +178,7 @@ const PAGE = {
   },
   cs: {
     confirmedNoMail: "Pokoj je rezervovaný. Tato stránka je váš voucher: vytiskněte si ji nebo si uložte odkaz.", guest: "Host", adults: (n: number) => `${n} ${n === 1 ? "dospělý" : "dospělí"}`,
+    nightsN: (n: number) => `${n} ${n === 1 ? "noc" : n < 5 ? "noci" : "nocí"}`, whatsapp: "Napsat na WhatsApp", emailUs: "Napsat e-mail", ifWrongShort: "Pokud hotel rezervaci nenajde, ukažte mu tuto stránku a číslo rezervace. Odpovídáme denně 08:00 až 22:00 UTC.",
     print: "Vytisknout voucher", calendar: "Přidat do kalendáře", itinerary: "Vaše cesta", requests: "Požadavky pro hotel", breakdown: "Rozpis ceny", totalPaid: "Celkem zaplaceno",
     taxes: "Včetně daní a poplatků", cityTax: "Městskou taxu, pokud ji město vybírá, platíte v hotelu.", saved: (v: string, src: string) => `Ušetřili jste ${v} oproti ceně na ${src}`,
     changeH: "Změna nebo zrušení", now: "Nyní", penalty: (v: string) => `Storno poplatek ${v}`, noPenalty: "Bez poplatku", refund: (v: string) => `Vrátíme ${v}`,
