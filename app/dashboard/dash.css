@@ -203,8 +203,9 @@ td.empty-row svg { color: var(--mute); margin-right: 8px; vertical-align: -4px; 
 .sample-note svg { flex: none; margin-top: 2px; } .sample-note a { color: inherit; font-weight: 600; }
 .pc-wrap .cur.partial { stroke-dasharray: 4 4; }
 .txt .bk-cell { min-width: 200px; } .txt .bk-cell b { display: block; line-height: 1.3; }
-.txt .src { max-width: 170px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.txt .src { max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .txt td { vertical-align: middle; }
 .st2 { display: grid; gap: 4px; justify-items: start; }
 .txt th .mute { font-weight: 500; }
 .lines { max-width: 760px; }
+.txt td, .txt th { padding-left: 8px; padding-right: 8px; } .txt .bk-cell { min-width: 230px; }

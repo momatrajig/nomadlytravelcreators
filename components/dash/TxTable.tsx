@@ -24,7 +24,7 @@ const day = (iso: string | null, y = true) => (iso ? new Date(`${iso.slice(0, 10
 export default function TxTable({ rows, range }: { rows: TxBooking[]; range: string }) {
   const [q, setQ] = useState(""), [tx, setTx] = useState(""), [pay, setPay] = useState(""), [prod, setProd] = useState("");
   const [sort, setSort] = useState<{ k: "date" | "commission" | "price" | "checkIn"; dir: 1 | -1 }>({ k: "date", dir: -1 });
-  const [hide, setHide] = useState<Set<ColKey>>(new Set(["nights"])), [pickOpen, setPickOpen] = useState(false);
+  const [hide, setHide] = useState<Set<ColKey>>(new Set(["nights", "stay"])), [pickOpen, setPickOpen] = useState(false);
   const [open, setOpen] = useState<string | null>(null), [limit, setLimit] = useState(25);
   const on = (k: ColKey) => !hide.has(k);
   const list = useMemo(() => {
@@ -82,7 +82,7 @@ export default function TxTable({ rows, range }: { rows: TxBooking[]; range: str
           {list.slice(0, limit).map((r) => (
             <Fragment key={r.id}>
               <tr className={open === r.id ? "open" : undefined}>
-                <td className="bk-cell"><b>{r.hotel}</b><div className="small mute">{r.reference}{r.demo && <span className="chip chip-demo">demo</span>}</div></td>
+                <td className="bk-cell"><b>{r.hotel}</b><div className="small mute">{r.reference}{!on("stay") && r.checkIn ? ` · ${day(r.checkIn, false)} to ${day(r.checkOut, false)}` : ""}{r.demo && <span className="chip chip-demo">demo</span>}</div></td>
                 {on("source") && <td className="small src" title={r.source ?? "direct"}>{r.source ?? <span className="mute">direct</span>}</td>}
                 {on("product") && <td><span className="prods">{r.lines.map((l, i) => <span key={i} className={`prod p-${l.category}`} title={CAT[l.category]}><Ico of={ICON[l.category]} size={14} /></span>)}</span></td>}
                 {on("status") && <td><div className="st2"><span className={`status st-${r.tx}`}>{r.tx}</span><span className={`status st-${r.pay}`}>{r.pay}</span></div></td>}
