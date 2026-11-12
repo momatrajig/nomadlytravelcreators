@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowDownRight, ArrowUpRight, CalendarCheck, MousePointerClick, ShoppingCart, Users, Wallet, type LucideIcon } from "lucide-react";
 import { Ico } from "@/components/Icon";
 
@@ -60,7 +60,16 @@ function ticks(max: number, money: boolean) {
 
 function Chart({ m, cur, was, labels, prevLabel, partial }: { m: Metric; cur: number[]; was: number[]; labels: string[]; prevLabel: string; partial: boolean }) {
   const d = DEF[m];
-  const W = 900, H = 260, L = 52, R = 12, T = 14, B = 30;
+  // drawn at the box's real width, so text stays 11.5px on a phone instead of shrinking with the picture
+  const wrap = useRef<HTMLDivElement>(null);
+  const [W, setW] = useState(900);
+  useEffect(() => {
+    const el = wrap.current; if (!el) return;
+    const ro = new ResizeObserver(([e]) => setW(Math.max(280, Math.round(e!.contentRect.width))));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const H = W < 560 ? 220 : 260, L = 46, R = 12, T = 14, B = 30;
   const n = cur.length;
   const tk = useMemo(() => ticks(Math.max(...cur, ...was.slice(0, n), 0), !!d.money), [cur, was, n, d.money]);
   const top = tk[tk.length - 1]!;
@@ -70,7 +79,7 @@ function Chart({ m, cur, was, labels, prevLabel, partial }: { m: Metric; cur: nu
   const area = `${path(cur)}L${x(n - 1).toFixed(1)},${y(0)}L${x(0).toFixed(1)},${y(0)}Z`;
   const [hi, setHi] = useState<number | null>(null);
   const svg = useRef<SVGSVGElement>(null);
-  const every = Math.max(1, Math.ceil(n / 7));
+  const every = Math.max(1, Math.ceil(n / Math.max(3, Math.floor(W / 120))));
   // a label every few points, and the last one unless it would crowd the label before it
   const shown = Array.from({ length: n }, (_, i) => i).filter((i) => i % every === 0 || (i === n - 1 && (n - 1) % every >= every / 2));
   const pick = (clientX: number) => {
@@ -85,7 +94,7 @@ function Chart({ m, cur, was, labels, prevLabel, partial }: { m: Metric; cur: nu
         <span><i className="sw cur" />{d.label}</span>
         <span><i className="sw prev" />{prevLabel}</span>
       </div>
-      <div className="pc-wrap">
+      <div className="pc-wrap" ref={wrap}>
         <svg ref={svg} viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`${d.label} over the period: ${fmt(m, total)} in total`} tabIndex={0}
           onMouseMove={(e) => pick(e.clientX)} onMouseLeave={() => setHi(null)} onTouchStart={(e) => pick(e.touches[0]!.clientX)} onTouchMove={(e) => pick(e.touches[0]!.clientX)}
           onKeyDown={(e) => { if (e.key === "ArrowRight") setHi((h) => Math.min(n - 1, (h ?? -1) + 1)); if (e.key === "ArrowLeft") setHi((h) => Math.max(0, (h ?? n) - 1)); }} onBlur={() => setHi(null)}>
