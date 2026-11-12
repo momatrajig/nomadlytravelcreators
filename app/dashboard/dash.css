@@ -87,3 +87,6 @@
 .kpi span { display: inline-flex; align-items: center; gap: 6px; }
 .kpi span svg { color: var(--brand); }
 .kpi b.kpi-na { font-size: 20px; color: var(--mute); }
+.copy-btn { display: inline-flex; align-items: center; gap: 6px; flex: none; }
+.copy-btn.done { color: var(--save); border-color: var(--save); }
+.linkrow { display: flex; gap: 8px; align-items: center; } .linkrow .code { flex: 1 1 auto; min-width: 0; overflow-x: auto; }

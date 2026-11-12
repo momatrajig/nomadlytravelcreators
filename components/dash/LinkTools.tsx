@@ -1,11 +1,18 @@
 "use client";
 import { useMemo, useState } from "react";
+import { Check, Copy as CopyIc } from "lucide-react";
+import { Ico } from "@/components/Icon";
 
 interface Opt { value: string; label: string }
 
-function Copy({ text }: { text: string }) {
+/** Copies a link; the icon turns into a check and the label says so, for screen readers too. */
+export function Copy({ text }: { text: string }) {
   const [done, setDone] = useState(false);
-  return <button type="button" className="btn" onClick={async () => { try { await navigator.clipboard.writeText(text); setDone(true); setTimeout(() => setDone(false), 1500); } catch { /* clipboard blocked: the link is selectable */ } }}>{done ? "Copied" : "Copy"}</button>;
+  return (
+    <button type="button" className={`btn copy-btn${done ? " done" : ""}`} onClick={async () => { try { await navigator.clipboard.writeText(text); setDone(true); setTimeout(() => setDone(false), 1500); } catch { /* clipboard blocked: the link is selectable */ } }}>
+      <Ico of={done ? Check : CopyIc} size={16} /><span aria-live="polite">{done ? "Copied" : "Copy"}</span>
+    </button>
+  );
 }
 
 /** Build one link: a hotel, a destination or the home page, with the source (article) it sits in. */

@@ -3,7 +3,7 @@ import { dashContext } from "@/lib/dashboard/context";
 import { db } from "@/lib/db";
 import { linkBase } from "@/lib/links/base";
 import { storefrontDestinations } from "@/lib/storefront/data";
-import { Converter, LinkBuilder } from "@/components/dash/LinkTools";
+import { Converter, Copy, LinkBuilder } from "@/components/dash/LinkTools";
 
 export const dynamic = "force-dynamic";
 function daysAgo(d: number) { return new Date(Date.now() - d * 86_400_000).toISOString(); }
@@ -25,7 +25,7 @@ export default async function Links() {
 
       <section className="dcard">
         <h2>Your link</h2>
-        <div className="linkrow"><code className="code">{base}</code></div>
+        <div className="linkrow"><code className="code">{base}</code><Copy text={base} /></div>
         <p className="note">{verified ? `Your own domain, ${c.sf.customDomain}, is live.` : c.sf.customDomain ? `Once ${c.sf.customDomain} points at Nomadly, links switch to it; links made now keep working and forward there.` : "Links work on this address now; connect your own domain under Storefront and they move there."}</p>
       </section>
 
