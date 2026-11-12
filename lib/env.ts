@@ -18,6 +18,7 @@ const schema = z.object({
   /** support contacts shown on the voucher; digits with country code for WhatsApp, e.g. 9617xxxxxxx */
   SUPPORT_WHATSAPP: z.string().regex(/^\d{8,15}$/).optional(),
   SUPPORT_EMAIL: z.string().email().optional(),
+  BOOKING_LINK_SECRET: z.string().min(16).optional(), // signs the booking page cookie; falls back to a server secret
 });
 
 export type Env = z.infer<typeof schema> & { DATA_MODE: "supabase" | "local" };

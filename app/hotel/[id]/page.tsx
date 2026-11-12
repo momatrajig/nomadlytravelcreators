@@ -40,7 +40,10 @@ export default async function HotelPage({ params, searchParams }: { params: Prom
         <div className="hotel-main">
           <header className="hotel-head">
             {pin && <div className="also-pick" style={{ fontSize: 14 }}><CreatorMark sf={sf} size={20} /><span>{t.recommendedBy(sf.brandName)}</span></div>}
-            <h1>{hotel.name}</h1>
+            <div className="hotel-title">
+              <h1>{hotel.name}</h1>
+              <a className="btn btn-brand view-rooms" href="#rooms"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6" /></svg>{t.seeRooms}</a>
+            </div>
             <div className="hotel-facts">
               {hotel.stars ? <span className="stars" aria-label={t.star(hotel.stars)}>{"★".repeat(hotel.stars)}</span> : null}
               {hotel.rating ? <span className="score"><b className="num">{hotel.rating.toFixed(1)}</b><span>{t.scoreWord(hotel.rating)}</span><small className="num">{t.reviewsN(hotel.ratingCount?.toLocaleString(f.lang === "cs" ? "cs-CZ" : "en-US") ?? "")}</small></span> : null}
@@ -48,18 +51,20 @@ export default async function HotelPage({ params, searchParams }: { params: Prom
             </div>
           </header>
           {pin?.tip && <blockquote className="tip"><p>{pin.tip}</p><footer>{first}{pin.stayedWhen ? t.stayed(pin.stayedWhen) : ""}</footer></blockquote>}
-
-          <h2 className="rates-h" id="rooms">{t.chooseRoom}</h2>
-          <HotelDates ebcId={ebcId} checkIn={checkIn} checkOut={checkOut} adults={adults} lang={f.lang} currency={sf.currency || "USD"} />
-          <Suspense fallback={<div className="list-wait" role="status" aria-label="Loading live rates">{[0, 1, 2].map((k) => <div key={k} style={{ gridTemplateColumns: "1fr 200px" }}><div><div className="skel line" style={{ width: "60%", height: 22 }} /><div className="skel line" style={{ width: "80%" }} /></div><div className="skel line" style={{ height: 32 }} /></div>)}</div>}>
-            <Rates t={t} f={f} sf={sf} ebcId={ebcId} checkIn={checkIn} checkOut={checkOut} adults={adults} qs={qs} photos={pin ? pin.images : hotel.images} />
-          </Suspense>
         </div>
         <aside className="hotel-side">
           {hotel.lat != null && hotel.lng != null && <HotelMap lat={hotel.lat} lng={hotel.lng} name={hotel.name} labels={[t.mapOf(hotel.name), t.fullMap]} color={sf.brandColor} />}
           {hotel.lat != null && hotel.lng != null && <TravelTimes lang={f.lang} destination={hotel.destination} lat={hotel.lat} lng={hotel.lng} />}
         </aside>
       </div>
+      {/* rooms get the full width: rates are compared side by side, nothing competes with them */}
+      <section className="hotel-rooms" aria-labelledby="rooms">
+        <h2 className="rates-h" id="rooms">{t.chooseRoom}</h2>
+        <HotelDates ebcId={ebcId} checkIn={checkIn} checkOut={checkOut} adults={adults} lang={f.lang} currency={sf.currency || "USD"} />
+        <Suspense fallback={<div className="list-wait" role="status" aria-label="Loading live rates">{[0, 1, 2].map((k) => <div key={k} style={{ gridTemplateColumns: "1fr 200px" }}><div><div className="skel line" style={{ width: "60%", height: 22 }} /><div className="skel line" style={{ width: "80%" }} /></div><div className="skel line" style={{ height: 32 }} /></div>)}</div>}>
+          <Rates t={t} f={f} sf={sf} ebcId={ebcId} checkIn={checkIn} checkOut={checkOut} adults={adults} qs={qs} photos={pin ? pin.images : hotel.images} />
+        </Suspense>
+      </section>
     </>
   );
 }

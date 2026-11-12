@@ -17,6 +17,8 @@ interface Props {
   lowestReference: number | null; lowestSource: string | null;
   /** struck through add on comparisons: checked prices, or labelled samples in the demo */
   compare: boolean;
+  /** demo environment: test cards, nothing charged, no room held */
+  demo?: boolean;
 }
 type Person = { firstName: string; lastName: string };
 const REQUESTS = ["early_checkin", "late_checkout", "quiet", "high_floor", "twin", "double", "cot", "accessible"];
@@ -153,8 +155,8 @@ export default function CheckoutForm(p: Props) {
 
           {!locked && <AddOns co={co} f={p.f} picks={picks} setPicks={setPicks} destination={p.destination} adults={p.adults} nights={p.nights} compare={p.compare} />}
 
-          <section className="co-card" aria-labelledby="req-h">
-            <h2 id="req-h">{co.requestsH}</h2>
+          <details className="co-card co-more" open={items.length > 0 || !!note || !!arrival || undefined}>
+            <summary><span><b id="req-h">{co.optionalH}</b><small>{co.optionalSub(items.length + (note ? 1 : 0) + (arrival ? 1 : 0))}</small></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg></summary>
             <p className="co-sub">{co.requestsSub}</p>
             <div className="chips" role="group" aria-label={co.requestsH}>
               {REQUESTS.map((k) => <button key={k} type="button" className="chip-btn" disabled={locked} aria-pressed={items.includes(k)} onClick={() => setItems(items.includes(k) ? items.filter((x) => x !== k) : [...items.filter((x) => !(k === "twin" && x === "double") && !(k === "double" && x === "twin")), k])}>{co.req[k]}</button>)}
@@ -165,13 +167,16 @@ export default function CheckoutForm(p: Props) {
               </div>
             </div>
             <div className="field"><label htmlFor="f-note">{co.note}</label><textarea id="f-note" rows={2} maxLength={300} value={note} disabled={locked} placeholder={co.notePh} onChange={(e) => setNote(e.target.value)} /></div>
-          </section>
+          </details>
 
           <section className="co-card" aria-labelledby="pol-h">
             <h2 id="pol-h">{co.policyH}</h2>
             <Policy co={co} p={p} P={P} />
-            <label className="check"><input id="f-terms" type="checkbox" checked={terms} disabled={locked} onChange={(e) => setTerms(e.target.checked)} aria-invalid={!!errs.terms} /><span>{co.terms}</span></label>
-            {errs.terms && <span className="err">{errs.terms}</span>}
+            <div className={`co-now ${!p.refundable ? "bad" : freeNow(p) ? "ok" : "warn"}`}>
+              <p><b>{co.ifCancelNow}</b><span className="num">{!p.refundable ? co.feeLbl(P(p.amount)) : freeNow(p) ? co.noFee : co.feeLbl(p.cancelCharge ? P(p.cancelCharge) : P(p.amount))}</span></p>
+              <label className="check"><input id="f-terms" type="checkbox" checked={terms} disabled={locked} onChange={(e) => setTerms(e.target.checked)} aria-invalid={!!errs.terms} aria-describedby={errs.terms ? "e-terms" : undefined} /><span>{co.terms}</span></label>
+              {errs.terms && <span className="err" id="e-terms">{errs.terms}</span>}
+            </div>
             {!locked && (promoOpen
               ? <div className="field" style={{ marginTop: 12, maxWidth: 260 }}><label htmlFor="pc">{co.promo}</label><input id="pc" value={promo} onChange={(e) => setPromo(e.target.value.toUpperCase())} placeholder={t.promoPh} autoFocus /></div>
               : <button type="button" className="linkish" onClick={() => setPromoOpen(true)}>{co.promoQ}</button>)}
@@ -187,8 +192,9 @@ export default function CheckoutForm(p: Props) {
             <div ref={payRef} className="co-card pay" aria-labelledby="pay-h">
               <div className="pay-head"><h2 id="pay-h">{co.payH}</h2><button type="button" className="linkish" onClick={() => setServer(null)}>{co.change}</button></div>
               <p className="co-sub">{co.paySub}</p>
+              {p.demo && <p className="notice warn co-demo">{co.demoPay}</p>}
               {server.clientSecret && stripePromise
-                ? <Elements stripe={stripePromise} options={{ clientSecret: server.clientSecret, appearance, locale: p.f.lang === "cs" ? "cs" : "en" }}><PayStep co={co} amount={server.amount} currency={p.currency} reference={server.reference} email={guest.email} f={p.f} billing={{ name: `${(forWhom === "other" ? booker : guest).firstName} ${(forWhom === "other" ? booker : guest).lastName}`.trim(), email: guest.email.trim(), phone: `+${guest.dial}${guest.phone.replace(/\D/g, "")}`, country: guest.country }} /></Elements>
+                ? <Elements stripe={stripePromise} options={{ clientSecret: server.clientSecret, appearance, locale: p.f.lang === "cs" ? "cs" : "en" }}><PayStep co={co} demo={!!p.demo} amount={server.amount} currency={p.currency} reference={server.reference} email={guest.email} f={p.f} billing={{ name: `${(forWhom === "other" ? booker : guest).firstName} ${(forWhom === "other" ? booker : guest).lastName}`.trim(), email: guest.email.trim(), phone: `+${guest.dial}${guest.phone.replace(/\D/g, "")}`, country: guest.country }} /></Elements>
                 : <div className="notice">{t.noPayConfig}</div>}
             </div>
           )}
@@ -202,19 +208,21 @@ export default function CheckoutForm(p: Props) {
 
 function Policy({ co, p, P }: { co: Co; p: Props; P: (v: number, whole?: boolean) => string }) {
   const d = (iso: string) => fmtDay(iso, p.f.lang);
+  // the supplier's deadline carries a time: show it, the traveler acts on the hour, not just the day
+  const dt = (iso: string) => (iso.length > 15 && iso.slice(11, 16) !== "00:00" ? `${d(iso)}, ${iso.slice(11, 16)}` : d(iso));
   if (!p.refundable) return <div className="policy nonref"><span className="dot bad" /><p><b>{co.nonRef}.</b> {co.noRefund}</p></div>;
   // refundable on paper but the free period is already over: a fee from the first minute, never "free"
   if (!freeNow(p)) return (
     <ol className="timeline" aria-label={co.policyH} style={{ gridTemplateColumns: "1fr 1fr" }}>
-      <li className="warn"><b>{co.cancelNow}</b><span>{`→ ${d(p.checkIn)}`}</span><em>{p.cancelCharge ? P(p.cancelCharge) : co.fullCharge}</em></li>
-      <li className="bad"><b>{co.noShow}</b><span>{d(p.checkIn)}</span><em>{P(p.amount)}</em></li>
+      <li className="warn"><b>{co.cancelNow}</b><span>{`→ ${d(p.checkIn)}`}</span><em>{co.feeLbl(p.cancelCharge ? P(p.cancelCharge) : P(p.amount))}</em></li>
+      <li className="bad"><b>{co.noShow}</b><span>{d(p.checkIn)}</span><em>{co.feeLbl(P(p.amount))}</em></li>
     </ol>
   );
   return (
     <ol className="timeline" aria-label={co.policyH}>
-      <li className="ok"><b>{co.freeUntil}</b><span>{p.cancelDeadline ? `→ ${d(p.cancelDeadline)}` : ""}</span><em>{P(0, true)}</em></li>
-      <li className="warn"><b>{co.then}</b><span>{p.cancelDeadline ? `${d(p.cancelDeadline)} → ${d(p.checkIn)}` : ""}</span><em>{p.cancelCharge ? P(p.cancelCharge) : co.fullCharge}</em></li>
-      <li className="bad"><b>{co.noShow}</b><span>{d(p.checkIn)}</span><em>{P(p.amount)}</em></li>
+      <li className="ok"><b>{co.freeUntil}</b><span>{p.cancelDeadline ? co.until(dt(p.cancelDeadline)) : ""}</span><em>{co.noFee}</em></li>
+      <li className="warn"><b>{co.then}</b><span>{p.cancelDeadline ? `${dt(p.cancelDeadline)} → ${d(p.checkIn)}` : ""}</span><em>{co.feeLbl(p.cancelCharge ? P(p.cancelCharge) : P(p.amount))}</em></li>
+      <li className="bad"><b>{co.noShow}</b><span>{d(p.checkIn)}</span><em>{co.feeLbl(P(p.amount))}</em></li>
     </ol>
   );
 }
@@ -245,22 +253,22 @@ function Summary({ co, p, lines, total, P, mobile }: { co: Co; p: Props; lines: 
       </ul>
       {addSave > 0 && <p className="sum-save">{co.youSave(P(addSave))}</p>}
       {p.lowestReference && p.lowestReference > p.amount && <p className="sum-save">{t.showed(p.lowestSource ?? "")} <s className="num">{P(p.lowestReference)}</s></p>}
-      <div className="sum-total"><span>{co.total}<small>{co.taxesIn}</small></span><span><b className="num">{P(total)}</b>{approx && <small className="num">{approx}</small>}</span></div>
-      <p className="small mute sum-tax">{co.cityTax}</p>
+      <div className="sum-total"><span>{co.dueToday}, {p.currency}<small>{co.taxesIn}</small></span><span><b className="num">{P(total)}</b>{approx && <small className="num">{approx}</small>}</span></div>
+      <div className="sum-hotel-due"><span>{co.dueHotel}</span><small>{co.dueHotelV}</small></div>
     </>
   );
-  if (mobile) return <details className="sum sum-mobile"><summary><span>{co.summaryH}</span><b className="num">{P(total)}</b></summary>{body}</details>;
+  if (mobile) return <details className="sum sum-mobile"><summary><span>{co.summaryH}<small>{co.dueToday}, {p.currency}</small></span><b className="num">{P(total)}</b></summary>{body}</details>;
   return <aside className="sum sum-side" aria-label={co.summaryH}><h2>{co.summaryH}</h2>{body}</aside>;
 }
 
-function PayStep({ co, amount, currency, reference, email, f, billing }: { co: Co; amount: number; currency: string; reference: string; email: string; f: ReaderFmt; billing: { name: string; email: string; phone: string; country: string } }) {
+function PayStep({ co, demo, amount, currency, reference, email, f, billing }: { co: Co; demo: boolean; amount: number; currency: string; reference: string; email: string; f: ReaderFmt; billing: { name: string; email: string; phone: string; country: string } }) {
   const t = dict(f.lang);
   const stripe = useStripe(), elements = useElements();
   const [busy, setBusy] = useState(false), [err, setErr] = useState<string | null>(null);
   const pay = async () => {
     if (!stripe || !elements) return;
     setBusy(true); setErr(null);
-    const r = await stripe.confirmPayment({ elements, confirmParams: { return_url: `${window.location.origin}/booking/${encodeURIComponent(reference)}?email=${encodeURIComponent(email)}` } });
+    const r = await stripe.confirmPayment({ elements, confirmParams: { return_url: `${window.location.origin}/booking/${encodeURIComponent(reference)}/open?email=${encodeURIComponent(email)}` } });
     if (r.error) { setErr(r.error.message ?? t.declined); setBusy(false); }
   };
   return (
@@ -268,7 +276,7 @@ function PayStep({ co, amount, currency, reference, email, f, billing }: { co: C
       <PaymentElement options={{ layout: { type: "accordion", defaultCollapsed: false, radios: "always", spacedAccordionItems: true }, wallets: { applePay: "auto", googlePay: "auto" }, defaultValues: { billingDetails: { name: billing.name, email: billing.email, phone: billing.phone, address: { country: billing.country } } } }} />
       {err && <div className="notice bad" role="alert" style={{ marginTop: 12 }}>{err}</div>}
       <button className="btn btn-brand btn-lg pay-btn" type="button" onClick={pay} disabled={busy || !stripe}>
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 11V8a5 5 0 0110 0v3M6 11h12v9H6z" /></svg>{busy ? co.paying : co.pay(money(amount, { lang: f.lang, currency }))}
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 11V8a5 5 0 0110 0v3M6 11h12v9H6z" /></svg>{busy ? co.paying : demo ? co.payDemo : co.pay(`${currency} ${money(amount, { lang: f.lang, currency })}`)}
       </button>
       <p className="secure small mute">{co.secure}</p>
     </>

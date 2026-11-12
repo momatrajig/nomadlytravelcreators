@@ -5,13 +5,14 @@
  */
 :root {
   color-scheme: light;
-  --brand: #2458d6;
+  --brand: #234bd7;
   --brand-ink: #ffffff;
   --brand-text: color-mix(in srgb, var(--brand) 82%, #000);
   --brand-soft: color-mix(in srgb, var(--brand) 8%, #fff);
-  --ink: #0d1b2a; --ink-2: #3a4859; --mute: #677386;
-  --paper: #ffffff; --mist: #f3f5f8; --mist-2: #e9edf2; --line: #e3e7ed; --line-2: #cfd6df;
-  --save: #0b7a53; --save-bg: #e3f3eb; --warn: #9a6200; --warn-bg: #fdf3dc; --bad: #b42318; --bad-bg: #fdecea;
+  --ink: #17243a; --ink-2: #3a4859; --mute: #526079;
+  --paper: #ffffff; --mist: #f6f8fc; --mist-2: #e9edf4; --line: #dbe2ed; --line-2: #c3ccda; --field: #808da5;
+  --save: #155c3e; --save-bg: #e7f5ed; --warn: #774205; --warn-bg: #fff2d7; --bad: #a12832; --bad-bg: #fceef0;
+  --lina: #713f31; --lina-bg: #fbe9e0; --select: #edf2ff;
   --navy: var(--ink); --fg: var(--ink); --fg-2: var(--ink-2); --bg: var(--paper); --bg-2: var(--mist); --surface: var(--paper); --surface-2: var(--mist); --surface-3: var(--mist-2);
   --ok: var(--save); --ok-bg: var(--save-bg); --gold: #c9a04a;
   --font-display: "Newsreader", "Iowan Old Style", Georgia, serif;
@@ -71,7 +72,7 @@ p { margin: 0; }
 .notice.warn { background: var(--warn-bg); } .notice.bad { background: var(--bad-bg); }
 .field { display: grid; gap: 6px; }
 .field label { font-size: 13px; font-weight: 600; color: var(--ink-2); }
-.field input, .field select { padding: 11px 13px; border-radius: 10px; border: 1px solid var(--line-2); background: var(--paper); color: var(--ink); min-height: 46px; width: 100%; }
+.field input, .field select { padding: 11px 13px; border-radius: 10px; border: 1px solid var(--field); background: var(--paper); color: var(--ink); min-height: 46px; width: 100%; }
 .field .err { color: var(--bad); font-size: 13px; }
 .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; } @media (max-width: 640px) { .grid2 { grid-template-columns: 1fr; } }
 .empty { padding: 36px; text-align: center; border: 1px dashed var(--line-2); border-radius: var(--r-lg); display: grid; gap: 14px; justify-items: center; color: var(--ink-2); }
@@ -348,7 +349,7 @@ p { margin: 0; }
 .co .field .hint { font-size: 13px; color: var(--mute); }
 .co .field input:disabled, .co .field select:disabled, .co .field textarea:disabled { background: var(--mist); color: var(--ink-2); }
 .co .phone { display: grid; grid-template-columns: 92px 1fr; gap: 8px; }
-.co .phone select { padding: 11px 8px; border-radius: 10px; border: 1px solid var(--line-2); background: var(--paper); min-height: 46px; font-variant-numeric: tabular-nums; }
+.co .phone select { padding: 11px 8px; border-radius: 10px; border: 1px solid var(--field); background: var(--paper); min-height: 46px; font-variant-numeric: tabular-nums; }
 .co fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
 .co legend { font-size: 13px; font-weight: 600; color: var(--ink-2); margin-bottom: 8px; padding: 0; }
 .co .seg { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -579,9 +580,37 @@ p { margin: 0; }
 .stages .st-ok em { color: var(--save); } .stages .st-warn em { color: var(--warn); } .stages .st-bad em { color: var(--bad); }
 .stages .pen small { color: var(--ink-2); font-variant-numeric: tabular-nums; }
 @media (max-width: 860px) { .bk-hero, .bk-grid { grid-template-columns: 1fr; } .bk-pic { min-height: 180px; aspect-ratio: 16 / 9; } }
+/* the voucher: state, hotel, reference and amount first; the photo is a small thumbnail, not a banner */
+.bk-hero { grid-template-columns: 1fr; }
+.bk-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+.bk-head > div { display: grid; gap: 6px; justify-items: start; }
+.bk-thumb { width: 132px; height: 96px; object-fit: cover; border-radius: 12px; flex: none; }
+.bk-addr { font-size: 14px; }
+.bk-refcard { display: grid; grid-template-columns: 1.4fr 1fr; border: 1px solid var(--line); border-radius: 14px; background: var(--mist); }
+.bk-refcard > div { padding: 12px 16px; display: grid; gap: 2px; } .bk-refcard > div + div { border-left: 1px solid var(--line); }
+.bk-refcard span { font-size: 13px; color: var(--mute); font-weight: 600; }
+.bk-refcard b { font-size: 24px; font-weight: 800; letter-spacing: .02em; font-variant-numeric: tabular-nums; }
+@media (max-width: 560px) { .bk-thumb { width: 88px; height: 72px; } .bk-refcard { grid-template-columns: 1fr; } .bk-refcard > div + div { border-left: 0; border-top: 1px solid var(--line); } .bk-refcard b { font-size: 21px; } }
+/* cancel review: fee and refund never share a colour */
+.btn-danger { background: var(--bad); border-color: var(--bad); color: #fff; } .btn-danger:hover { background: color-mix(in srgb, var(--bad) 86%, #000); }
+.btn-danger-ghost { color: var(--bad); border-color: var(--bad); } .btn-danger-ghost:hover { background: var(--bad-bg); }
+.cx-review { width: 100%; border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: grid; gap: 12px; background: var(--paper); box-shadow: var(--shadow-sm); outline: none; }
+.cx-review h3 { font: 700 18px var(--font-body); }
+.cx-review dl { margin: 0; display: grid; gap: 0; }
+.cx-review dl > div { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 15px; }
+.cx-review dt { color: var(--ink-2); } .cx-review dd { margin: 0; font-weight: 600; text-align: right; }
+.cx-review .cx-fee dd { color: var(--warn); font-size: 17px; } .cx-review .cx-ref dd { color: var(--save); font-size: 17px; }
+.cx-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 @media print {
-  .demo, .hdr, .ctabs, .site-foot, .bottomnav, .no-print, .crumbs { display: none !important; }
-  body { background: #fff; } .bk-card, .bk-hero { break-inside: avoid; border-color: #ccc; }
+  @page { size: A4; margin: 12mm; }
+  .demo, .hdr, .ctabs, .site-foot, .bottomnav, .no-print, .crumbs, .notice, .bk-changes, .stages + .small { display: none !important; }
+  body { background: #fff; font-size: 12px; } .wrap { width: 100%; }
+  .bk { gap: 10px !important; }
+  .bk-card, .bk-hero { break-inside: avoid; border-color: #ccc; box-shadow: none; padding: 12px; border-radius: 10px; }
+  .bk-main h1 { font-size: 26px; } .bk-thumb { width: 96px; height: 70px; }
+  .bk-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .trip li { padding-bottom: 8px; } .stages li { padding: 8px; } .stages .pen em { font-size: 13px; }
+  a[href]::after { content: none !important; }
 }
 .save-pct { display: inline-block; background: var(--save); color: #fff; font: 700 11.5px var(--font-body); padding: 2px 7px; border-radius: 999px; margin-left: 6px; font-variant-numeric: tabular-nums; vertical-align: 1px; }
 .was { display: inline-flex; align-items: center; justify-content: flex-end; color: var(--mute); }
@@ -677,3 +706,82 @@ p { margin: 0; }
 .trip-date small { font-size: 11px; letter-spacing: .04em; }
 .trip li { grid-template-columns: 52px 18px minmax(0, 1fr); align-items: center; }
 .trip li:not(:last-child)::after { left: 70px; top: 30px; }
+
+/* checkout: the consequence and the acknowledgment sit together, right above the pay step */
+.co-now { margin-top: 12px; border-radius: 12px; padding: 12px 14px; display: grid; gap: 10px; border: 1px solid transparent; }
+.co-now.ok { background: var(--save-bg); border-color: color-mix(in srgb, var(--save) 25%, transparent); }
+.co-now.warn { background: var(--warn-bg); border-color: color-mix(in srgb, var(--warn) 25%, transparent); }
+.co-now.bad { background: var(--bad-bg); border-color: color-mix(in srgb, var(--bad) 25%, transparent); }
+.co-now p { display: flex; justify-content: space-between; gap: 12px; font-size: 15px; }
+.co-now.ok p span { color: var(--save); font-weight: 700; } .co-now.warn p span { color: var(--warn); font-weight: 700; } .co-now.bad p span { color: var(--bad); font-weight: 700; }
+.co-now .check { margin: 0; }
+/* optional requests fold away; the line under the title says what is chosen */
+.co-more { padding: 0; }
+.co-more > summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 18px 22px; min-height: 56px; }
+.co-more > summary::-webkit-details-marker { display: none; }
+.co-more > summary span { display: grid; gap: 2px; } .co-more > summary b { font: 700 18px var(--font-body); } .co-more > summary small { color: var(--mute); font-size: 13.5px; }
+.co-more > summary svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform .2s; flex: none; }
+.co-more[open] > summary svg { transform: rotate(180deg); }
+.co-more > :not(summary) { margin-inline: 22px; } .co-more > :last-child { margin-bottom: 22px; }
+.sum-total b { font-weight: 800; }
+.sum-hotel-due { display: flex; justify-content: space-between; gap: 12px; font-size: 13.5px; color: var(--ink-2); padding-top: 10px; border-top: 1px dashed var(--line); }
+.sum-hotel-due span { font-weight: 600; white-space: nowrap; } .sum-hotel-due small { text-align: right; color: var(--mute); font-size: 13px; }
+.sum-mobile summary > span small { display: block; font-size: 12px; color: var(--mute); font-weight: 400; }
+.co-demo { margin: 0 0 12px; }
+@media (max-width: 600px) { .co-more > summary { padding: 16px; } .co-more > :not(summary) { margin-inline: 16px; } .co-more > :last-child { margin-bottom: 16px; } }
+
+/* picks: jump straight to a city; Lina's voice in the warm editorial tone, kept short */
+.pick-jump { position: sticky; top: 64px; z-index: 5; display: flex; gap: 8px; overflow-x: auto; padding: 12px 0; margin: 8px 0 0; background: color-mix(in srgb, var(--paper) 94%, transparent); backdrop-filter: blur(10px); scrollbar-width: none; }
+.pick-jump::-webkit-scrollbar { display: none; }
+.pick-jump a { flex: none; display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px; border: 1px solid var(--line-2); border-radius: 999px; text-decoration: none; font: 600 14px var(--font-body); color: var(--ink); background: var(--paper); }
+.pick-jump a:hover { border-color: var(--brand); color: var(--brand); }
+.pick-jump span { font-size: 12px; color: var(--mute); font-weight: 600; }
+.pick-group > h2 { scroll-margin-top: 128px; }
+.pick-body .stay-tip { font: 400 15px/1.5 var(--font-body); font-style: normal; color: var(--lina); background: var(--lina-bg); border-radius: 10px; padding: 10px 12px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.pick-cta { display: flex; gap: 8px; flex-wrap: wrap; margin-top: auto; } .pick-cta .btn { flex: 1 1 auto; }
+
+/* rooms: one identity column, aligned rate rows; prices and buttons always in the same place */
+.rooms-basis { margin: 0; }
+.empty-inline { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 16px 0; }
+.rg-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.rg { display: grid; grid-template-columns: minmax(200px, 260px) minmax(0, 1fr); border: 1px solid var(--line); border-radius: 18px; background: var(--paper); overflow: hidden; }
+.rg-id { padding: 18px; display: grid; gap: 6px; align-content: start; background: var(--mist); border-right: 1px solid var(--line); }
+.rg-id h3 { font: 700 18px/1.25 var(--font-body); letter-spacing: -0.01em; }
+.rg-facts { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink-2); }
+.rg .ic, .rr .ic { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.rg-badge { justify-self: start; margin-top: 4px; font: 700 12px var(--font-body); background: var(--save-bg); color: var(--save); padding: 4px 10px; border-radius: 999px; }
+.rg-rates { list-style: none; margin: 0; padding: 0; display: grid; }
+.rr { display: grid; grid-template-columns: minmax(130px, .9fr) minmax(180px, 1.5fr) minmax(120px, auto) 132px; gap: 16px; align-items: center; padding: 16px 18px; }
+.rr + .rr { border-top: 1px solid var(--line); }
+.rr-meal { display: flex; gap: 8px; align-items: flex-start; font-size: 15px; font-weight: 600; }
+.rr-meal span { display: grid; } .rr-meal small { font-weight: 400; font-size: 13px; color: var(--warn); }
+.rr-cancel { display: grid; gap: 2px; font-size: 14px; }
+.rr-cancel.ok b { color: var(--save); } .rr-cancel.warn b { color: var(--warn); } .rr-cancel.bad b { color: var(--bad); }
+.rr-cancel small { color: var(--ink-2); font-size: 13px; }
+.rr-price { display: grid; text-align: right; }
+.rr-price b { font: 800 22px/1.1 var(--font-body); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.rr-price small { font-size: 12.5px; color: var(--mute); }
+.rr-go { width: 100%; padding-inline: 12px; }
+@media (max-width: 900px) {
+  .rg { grid-template-columns: 1fr; } .rg-id { border-right: 0; border-bottom: 1px solid var(--line); padding: 14px 16px; }
+  .rr { grid-template-columns: minmax(0, 1fr) auto; gap: 8px 14px; padding: 14px 16px; }
+  .rr-meal { grid-column: 1; } .rr-cancel { grid-column: 1; grid-row: 2; }
+  .rr-price { grid-column: 2; grid-row: 1 / span 2; align-self: center; }
+  .rr-go { grid-column: 1 / -1; }
+}
+
+/* hotel overview: title, facts and "View rooms" in the first view; Lina's tip in her warm tone */
+.hotel-side { position: static; }
+.hotel-title { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
+.hotel-head h1 { font-size: clamp(34px, 4vw, 50px); font-weight: 500; line-height: 1.05; }
+.view-rooms { flex: none; margin-top: 6px; }
+.view-rooms svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.tip { margin: 22px 0 0; padding: 16px 18px; border-left: 0; border-radius: 14px; background: var(--lina-bg); }
+.tip p { font: 400 17px/1.55 var(--font-body); color: var(--lina); }
+.tip footer { margin-top: 8px; font-size: 13.5px; font-weight: 600; color: var(--lina); }
+.hotel-rooms { margin-top: 8px; }
+.rates-h { font: 750 clamp(26px, 3vw, 36px)/1.12 var(--font-body); letter-spacing: -0.02em; margin: 40px 0 14px; }
+@media (max-width: 700px) {
+  .hotel-title { flex-direction: column; gap: 12px; }
+  .view-rooms { width: 100%; margin: 0; }
+}

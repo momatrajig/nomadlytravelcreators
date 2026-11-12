@@ -49,7 +49,7 @@ export default async function Checkout({ searchParams }: { searchParams: Promise
             brandName={sf.brandName} brandColor={sf.brandColor} stripeKey={env().NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? null} expiresAt={quote.expiresAt} f={f}
             hotel={{ name: hotel?.name ?? "", stars: hotel?.stars ?? null, address: [hotel?.address, hotel?.cityName].filter(Boolean).join(", ") || null, photo: hotel?.images[0] ? { url: hotel.images[0].url, w: hotel.images[0].w } : null, roomName, board: quote.board }}
             checkIn={quote.checkIn} checkOut={quote.checkOut} nights={nights} adults={adults} destination={hotel?.destination ?? null} country={country}
-            lowestReference={quote.lowestReference} lowestSource={quote.lowestReferenceSource} compare={ELSEWHERE_CHECKED || !!bookingClosedReason()}
+            lowestReference={quote.lowestReference} lowestSource={quote.lowestReferenceSource} compare={ELSEWHERE_CHECKED || !!bookingClosedReason()} demo={!!bookingClosedReason()}
           />}
     </>
   );

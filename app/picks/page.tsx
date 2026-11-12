@@ -35,6 +35,11 @@ export default async function Picks({ searchParams }: { searchParams: Promise<Re
           <p className="mute small">{t.picksSub(pins.length, groups.length)}{site ? <> <a href={sf.siteUrl!} rel="noopener">{site}</a></> : null}</p>
         </div>
       </section>
+      {groups.length > 1 && (
+        <nav className="pick-jump" aria-label={t.jumpTo}>
+          {groups.map((g) => <a key={g.key} href={`#g-${g.key}`}>{g.name}<span className="num">{g.hotels.length}</span></a>)}
+        </nav>
+      )}
       {groups.map((g) => (
         <section key={g.key} className="pick-group" aria-labelledby={`g-${g.key}`}>
           <h2 id={`g-${g.key}`}>{g.name}</h2>
@@ -46,10 +51,13 @@ export default async function Picks({ searchParams }: { searchParams: Promise<Re
                 <li key={h.ebcId} className="pick-card">
                   <Link href={href} className="pick-pic" tabIndex={-1} aria-hidden="true">{p ? <img src={photoSrc(p.url, 720, p.w)} srcSet={photoSet(p.url, p.w)} sizes="(max-width: 700px) 100vw, 360px" alt="" loading="lazy" /> : <span className="pick-nopic">{h.name.slice(0, 1)}</span>}</Link>
                   <div className="pick-body">
-                    <div className="stay-where">{[h.stars ? t.star(h.stars) : null, h.cityName].filter(Boolean).join(", ")}</div>
+                    {h.stars ? <div className="stay-where">{t.star(h.stars)}</div> : null}
                     <h3><Link href={href}>{h.name}</Link></h3>
                     {h.tip && <p className="stay-tip">{h.tip}</p>}
-                    <Link className="btn btn-brand" href={href}>{t.seeRooms}</Link>
+                    <div className="pick-cta">
+                      <Link className="btn btn-brand" href={href} aria-label={t.compareAria(h.name)}>{t.compareHotels}</Link>
+                      <Link className="btn" href={`/hotel/${h.ebcId}?${qs}`}>{t.viewHotel}</Link>
+                    </div>
                   </div>
                 </li>
               );

@@ -21,8 +21,8 @@ export async function sendEmail(to: string, subject: string, html: string, text:
 
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const E = {
-  en: { confirmed: (h: string, r: string) => `${h} is confirmed, ${r}`, received: (h: string, r: string) => `${h}: booking received, ${r}`, demo: "This is a demo booking, paid with a Stripe test card: no room is reserved at the hotel and no money was taken.", onReq: "We have your booking and the hotel is confirming it now, usually within a few hours. You get a second email the moment it does.", ok: "Your room is booked. Show this email or the reference at check in if the hotel asks.", ref: "Reference", hotelRef: "Hotel confirmation", trip: "Your trip", price: "Price breakdown", total: "Total paid", tax: "Taxes and charges included. City tax, if any, is paid at the hotel.", cancel: "Cancellation", change: "Changes", penalty: "Penalty", refund: "You get back", manage: "Manage or cancel your booking", requests: "Requests sent to the hotel", footer: (b: string) => `${b} runs on Nomadly, a Veny Inc. company, New York. Support every day, 08:00 to 22:00 UTC.` },
-  cs: { confirmed: (h: string, r: string) => `${h}: rezervace potvrzena, ${r}`, received: (h: string, r: string) => `${h}: rezervace přijata, ${r}`, demo: "Toto je ukázková rezervace zaplacená testovací kartou Stripe: v hotelu není nic rezervováno a nebyly strženy žádné peníze.", onReq: "Rezervaci máme a hotel ji právě potvrzuje, obvykle do několika hodin. Hned potom vám přijde druhý e-mail.", ok: "Pokoj je rezervovaný. Pokud se hotel zeptá, ukažte tento e-mail nebo číslo rezervace.", ref: "Číslo rezervace", hotelRef: "Potvrzení hotelu", trip: "Vaše cesta", price: "Rozpis ceny", total: "Celkem zaplaceno", tax: "Včetně daní a poplatků. Případnou městskou taxu platíte v hotelu.", cancel: "Storno", change: "Změny", penalty: "Storno poplatek", refund: "Vrátíme", manage: "Spravovat nebo zrušit rezervaci", requests: "Požadavky pro hotel", footer: (b: string) => `${b} běží na Nomadly, společnosti Veny Inc., New York. Podpora denně 08:00 až 22:00 UTC.` },
+  en: { confirmed: (h: string, r: string) => `${h} is confirmed, ${r}`, received: (h: string, r: string) => `${h}: booking received, ${r}`, demo: "Demo checkout complete. Live prices and a Stripe test card: nothing was charged and the hotel holds no room.", sample: "Sample total", onReq: "We have your booking and the hotel is confirming it now, usually within a few hours. You get a second email the moment it does.", ok: "Your room is booked. Show this email or the reference at check in if the hotel asks.", ref: "Reference", hotelRef: "Hotel confirmation", trip: "Your trip", price: "Price breakdown", total: "Paid to Nomadly", tax: "Taxes and charges included. City tax, if any, is paid at the hotel.", cancel: "Cancellation", change: "Changes", penalty: "Cancellation fee", refund: "Estimated refund", manage: "Manage or cancel your booking", requests: "Requests sent to the hotel", footer: (b: string) => `${b} runs on Nomadly, a Veny Inc. company, New York. Support every day, 08:00 to 22:00 UTC.` },
+  cs: { confirmed: (h: string, r: string) => `${h}: rezervace potvrzena, ${r}`, received: (h: string, r: string) => `${h}: rezervace přijata, ${r}`, demo: "Ukázková rezervace dokončena. Skutečné ceny a testovací karta Stripe: nic se nestrhlo a hotel žádný pokoj nedrží.", sample: "Ukázková cena", onReq: "Rezervaci máme a hotel ji právě potvrzuje, obvykle do několika hodin. Hned potom vám přijde druhý e-mail.", ok: "Pokoj je rezervovaný. Pokud se hotel zeptá, ukažte tento e-mail nebo číslo rezervace.", ref: "Číslo rezervace", hotelRef: "Potvrzení hotelu", trip: "Vaše cesta", price: "Rozpis ceny", total: "Zaplaceno Nomadly", tax: "Včetně daní a poplatků. Případnou městskou taxu platíte v hotelu.", cancel: "Storno", change: "Změny", penalty: "Storno poplatek", refund: "Odhad vrácené částky", manage: "Spravovat nebo zrušit rezervaci", requests: "Požadavky pro hotel", footer: (b: string) => `${b} běží na Nomadly, společnosti Veny Inc., New York. Podpora denně 08:00 až 22:00 UTC.` },
 };
 
 export async function sendBookingEmail(b: Booking, base: string): Promise<boolean> {
@@ -33,7 +33,7 @@ export async function sendBookingEmail(b: Booking, base: string): Promise<boolea
   const brand = sf?.brandName ?? "Nomadly";
   const m = (v: number) => money(v, { lang, currency: b.currency || "USD" });
   const d = (iso: string) => fmtDay(iso, lang);
-  const link = `${base}/booking/${encodeURIComponent(b.reference)}?email=${encodeURIComponent(b.leadEmail)}`;
+  const link = `${base}/booking/${encodeURIComponent(b.reference)}/open?email=${encodeURIComponent(b.leadEmail)}`;
   const onReq = b.status === "on_request";
   const name = hotel?.name ?? "Your stay";
   const subject = `${b.demo ? "[Demo] " : ""}${onReq ? e.received(name, b.reference) : e.confirmed(name, b.reference)}`;
@@ -51,7 +51,7 @@ export async function sendBookingEmail(b: Booking, base: string): Promise<boolea
 ${b.demo ? `<p style="background:#fdf0dc;padding:10px 12px;border-radius:10px;font-size:14px">${esc(e.demo)}</p>` : ""}
 <h1 style="font-family:Georgia,serif;font-weight:500;font-size:28px;margin:0 0 6px">${esc(name)}</h1>
 <p style="margin:0 0 14px;color:#5b6270">${esc([hotel?.address, hotel?.cityName].filter(Boolean).join(", "))}</p>
-<p style="margin:0 0 16px">${esc(onReq ? e.onReq : e.ok)}</p>
+<p style="margin:0 0 16px">${esc(onReq ? e.onReq : b.demo ? "" : e.ok)}</p>
 <table role="presentation" width="100%" style="border-collapse:collapse;margin-bottom:18px"><tr>
 <td style="padding:12px;border:1px solid #e3e5e9;border-radius:10px"><div style="font-size:12px;color:#5b6270">${e.ref}</div><div style="font-size:20px;font-weight:700">${esc(b.reference)}</div>${b.hotelConfirmation ? `<div style="font-size:12px;color:#5b6270;margin-top:6px">${e.hotelRef}: <b>${esc(b.hotelConfirmation)}</b></div>` : ""}</td>
 <td style="padding:12px;border:1px solid #e3e5e9"><div style="font-size:12px;color:#5b6270">${w.checkin}</div><div style="font-weight:700">${esc(d(b.checkIn))}</div><div style="font-size:12px;color:#5b6270">${w.checkout}</div><div style="font-weight:700">${esc(d(b.checkOut))}</div></td></tr></table>
@@ -60,7 +60,7 @@ ${b.demo ? `<p style="background:#fdf0dc;padding:10px 12px;border-radius:10px;fo
 ${req ? `<p style="background:#f4f5f7;border-radius:10px;padding:10px 12px;font-size:14px"><b>${e.requests}:</b> ${esc(req)}</p>` : ""}
 <h2 style="font-size:17px;margin:18px 0 8px">${e.price}</h2>
 <table role="presentation" width="100%" style="border-collapse:collapse">${lines.map((l) => `<tr><td style="padding:6px 0;font-size:14px">${esc(l.label)}${l.detail ? `<br><span style="color:#5b6270;font-size:12px">${esc(l.detail)}</span>` : ""}</td><td style="padding:6px 0;text-align:right;font-size:14px;white-space:nowrap">${esc(m(l.amount))}</td></tr>`).join("")}
-<tr><td style="padding:10px 0 0;border-top:1px solid #e3e5e9;font-weight:700">${e.total}</td><td style="padding:10px 0 0;border-top:1px solid #e3e5e9;text-align:right;font-weight:700;font-size:20px">${esc(m(total))}</td></tr></table>
+<tr><td style="padding:10px 0 0;border-top:1px solid #e3e5e9;font-weight:700">${b.demo ? e.sample : e.total}</td><td style="padding:10px 0 0;border-top:1px solid #e3e5e9;text-align:right;font-weight:700;font-size:20px">${esc(m(total))}</td></tr></table>
 <p style="font-size:12px;color:#5b6270">${e.tax}</p>
 <h2 style="font-size:17px;margin:18px 0 8px">${e.cancel}</h2>
 <table role="presentation" width="100%" style="border-collapse:separate;border-spacing:0 6px">${stages.map((s) => `<tr><td style="background:${tone[s.tone][0]};padding:10px 12px;border-radius:10px;font-size:14px"><b>${esc(s.title)}</b>${s.to || s.from ? `<br><span style="color:#5b6270">${s.from ? esc(d(s.from)) + " " : ""}${s.to ? "→ " + esc(d(s.to)) : ""}</span>` : ""}</td><td style="background:${tone[s.tone][0]};padding:10px 12px;border-radius:10px;text-align:right;font-size:14px;white-space:nowrap"><b style="color:${tone[s.tone][1]}">${e.penalty} ${esc(m(s.charge))}</b><br><span style="color:#5b6270">${e.refund} ${esc(m(s.refund))}</span></td></tr>`).join("")}</table>
@@ -70,12 +70,12 @@ ${req ? `<p style="background:#f4f5f7;border-radius:10px;padding:10px 12px;font-
 </div><p style="color:#8a909a;font-size:12px;text-align:center">${esc(e.footer(brand))}</p></div></body></html>`;
 
   const text = [
-    ...(b.demo ? [e.demo] : []), onReq ? e.onReq : e.ok,
+    ...(b.demo ? [e.demo] : [onReq ? e.onReq : e.ok]),
     `${e.ref}: ${b.reference}${b.hotelConfirmation ? `, ${e.hotelRef}: ${b.hotelConfirmation}` : ""}`,
     `${name}. ${w.checkin} ${d(b.checkIn)}, ${w.checkout} ${d(b.checkOut)}.`,
     `${e.trip}:\n${steps.map((s) => `  ${d(s.date)}  ${s.title}${s.detail ? `: ${s.detail}` : ""}`).join("\n")}`,
     ...(req ? [`${e.requests}: ${req}`] : []),
-    `${e.price}:\n${lines.map((l) => `  ${l.label}: ${m(l.amount)}`).join("\n")}\n  ${e.total}: ${m(total)}`,
+    `${e.price}:\n${lines.map((l) => `  ${l.label}: ${m(l.amount)}`).join("\n")}\n  ${b.demo ? e.sample : e.total}: ${m(total)}`,
     `${e.cancel}:\n${stages.map((s) => `  ${s.title}${s.to ? ` (→ ${d(s.to)})` : ""}: ${e.penalty} ${m(s.charge)}, ${e.refund} ${m(s.refund)}`).join("\n")}`,
     `${e.change}:\n${changesFor(b, lang).map((c) => `  ${c}`).join("\n")}`,
     `${e.manage}: ${link}`, e.footer(brand),
