@@ -40,7 +40,7 @@ export default function CancelButton({ bookingId, email, penalty, refund, demo =
         <div><dt>{L.addons}</dt><dd>{L.addonsV}</dd></div>
         <div><dt>{L.when}</dt><dd>{demo ? L.demo : L.whenV}</dd></div>
       </dl>
-      <p className="small">{(penalty === 0 ? t.cancelFull(usd(refund)) : t.cancelCost(usd(penalty), usd(refund))) + t.cannotUndo}</p>
+      <p className="small">{demo ? t.cannotUndo.trim() : (penalty === 0 ? t.cancelFull(usd(refund)) : t.cancelCost(usd(penalty), usd(refund))) + t.cannotUndo}</p>
       {err && <p className="small" role="alert" style={{ color: "var(--bad)", margin: 0 }}>{err}</p>}
       <div className="cx-actions">
         <button type="button" className="btn btn-danger" onClick={go} disabled={busy}>{busy ? t.canceling : t.yesCancel}</button>
