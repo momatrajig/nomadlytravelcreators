@@ -11,8 +11,8 @@ export interface TxBooking {
 }
 const ICON: Record<TxLine["category"], LucideIcon> = { hotel: BedDouble, transfer: CarTaxiFront, esim: Smartphone, bag: Luggage, delay: Timer };
 const CAT: Record<TxLine["category"], string> = { hotel: "Hotel", transfer: "Airport ride", esim: "eSIM", bag: "Bag cover", delay: "Delay cover" };
-type ColKey = "source" | "product" | "tx" | "pay" | "price" | "commission" | "date" | "stay" | "nights";
-const COLS: Array<[ColKey, string]> = [["source", "Source"], ["product", "Products"], ["tx", "Transaction"], ["pay", "Payment"], ["price", "Booking value"], ["commission", "Commission"], ["date", "Booked"], ["stay", "Stay"], ["nights", "Nights"]];
+type ColKey = "source" | "product" | "status" | "price" | "commission" | "date" | "stay" | "nights";
+const COLS: Array<[ColKey, string]> = [["source", "Source"], ["product", "Products"], ["status", "Status"], ["price", "Booking value"], ["commission", "Commission"], ["date", "Booked"], ["stay", "Stay"], ["nights", "Nights"]];
 const money = (v: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", currencyDisplay: "narrowSymbol" }).format(v);
 const day = (iso: string | null, y = true) => (iso ? new Date(`${iso.slice(0, 10)}T12:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", ...(y ? { year: "numeric" } : {}), timeZone: "UTC" }) : "");
 
@@ -70,8 +70,7 @@ export default function TxTable({ rows, range }: { rows: TxBooking[]; range: str
           <th>Booking</th>
           {on("source") && <th>Source</th>}
           {on("product") && <th>Products</th>}
-          {on("tx") && <th>Transaction</th>}
-          {on("pay") && <th>Payment</th>}
+          {on("status") && <th>Transaction <span className="mute">/ payment</span></th>}
           {on("price") && th("price", "Booking value", true)}
           {on("commission") && th("commission", "Commission", true)}
           {on("date") && th("date", "Booked")}
@@ -86,12 +85,11 @@ export default function TxTable({ rows, range }: { rows: TxBooking[]; range: str
                 <td className="bk-cell"><b>{r.hotel}</b><div className="small mute">{r.reference}{r.demo && <span className="chip chip-demo">demo</span>}</div></td>
                 {on("source") && <td className="small src" title={r.source ?? "direct"}>{r.source ?? <span className="mute">direct</span>}</td>}
                 {on("product") && <td><span className="prods">{r.lines.map((l, i) => <span key={i} className={`prod p-${l.category}`} title={CAT[l.category]}><Ico of={ICON[l.category]} size={14} /></span>)}</span></td>}
-                {on("tx") && <td><span className={`status st-${r.tx}`}>{r.tx}</span></td>}
-                {on("pay") && <td><span className={`status st-${r.pay}`}>{r.pay}</span></td>}
+                {on("status") && <td><div className="st2"><span className={`status st-${r.tx}`}>{r.tx}</span><span className={`status st-${r.pay}`}>{r.pay}</span></div></td>}
                 {on("price") && <td className="n">{money(r.price)}</td>}
                 {on("commission") && <td className="n strong">{money(r.commission)}</td>}
-                {on("date") && <td className="nowrap">{day(r.date)}</td>}
-                {on("stay") && <td className="nowrap">{day(r.checkIn, false)} to {day(r.checkOut)}</td>}
+                {on("date") && <td className="nowrap">{day(r.date, false)}<div className="small mute">{r.date.slice(0, 4)}</div></td>}
+                {on("stay") && <td className="nowrap">{day(r.checkIn, false)} to<br />{day(r.checkOut)}</td>}
                 {on("nights") && <td className="n">{r.nights ?? ""}</td>}
                 <td className="n"><button type="button" className="row-x" aria-expanded={open === r.id} aria-label={`Details for ${r.reference}`} onClick={() => setOpen((o) => (o === r.id ? null : r.id))}><Ico of={ChevronDown} size={16} /></button></td>
               </tr>
