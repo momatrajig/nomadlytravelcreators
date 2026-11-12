@@ -32,7 +32,8 @@ export default function HotelMap({ lat, lng, name, labels, color = "#14161a" }: 
         pin.style.setProperty("--pin", color);
         pin.setAttribute("aria-label", name);
         new ml.Marker({ element: pin, anchor: "bottom" }).setLngLat([lng, lat]).addTo(m);
-        m.on("load", () => { setState("ready"); el.querySelector(".maplibregl-ctrl-attrib")?.classList.remove("maplibregl-compact-show"); });
+        setState("ready");
+        m.on("load", () => el.querySelector(".maplibregl-ctrl-attrib")?.classList.remove("maplibregl-compact-show"));
         m.on("error", () => setState((s) => (s === "ready" ? s : "failed")));
         map = m;
       } catch (e) { console.warn("map", e); setState("failed"); }
