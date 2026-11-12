@@ -134,7 +134,7 @@ export default function CheckoutForm(p: Props) {
               {field("firstName", co.firstName, { autoComplete: forWhom === "self" ? "given-name" : "off" })}
               {field("lastName", co.lastName, { autoComplete: forWhom === "self" ? "family-name" : "off" })}
             </div>
-            {field("email", co.email, { type: "email", autoComplete: "email", inputMode: "email" }, co.emailHint)}
+            {field("email", co.email, { type: "email", autoComplete: "email", inputMode: "email", autoCapitalize: "none", spellCheck: false }, co.emailHint)}
             <div className="grid2">
               <div className="field">
                 <label htmlFor="f-country">{co.country} <span className="req">*</span></label>
