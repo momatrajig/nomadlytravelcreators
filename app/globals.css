@@ -666,3 +666,11 @@ p { margin: 0; }
 }
 .rooms-row { align-items: start; }
 @media (max-width: 900px) { .search .f-dates, .search .f-guests { grid-column: 1 / -1; } }
+.search-sum { display: none; }
+@media (max-width: 620px) {
+  .search.collapsed { display: none; }
+  .search-sum { display: grid; grid-template-columns: 22px 1fr auto; gap: 12px; align-items: center; width: 100%; text-align: left; padding: 12px 16px; border: 1.5px solid var(--ink); border-radius: 14px; background: var(--paper); font: inherit; color: var(--ink); cursor: pointer; box-shadow: var(--shadow); }
+  .search-sum svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+  .search-sum b { display: block; font-size: 15.5px; } .search-sum small { color: var(--ink-2); font-size: 13px; }
+  .search-sum em { font-style: normal; font-weight: 600; font-size: 14px; color: var(--brand); }
+}

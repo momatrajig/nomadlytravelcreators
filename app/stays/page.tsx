@@ -44,7 +44,7 @@ export default async function Stays({ searchParams }: { searchParams: Promise<Re
   const datesQs = qs;
   return (
     <>
-      <div className="page-search"><SearchBar lang={f.lang} checkIn={checkIn} checkOut={checkOut} adults={adults} dest={d?.slug ?? ""} destinations={dests.map((x) => ({ slug: x.slug, name: x.name }))} /></div>
+      <div className="page-search"><SearchBar compact lang={f.lang} checkIn={checkIn} checkOut={checkOut} adults={adults} dest={d?.slug ?? ""} destinations={dests.map((x) => ({ slug: x.slug, name: x.name }))} /></div>
       {!pick && (
         <nav className="filters" aria-label="Destinations and seasons">
           {chip(`/stays?${qs}`, t.all, !d && !col)}

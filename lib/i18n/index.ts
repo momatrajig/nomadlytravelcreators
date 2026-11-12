@@ -38,7 +38,7 @@ export function fmtDay(iso: string, lang: Lang): string {
 const en = {
   lang: "en" as Lang,
   // header, footer, nav
-  hotels: "Hotels", yourBooking: "Your booking", home: "Home", creatorDashboard: "Creator dashboard", forCreators: "For creators", chooseRoom: "Choose your room", reviewsN: (n: string) => `${n} reviews`, scoreWord: (r: number): string => r >= 9 ? "Exceptional" : r >= 8.5 ? "Excellent" : r >= 8 ? "Very good" : r >= 7 ? "Good" : "Reviewed", fromWord: "from", dashboard: "Dashboard",
+  hotels: "Hotels", yourBooking: "Your booking", home: "Home", creatorDashboard: "Creator dashboard", forCreators: "For creators", edit: "Edit", chooseRoom: "Choose your room", reviewsN: (n: string) => `${n} reviews`, scoreWord: (r: number): string => r >= 9 ? "Exceptional" : r >= 8.5 ? "Excellent" : r >= 8 ? "Very good" : r >= 7 ? "Good" : "Reviewed", fromWord: "from", dashboard: "Dashboard",
   recommendedBy: (b: string) => `Recommended by ${b}`, alsoPick: (b: string) => `Also a ${b} pick`, similarNearby: "Similar stays nearby", similarSub: "Same class, closest first.", totalFor: (n: number) => `Total for ${n} ${n === 1 ? "night" : "nights"}, taxes included.`,
   kmAway: (km: number) => km < 1 ? `${Math.round(km * 1000 / 50) * 50} m away` : `${km.toFixed(1)} km away`, pickGone: "Your pick has no rooms on these dates. Try other dates, or one of the stays below.",
   stayingIn: (p: string) => `Stays in ${p}`, theirPicks: (b: string) => `${b}'s picks`, seePicks: "See all picks", picksSub: (n: number, p: number) => `${n} ${n === 1 ? "hotel" : "hotels"} in ${p} ${p === 1 ? "place" : "places"}, each chosen and stayed in.`,
@@ -118,7 +118,7 @@ export type Dict = typeof en;
 
 const cs: Dict = {
   lang: "cs",
-  hotels: "Hotely", yourBooking: "Moje rezervace", home: "Domů", creatorDashboard: "Přehled pro autory", forCreators: "Pro autory", chooseRoom: "Vyberte pokoj", reviewsN: (n: string) => `${n} hodnocení`, scoreWord: (r: number) => r >= 9 ? "Výjimečné" : r >= 8.5 ? "Vynikající" : r >= 8 ? "Velmi dobré" : r >= 7 ? "Dobré" : "Hodnoceno", fromWord: "od", dashboard: "Přehled",
+  hotels: "Hotely", yourBooking: "Moje rezervace", home: "Domů", creatorDashboard: "Přehled pro autory", forCreators: "Pro autory", edit: "Upravit", chooseRoom: "Vyberte pokoj", reviewsN: (n: string) => `${n} hodnocení`, scoreWord: (r: number) => r >= 9 ? "Výjimečné" : r >= 8.5 ? "Vynikající" : r >= 8 ? "Velmi dobré" : r >= 7 ? "Dobré" : "Hodnoceno", fromWord: "od", dashboard: "Přehled",
   recommendedBy: (b) => `Doporučuje ${b}`, alsoPick: (b) => `Také tip: ${b}`, similarNearby: "Podobná ubytování poblíž", similarSub: "Stejná třída, od nejbližšího.", totalFor: (n: number) => `Cena za ${n} ${plural("cs", n, "noc", "noci", "nocí")} vč. daní.`,
   kmAway: (km) => km < 1 ? `${Math.round(km * 1000 / 50) * 50} m odsud` : `${km.toFixed(1).replace(".", ",")} km odsud`, pickGone: "Doporučený hotel nemá na tyto termíny volné pokoje. Zkuste jiné termíny nebo ubytování níže.",
   stayingIn: (p) => `Ubytování: ${p}`, theirPicks: (b) => `Tipy: ${b}`, seePicks: "Všechny tipy", picksSub: (n, p) => `${n} ${plural("cs", n, "hotel", "hotely", "hotelů")} v ${p} ${plural("cs", p, "místě", "místech", "místech")}, všechny vybrané a vyzkoušené.`,

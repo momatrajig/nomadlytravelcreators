@@ -1,17 +1,19 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { dict, type Lang } from "@/lib/i18n";
+import { dict, fmtDay, type Lang } from "@/lib/i18n";
 import DateRange from "@/components/DateRange";
 
 export interface SearchDest { slug: string; name: string }
 
 /** Where, when, who. Validates dates in place; the server re-validates. */
-export default function SearchBar({ checkIn, checkOut, adults, dest = "", destinations, lang = "en" }: { checkIn: string; checkOut: string; adults: number; dest?: string; destinations: SearchDest[]; lang?: Lang }) {
+/** compact: on phones, results pages show a one line summary that opens the full form (Booking.com style). */
+export default function SearchBar({ checkIn, checkOut, adults, dest = "", destinations, lang = "en", compact = false }: { checkIn: string; checkOut: string; adults: number; dest?: string; destinations: SearchDest[]; lang?: Lang; compact?: boolean }) {
   const t = dict(lang);
   const r = useRouter();
   const [d, setD] = useState(dest), [a, setA] = useState(checkIn), [b, setB] = useState(checkOut), [n, setN] = useState(adults), [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [open, setOpen] = useState(false);
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     const nights = Math.round((Date.parse(b) - Date.parse(a)) / 86_400_000);
@@ -19,8 +21,17 @@ export default function SearchBar({ checkIn, checkOut, adults, dest = "", destin
     setErr(null); setBusy(true);
     r.push(`/stays?${d ? `d=${d}&` : ""}in=${a}&out=${b}&adults=${n}`);
   };
+  const place = destinations.find((x) => x.slug === dest)?.name ?? t.anywhere;
   return (
-    <form className="search" onSubmit={submit} aria-label="Search stays">
+    <>
+    {compact && !open && (
+      <button type="button" className="search-sum" onClick={() => setOpen(true)} aria-expanded={false}>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.5 18a7.5 7.5 0 100-15 7.5 7.5 0 000 15zM21 21l-5.2-5.2" /></svg>
+        <span><b>{place}</b><small>{fmtDay(checkIn, lang)} → {fmtDay(checkOut, lang)} · {t.adultsN(adults)}</small></span>
+        <em>{t.edit}</em>
+      </button>
+    )}
+    <form className={`search${compact && !open ? " collapsed" : ""}`} onSubmit={submit} aria-label="Search stays">
       <div className="field f-where"><label htmlFor="s-d">{t.where}</label>
         <select id="s-d" value={d} onChange={(e) => setD(e.target.value)}>
           <option value="">{t.anywhere}</option>
@@ -33,5 +44,6 @@ export default function SearchBar({ checkIn, checkOut, adults, dest = "", destin
       <button className="btn btn-brand" type="submit" disabled={busy}>{busy ? t.searching : t.seePrices}</button>
       {err && <p className="search-err" role="alert">{err}</p>}
     </form>
+    </>
   );
 }
