@@ -664,3 +664,4 @@ p { margin: 0; }
   .rooms-filters .chip-btn { flex: none; }
   .tax-line { font-size: 12.5px; }
 }
+.rooms-row { align-items: start; }

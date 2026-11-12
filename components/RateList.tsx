@@ -117,7 +117,7 @@ export default function RateList({ ebcId, rates, nights, checkIn, checkOut, adul
                   <button className="btn btn-brand" type="button" onClick={() => book(sel.packageCode)} aria-disabled={busy !== null} disabled={busy !== null}>{busy === sel.packageCode ? rd.holding : rd.reserve}</button>
                 </div>
                 {/* only what the option above does not already say: the charge after the free period */}
-                {freeNow(sel) && sel.cancelCharge && sel.cancelDeadline ? <p className="small mute room-note">{rd.after(fmtDay(sel.cancelDeadline, f.lang), p$(sel.cancelCharge, false))}</p> : !sel.refundable ? <p className="small mute room-note">{rd.noRefundShort}</p> : null}
+                {freeNow(sel) && sel.cancelCharge && sel.cancelDeadline ? <p className="small mute room-note">{rd.after(fmtDay(sel.cancelDeadline, f.lang), p$(sel.cancelCharge))}</p> : !sel.refundable ? <p className="small mute room-note">{rd.noRefundShort}</p> : null}
                 {room.bedNote && <p className="small mute room-note">{rd.bedNote}</p>}
               </div>
             </li>
