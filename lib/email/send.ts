@@ -46,7 +46,7 @@ export async function sendBookingEmail(b: Booking, base: string): Promise<boolea
   const tone = { ok: ["#e7f5ed", "#155c3e"], warn: ["#fff2d7", "#774205"], bad: ["#fceef0", "#a12832"] } as const;
   const btn = `background:${color};color:#fff;text-decoration:none;padding:13px 22px;border-radius:999px;font-weight:700;display:inline-block`;
 
-  const html = `<!doctype html><html><body style="margin:0;background:#f6f8fc"><div style="display:none;max-height:0;overflow:hidden;opacity:0">${esc(`${b.reference}: ${name}, ${d(b.checkIn)} to ${d(b.checkOut)}`)}</div><div style="font-family:Helvetica,Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px 16px;color:#17243a">
+  const html = `<!doctype html><html><body style="margin:0;background:#f6f8fc"><div style="display:none;max-height:0;overflow:hidden;opacity:0">${esc(`${b.reference}: ${name}, ${d(b.checkIn)} ${lang === "cs" ? "až" : "to"} ${d(b.checkOut)}`)}</div><div style="font-family:Helvetica,Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px 16px;color:#17243a">
 <p style="font-size:13px;color:#526079;margin:0 0 12px">${esc(brand)} with Nomadly</p>
 <div style="background:#fff;border-radius:16px;padding:24px;border:1px solid #dbe2ed">
 ${b.demo ? `<p style="background:#fdf0dc;padding:10px 12px;border-radius:10px;font-size:14px">${esc(e.demo)}</p>` : ""}
@@ -65,7 +65,7 @@ ${req ? `<p style="background:#f6f8fc;border-radius:10px;padding:10px 12px;font-
 <tr><td style="padding:10px 0 0;border-top:1px solid #dbe2ed;font-weight:700">${b.demo ? e.sample : e.total}</td><td style="padding:10px 0 0;border-top:1px solid #dbe2ed;text-align:right;font-weight:700;font-size:20px">${esc(m(total))}</td></tr></table>
 <p style="font-size:12px;color:#526079">${e.tax}</p>
 <h2 style="font-size:17px;margin:18px 0 8px">${e.cancel}</h2>
-<table role="presentation" width="100%" style="border-collapse:separate;border-spacing:0 6px">${stages.map((s) => `<tr><td style="background:${tone[s.tone][0]};padding:10px 12px;border-radius:10px;font-size:14px"><b>${esc(s.title)}</b>${s.to || s.from ? `<br><span style="color:#526079">${s.from ? esc(d(s.from)) + " " : ""}${s.to ? (s.from ? "to " : "until ") + esc(d(s.to)) : ""}</span>` : ""}</td><td style="background:${tone[s.tone][0]};padding:10px 12px;border-radius:10px;text-align:right;font-size:14px;white-space:nowrap"><b style="color:${tone[s.tone][1]}">${e.penalty} ${esc(m(s.charge))}</b><br><span style="color:#526079">${e.refund} ${esc(m(s.refund))}</span></td></tr>`).join("")}</table>
+<table role="presentation" width="100%" style="border-collapse:separate;border-spacing:0 6px">${stages.map((s) => `<tr><td style="background:${tone[s.tone][0]};padding:10px 12px;border-radius:10px;font-size:14px"><b>${esc(s.title)}</b>${s.to || s.from ? `<br><span style="color:#526079">${s.from ? esc(d(s.from)) + " " : ""}${s.to ? (s.from ? (lang === "cs" ? "až " : "to ") : (lang === "cs" ? "do " : "until ")) + esc(d(s.to)) : ""}</span>` : ""}</td><td style="background:${tone[s.tone][0]};padding:10px 12px;border-radius:10px;text-align:right;font-size:14px;white-space:nowrap"><b style="color:${tone[s.tone][1]}">${e.penalty} ${esc(m(s.charge))}</b><br><span style="color:#526079">${e.refund} ${esc(m(s.refund))}</span></td></tr>`).join("")}</table>
 <h2 style="font-size:17px;margin:18px 0 8px">${e.change}</h2>
 <ul style="padding-left:18px;margin:0 0 18px;font-size:14px;color:#3a4859">${changesFor(b, lang).map((c) => `<li style="margin-bottom:6px">${esc(c)}</li>`).join("")}</ul>
 <p style="text-align:center;margin:22px 0 4px"><a href="${esc(link)}" style="${btn}">${e.manage}</a></p>
@@ -78,7 +78,7 @@ ${req ? `<p style="background:#f6f8fc;border-radius:10px;padding:10px 12px;font-
     `${e.trip}:\n${steps.map((s) => `  ${d(s.date)}  ${s.title}${s.detail ? `: ${s.detail}` : ""}`).join("\n")}`,
     ...(req ? [`${e.requests}: ${req}`] : []),
     `${e.price}:\n${lines.map((l) => `  ${l.label}: ${m(l.amount)}`).join("\n")}\n  ${b.demo ? e.sample : e.total}: ${m(total)}`,
-    `${e.cancel}:\n${stages.map((s) => `  ${s.title}${s.to ? ` (until ${d(s.to)})` : ""}: ${e.penalty} ${m(s.charge)}, ${e.refund} ${m(s.refund)}`).join("\n")}`,
+    `${e.cancel}:\n${stages.map((s) => `  ${s.title}${s.to ? ` (${lang === "cs" ? "do" : "until"} ${d(s.to)})` : ""}: ${e.penalty} ${m(s.charge)}, ${e.refund} ${m(s.refund)}`).join("\n")}`,
     `${e.change}:\n${changesFor(b, lang).map((c) => `  ${c}`).join("\n")}`,
     `${e.manage}: ${link}`, e.footer(brand),
   ].join("\n\n");
