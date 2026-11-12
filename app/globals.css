@@ -665,3 +665,4 @@ p { margin: 0; }
   .tax-line { font-size: 12.5px; }
 }
 .rooms-row { align-items: start; }
+@media (max-width: 900px) { .search .f-dates, .search .f-guests { grid-column: 1 / -1; } }
