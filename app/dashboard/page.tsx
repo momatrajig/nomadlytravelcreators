@@ -1,3 +1,5 @@
+import { Check, MousePointerClick, X } from "lucide-react";
+import { Ico } from "@/components/Icon";
 import Link from "next/link";
 import { dashContext } from "@/lib/dashboard/context";
 import { db } from "@/lib/db";
@@ -198,7 +200,7 @@ function Activity({ clicks, txs, name, slug }: { clicks: Click[]; txs: Tx[]; nam
         <ol className="act" role="list">
           {evs.map((e) => (
             <li key={e.key} className={`act-${e.kind}`}>
-              <span className="act-ico" aria-hidden="true">{e.kind === "click" ? "↗" : e.kind === "cancel" ? "×" : "✓"}</span>
+              <span className="act-ico" aria-hidden="true"><Ico of={e.kind === "click" ? MousePointerClick : e.kind === "cancel" ? X : Check} size={16} /></span>
               <div><b>{e.title}</b><div className="small mute">{e.detail}</div></div>
               <div className="act-r">{e.amount && <div className="small"><b>{e.amount}</b></div>}{e.status && <span className={`status st-${e.status}`}>{e.status}</span>}<div className="small mute">{ago(e.at, now)}</div></div>
             </li>

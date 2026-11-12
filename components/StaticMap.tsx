@@ -1,4 +1,5 @@
 "use client";
+import { ArrowUpRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 /**
@@ -50,7 +51,7 @@ export default function HotelMap({ lat, lng, name, labels, color = "#14161a" }: 
       <div ref={box} className={`map-canvas ${state}`} role="img" aria-label={labels?.[0] ?? `Map of ${name}`}>
         {state === "failed" && <a className="map-fallback" href={full} target="_blank" rel="noreferrer">{labels?.[1] ?? "Open the full map"}</a>}
       </div>
-      <figcaption><a href={full} target="_blank" rel="noreferrer">{labels?.[1] ?? "Open the full map"} ↗</a></figcaption>
+      <figcaption><a href={full} target="_blank" rel="noreferrer">{labels?.[1] ?? "Open the full map"}<ArrowUpRight size={14} aria-hidden="true" /></a></figcaption>
     </figure>
   );
 }

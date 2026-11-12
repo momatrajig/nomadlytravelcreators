@@ -1,3 +1,4 @@
+import { Stars } from "@/components/Icon";
 import Link from "next/link";
 import { Suspense } from "react";
 import type { Hotel, PinnedHotel, Storefront } from "@/lib/db/types";
@@ -140,7 +141,7 @@ function StayRow({ t, f, sf, h, nights, href, featured, soldOut, km: away }: { t
         <div className="stay-where">{[h.area, h.city].filter(Boolean).join(", ")}{away != null ? `${h.area || h.city ? ". " : ""}${t.kmAway(away)}` : ""}</div>
         <h2><Link href={href}>{h.name}</Link></h2>
         <div className="stay-facts hotel-facts">
-          {h.stars ? <span className="stars" aria-label={t.star(h.stars)}>{"★".repeat(h.stars)}</span> : null}
+          {h.stars ? <Stars n={h.stars} label={t.star(h.stars)} /> : null}
           {h.rating ? <span className="score"><b className="num">{h.rating.toFixed(1)}</b><span>{t.scoreWord(h.rating)}</span><small className="num">{t.reviewsN(h.ratingCount?.toLocaleString(f.lang === "cs" ? "cs-CZ" : "en-US") ?? "")}</small></span> : null}
         </div>
         {freeNow(h) && h.cancelDeadline ? <div className="free-chip">{t.freeCancelUntil(fmtDate(h.cancelDeadline))}</div> : null}

@@ -1,6 +1,10 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { BedDouble, LayoutDashboard, Store, type LucideIcon } from "lucide-react";
+import { Ico } from "@/components/Icon";
+
+const IC: Record<string, LucideIcon> = { dash: LayoutDashboard, store: Store, platform: BedDouble };
 
 /**
  * The creator's switch between the three parts of Nomadly, shown only to a signed in creator (and on the
@@ -18,7 +22,7 @@ export default function CreatorTabs({ signedIn, slug, labels }: { signedIn: bool
     <div className="ctabs" role="navigation" aria-label={labels.view}>
       <div className="wrap">
         <span className="ctabs-l">{labels.view}</span>
-        {items.map(([k, href, l]) => <Link key={k} href={href} aria-current={tab === k ? "page" : undefined}>{l}</Link>)}
+        {items.map(([k, href, l]) => <Link key={k} href={href} aria-current={tab === k ? "page" : undefined}><Ico of={IC[k]!} size={16} />{l}</Link>)}
       </div>
     </div>
   );

@@ -1,4 +1,6 @@
 "use client";
+import { BedDouble, Coffee, DoorClosed, Users } from "lucide-react";
+import { Ico } from "@/components/Icon";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { approxOf, dict, fmtDay, price, type ReaderFmt } from "@/lib/i18n";
@@ -95,8 +97,8 @@ export default function RateList({ ebcId, rates, nights, checkIn, checkOut, adul
             <li key={room.name} className="rg">
               <div className="rg-id">
                 <h3>{room.name}</h3>
-                <p className="rg-facts"><Ic d={ICONS.guests} />{rd.sleeps(adults)}</p>
-                {room.bedNote && <p className="rg-facts"><Ic d={ICONS.bed} />{rd.bedNote}</p>}
+                <p className="rg-facts"><Ico of={Users} className="ic" />{rd.sleeps(adults)}</p>
+                {room.bedNote && <p className="rg-facts"><Ico of={BedDouble} className="ic" />{rd.bedNote}</p>}
                 {isLowest && <span className="rg-badge">{rd.lowest}</span>}
               </div>
               <ul className="rg-rates" role="list">
@@ -104,7 +106,7 @@ export default function RateList({ ebcId, rates, nights, checkIn, checkOut, adul
                   const tone = freeNow(o) ? "ok" : o.refundable ? "warn" : "bad";
                   return (
                     <li key={o.packageCode} className="rr">
-                      <div className="rr-meal"><Ic d={o.board === "RO" ? ICONS.room : ICONS.cup} /><span>{t.board[o.board] ?? o.board}{o.onRequest ? <small>{rd.onReq}</small> : null}</span></div>
+                      <div className="rr-meal"><Ico of={o.board === "RO" ? DoorClosed : Coffee} className="ic" /><span>{t.board[o.board] ?? o.board}{o.onRequest ? <small>{rd.onReq}</small> : null}</span></div>
                       <div className={`rr-cancel ${tone}`}>
                         <b>{freeNow(o) ? (o.cancelDeadline ? rd.freeUntil(dl(o.cancelDeadline)) : rd.freeNoDate) : o.refundable ? rd.feeNow(p$(o.cancelCharge ?? o.readerPrice)) : rd.nonRef}</b>
                         {freeNow(o) && o.cancelCharge && o.cancelDeadline ? <small>{rd.after(dl(o.cancelDeadline), p$(o.cancelCharge))}</small> : !o.refundable ? <small>{rd.noRefundShort}</small> : null}
@@ -126,10 +128,3 @@ export default function RateList({ ebcId, rates, nights, checkIn, checkOut, adul
   );
 }
 
-const ICONS = {
-  guests: "M16 19v-1.5a3.5 3.5 0 00-3.5-3.5h-5A3.5 3.5 0 004 17.5V19M10 10.5a3 3 0 100-6 3 3 0 000 6zM20 19v-1.5a3.5 3.5 0 00-2.6-3.4M15.5 4.6a3 3 0 010 5.8",
-  bed: "M3 18v-7a2 2 0 012-2h14a2 2 0 012 2v7M3 15h18M3 18v2M21 18v2M7 9V6.5A1.5 1.5 0 018.5 5h7A1.5 1.5 0 0117 6.5V9",
-  cup: "M5 9h11v5a5 5 0 01-5 5h-1a5 5 0 01-5-5zM16 10.5h1.5a2.5 2.5 0 010 5H16M8 3.5v2M11 3.5v2",
-  room: "M4 20V5.5A1.5 1.5 0 015.5 4h13A1.5 1.5 0 0120 5.5V20M2.5 20h19M14.5 12.5h.01",
-} as const;
-const Ic = ({ d }: { d: string }) => <svg className="ic" viewBox="0 0 24 24" aria-hidden="true"><path d={d} /></svg>;

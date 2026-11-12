@@ -7,9 +7,9 @@ import { signedInUser } from "@/lib/auth";
 import { isAdminEmail } from "@/lib/admin";
 import { db } from "@/lib/db";
 import CreatorTabs from "@/components/CreatorTabs";
+import DashNav from "@/components/dash/DashNav";
 import "./dash.css";
 
-const NAV: Array<[string, string]> = [["/dashboard", "Overview"], ["/dashboard/links", "Links"], ["/dashboard/hotels", "Hotels"], ["/dashboard/payouts", "Payouts"], ["/dashboard/earnings", "How you earn"], ["/dashboard/settings", "Storefront"]];
 
 export default async function DashLayout({ children }: { children: React.ReactNode }) {
   const c = await dashContext();
@@ -28,8 +28,7 @@ export default async function DashLayout({ children }: { children: React.ReactNo
     <div className="dash">
       <aside className="dash-side">
         <div className="dash-who"><b>{c.sf.brandName}</b><span>{c.creator.displayName}</span></div>
-        <nav aria-label="Dashboard">{NAV.map(([h, l]) => <Link key={h} href={h}>{l}</Link>)}</nav>
-        
+        <DashNav />
         {c.demo && <Link className="notice warn small" href="/login" style={{ textDecoration: "none" }}>Demo dashboard, read only. Sign in to see your own.</Link>}
         {c.admin && (
           <form action={viewAs} className="dash-admin">

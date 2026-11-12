@@ -1,3 +1,5 @@
+import { ArrowDown, MapPin } from "lucide-react";
+import { Ico, Stars } from "@/components/Icon";
 import Link from "next/link";
 import { Suspense } from "react";
 import type { Storefront } from "@/lib/db/types";
@@ -39,12 +41,12 @@ export default async function HotelPage({ params, searchParams }: { params: Prom
         {pin && <div className="also-pick" style={{ fontSize: 14 }}><CreatorMark sf={sf} size={20} /><span>{t.recommendedBy(sf.brandName)}</span></div>}
         <div className="hotel-title">
           <h1>{hotel.name}</h1>
-          <a className="btn btn-brand view-rooms" href="#rooms"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6" /></svg>{t.seeRooms}</a>
+          <a className="btn btn-brand view-rooms" href="#rooms"><Ico of={ArrowDown} size={18} />{t.seeRooms}</a>
         </div>
         <div className="hotel-facts">
-          {hotel.stars ? <span className="stars" aria-label={t.star(hotel.stars)}>{"★".repeat(hotel.stars)}</span> : null}
+          {hotel.stars ? <Stars n={hotel.stars} label={t.star(hotel.stars)} size={16} /> : null}
           {hotel.rating ? <span className="score"><b className="num">{hotel.rating.toFixed(1)}</b><span>{t.scoreWord(hotel.rating)}</span><small className="num">{t.reviewsN(hotel.ratingCount?.toLocaleString(f.lang === "cs" ? "cs-CZ" : "en-US") ?? "")}</small></span> : null}
-          <span className="addr"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21zm0-9a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" /></svg>{[hotel.address, hotel.address?.includes(hotel.cityName ?? "\u0000") ? null : hotel.cityName].filter(Boolean).join(", ")}</span>
+          <span className="addr"><Ico of={MapPin} size={16} />{[hotel.address, hotel.address?.includes(hotel.cityName ?? "\u0000") ? null : hotel.cityName].filter(Boolean).join(", ")}</span>
         </div>
       </header>
       <GalleryOpener lang={f.lang} photos={pin ? pin.images : hotel.images} name={hotel.name} />

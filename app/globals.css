@@ -4,6 +4,8 @@
  * The photography is the loud part; everything around it stays quiet.
  */
 :root {
+  --i-check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
+  --i-check-green: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23155c3e' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
   color-scheme: light;
   --brand: #234bd7;
   --brand-ink: #ffffff;
@@ -366,7 +368,7 @@ p { margin: 0; }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip-btn { border: 1.5px solid var(--line-2); background: var(--paper); border-radius: 999px; padding: 8px 15px; font: 500 14px var(--font-body); color: var(--ink); cursor: pointer; min-height: 40px; display: inline-flex; align-items: center; gap: 6px; }
 .chip-btn[aria-pressed="true"] { border-color: var(--ink); background: var(--ink); color: #fff; }
-.chip-btn[aria-pressed="true"]::before { content: "✓"; font-weight: 700; }
+.chip-btn[aria-pressed="true"]::before { content: ""; width: 14px; height: 14px; background: currentColor; -webkit-mask: var(--i-check) center / contain no-repeat; mask: var(--i-check) center / contain no-repeat; }
 
 /* the counter: add-ons */
 .shelf { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -680,7 +682,7 @@ p { margin: 0; }
 .tax-line { margin: 2px 0 0; font-size: 13.5px; color: var(--mute); }
 .stay-facts.hotel-facts { margin-top: 4px; font-size: 14px; gap: 6px 12px; }
 .free-chip { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 13.5px; font-weight: 600; color: var(--save); }
-.free-chip::before { content: "✓"; display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; background: var(--save-bg); font-size: 11px; }
+.free-chip::before { content: ""; width: 18px; height: 18px; border-radius: 50%; background: var(--save-bg) var(--i-check-green) center / 11px no-repeat; }
 .co-req { margin: -10px 0 0; }
 .expired { margin: 40px auto; max-width: 520px; text-align: center; display: grid; justify-items: center; gap: 10px; padding: 36px 24px; border: 1px solid var(--line); border-radius: 20px; background: var(--paper); }
 .expired svg { width: 44px; height: 44px; fill: none; stroke: var(--warn); stroke-width: 1.6; stroke-linecap: round; }
@@ -787,3 +789,16 @@ p { margin: 0; }
 }
 .hotel-head { margin: 8px 0 18px; display: grid; gap: 10px; }
 .hotel { margin-top: 24px; } .hotel-main { display: grid; gap: 18px; align-content: start; } .hotel-main .tip { margin: 0; }
+
+/* one icon family: every Lucide icon gets the same weight, caps and alignment, whatever the old per-component rule said */
+svg.lucide.lucide { stroke-width: 1.75; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; flex: none; vertical-align: -0.15em; }
+.stars { display: inline-flex; align-items: center; gap: 1px; }
+.stars svg.lucide.lucide { fill: currentColor; stroke-width: 1; }
+svg.lucide.to { color: var(--mute); margin: 0 2px; vertical-align: -0.12em; }
+.btn svg.lucide.lucide { margin-right: 2px; }
+.bottomnav a { gap: 3px; font-size: 12px; }
+.bn-ic { display: grid; place-items: center; width: 52px; height: 28px; border-radius: 999px; transition: background .2s; }
+.bottomnav a[aria-current="page"] .bn-ic { background: var(--select); color: var(--brand); }
+.bottomnav a[aria-current="page"] { color: var(--ink); }
+svg.lucide.i-star { fill: var(--gold); color: var(--gold); stroke-width: 1; }
+.ctabs a { display: inline-flex; align-items: center; gap: 6px; }

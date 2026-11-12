@@ -80,3 +80,7 @@
 .cover-opt input:checked + img { border-color: var(--ink); box-shadow: 0 0 0 2px var(--paper) inset; }
 .cover-opt input:focus-visible + img { outline: 2px solid var(--brand); outline-offset: 2px; }
 .notice-inline { display: block; }
+.dash-side nav a { display: flex; align-items: center; gap: 10px; }
+.dash-side nav a svg { color: var(--mute); }
+.dash-side nav a[aria-current="page"] { background: var(--select); color: var(--brand); font-weight: 600; }
+.dash-side nav a[aria-current="page"] svg { color: var(--brand); }

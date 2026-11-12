@@ -1,4 +1,6 @@
 "use client";
+import { Search } from "lucide-react";
+import { Ico, To } from "@/components/Icon";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { dict, fmtDay, type Lang } from "@/lib/i18n";
@@ -26,8 +28,8 @@ export default function SearchBar({ checkIn, checkOut, adults, dest = "", destin
     <>
     {compact && !open && (
       <button type="button" className="search-sum" onClick={() => setOpen(true)} aria-expanded={false}>
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.5 18a7.5 7.5 0 100-15 7.5 7.5 0 000 15zM21 21l-5.2-5.2" /></svg>
-        <span><b>{place}</b><small>{fmtDay(checkIn, lang)} → {fmtDay(checkOut, lang)} · {t.adultsN(adults)}</small></span>
+        <Ico of={Search} size={18} />
+        <span><b>{place}</b><small>{fmtDay(checkIn, lang)} <To /> {fmtDay(checkOut, lang)} · {t.adultsN(adults)}</small></span>
         <em>{t.edit}</em>
       </button>
     )}

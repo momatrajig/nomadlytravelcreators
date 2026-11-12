@@ -1,3 +1,4 @@
+import { X } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import "./globals.css";
@@ -41,7 +42,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <header className="hdr"><div className="wrap">
               <Link href="/" className="logo cobrand" aria-label={`Nomadly with ${sf.brandName}, home`}>
                 <img className="nm" src="/brand/nomadly.png" alt="Nomadly" width={118} height={36} />
-                <span className="x" aria-hidden="true">×</span>
+                <X className="x" size={16} aria-hidden="true" />
                 {sf.logoPath ? <img className="cl" src={sf.logoPath} alt={sf.brandName} /> : <><span className="mark">{sf.brandName.slice(0, 1).toUpperCase()}</span><span className="bn">{sf.brandName}</span></>}
               </Link>
               <div className="hdr-right"><nav className="nav" aria-label="Main"><Link href="/picks">{t.theirPicks(sf.brandName)}</Link><Link href="/stays">{t.hotels}</Link><Link href="/booking">{t.yourBooking}</Link></nav>{!showCreator && <Link href="/dashboard" className="btn btn-quiet hdr-creators">{t.forCreators}</Link>}</div>

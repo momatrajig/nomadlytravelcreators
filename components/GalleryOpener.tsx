@@ -1,4 +1,6 @@
 "use client";
+import { LayoutGrid } from "lucide-react";
+import { Ico } from "@/components/Icon";
 import { openGallery } from "@/lib/flow/gallery";
 import { dict, type Lang } from "@/lib/i18n";
 import { photoSet, photoSrc, type Photo } from "@/lib/media/photo";
@@ -17,7 +19,7 @@ export default function GalleryOpener({ photos, name, lang = "en" }: { photos: P
         </button>
       ))}
       <button type="button" className="mosaic-all" onClick={() => open(0)}>
-        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></svg>
+        <Ico of={LayoutGrid} size={16} />
         {t.allPhotos(photos.length)}
       </button>
     </div>

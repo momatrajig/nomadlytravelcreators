@@ -3,18 +3,14 @@ import { ELSEWHERE_CHECKED, EXTRAS, airportsFor, priceExtra, recommendedPlan, ty
 import { price, type ReaderFmt } from "@/lib/i18n";
 import type { Co } from "@/lib/i18n/checkout";
 import { dict } from "@/lib/i18n";
+import { Check, Minus, Plus } from "lucide-react";
+import { EXTRA_ICON, Ico } from "@/components/Icon";
 
 /**
  * The counter by the till: four services a traveler adds in one tap, each opening in place to its few real
  * choices (airport, direction, car; data plan). Prices shown here come from the same catalogue the server
  * charges from, so what the reader sees is what is charged.
  */
-export const ICONS: Record<string, string> = {
-  car: "M5 11l1.6-4.2A2 2 0 018.5 5.5h7a2 2 0 011.9 1.3L19 11M3.5 11h17v5.5h-2M3.5 11v5.5h2m0 0a1.8 1.8 0 103.6 0m-3.6 0h3.6m0 0h6m0 0a1.8 1.8 0 103.6 0M7 13.5h1.5m7 0H17",
-  sim: "M8 3h6.5L19 7.5V20a1 1 0 01-1 1H8a1 1 0 01-1-1V4a1 1 0 011-1zM10 11h6v6h-6zM13 11v6M10 14h6",
-  luggage: "M9 6V4.5A1.5 1.5 0 0110.5 3h3A1.5 1.5 0 0115 4.5V6M6.5 6h11A1.5 1.5 0 0119 7.5v11a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 015 18.5v-11A1.5 1.5 0 016.5 6zM9.5 9.5v7M14.5 9.5v7M8 20v1.5M16 20v1.5",
-  umbrella: "M12 3v1M4 12a8 8 0 0116 0zM12 12v6.5a2 2 0 01-4 0",
-};
 const TINT: Record<ExtraKind, string> = { transfer: "#e9f0ff", esim: "#e8f7ef", bag: "#fff3e3", delay: "#f3ecff" };
 const INK: Record<ExtraKind, string> = { transfer: "#2453c7", esim: "#127a4a", bag: "#a35b00", delay: "#6b3fc4" };
 
@@ -52,7 +48,7 @@ export default function AddOns({ co, f, picks, setPicks, destination, adults, ni
           return (
             <li key={x.kind} className={`shelf-item${on ? " on" : ""}${open ? " open" : ""}`} style={{ ["--tint" as string]: TINT[x.kind], ["--tink" as string]: INK[x.kind] }}>
               <div className="shelf-top">
-                <span className="shelf-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d={ICONS[x.icon]} /></svg></span>
+                <span className="shelf-ico" aria-hidden="true"><Ico of={EXTRA_ICON[x.icon]!} size={22} /></span>
                 <div className="shelf-txt"><h3>{name}</h3><p>{short}</p></div>
                 <div className="shelf-price">
                   {priced ? <b>{P(priced.price)}</b> : <><span className="from">{co.from}</span> <b>{P(x.price)}</b></>}
@@ -60,7 +56,7 @@ export default function AddOns({ co, f, picks, setPicks, destination, adults, ni
                   {compare && <span className="save-pct">−{Math.round((1 - (priced?.price ?? x.price) / (priced?.elsewhere ?? x.elsewhere)) * 100)}%</span>}
                 </div>
                 <button type="button" className={`shelf-btn${on ? " on" : ""}`} aria-pressed={on} onClick={() => set(x.kind, on ? null : {})}>
-                  {on ? <><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>{co.added}</> : <><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>{co.add}</>}
+                  {on ? <><Ico of={Check} size={16} />{co.added}</> : <><Ico of={Plus} size={16} />{co.add}</>}
                 </button>
               </div>
 
@@ -108,9 +104,9 @@ export default function AddOns({ co, f, picks, setPicks, destination, adults, ni
                   {adults > 1 && (
                     <div className="qty"><span>{co.howMany} <small>{co.perPhone}</small></span>
                       <div className="stepper">
-                        <button type="button" aria-label="−" disabled={(pick.qty ?? 1) <= 1} onClick={() => set("esim", { qty: Math.max(1, (pick.qty ?? 1) - 1) })}>−</button>
+                        <button type="button" aria-label={co.fewer} disabled={(pick.qty ?? 1) <= 1} onClick={() => set("esim", { qty: Math.max(1, (pick.qty ?? 1) - 1) })}><Ico of={Minus} size={16} /></button>
                         <output aria-live="polite">{pick.qty ?? 1}</output>
-                        <button type="button" aria-label="+" disabled={(pick.qty ?? 1) >= adults} onClick={() => set("esim", { qty: Math.min(adults, (pick.qty ?? 1) + 1) })}>+</button>
+                        <button type="button" aria-label={co.more} disabled={(pick.qty ?? 1) >= adults} onClick={() => set("esim", { qty: Math.min(adults, (pick.qty ?? 1) + 1) })}><Ico of={Plus} size={16} /></button>
                       </div>
                     </div>
                   )}

@@ -1,4 +1,6 @@
 "use client";
+import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { Ico, To } from "@/components/Icon";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { addDays, daysBetween, priceLevels, type CalDay, type Level } from "@/lib/calendar";
 import { type Lang } from "@/lib/i18n";
@@ -85,10 +87,10 @@ export default function DateRange({ checkIn, checkOut, onChange, lang = "en", ad
 
   const panel = (
     <div className={`dr-pop${inline ? " inline" : ""}${alignRight ? " right" : ""}`} role="dialog" aria-label={`${w.in}, ${w.out}`}>
-      <div className="dr-status" aria-live="polite">{b ? <><b>{fmtShort(a)}</b> → <b>{fmtShort(b)}</b>, {w.nights(daysBetween(a, b))}</> : <>{w.pickOut}{nights ? `: ${w.nights(nights)}` : ""}</>}</div>
+      <div className="dr-status" aria-live="polite">{b ? <><b>{fmtShort(a)}</b> <To /> <b>{fmtShort(b)}</b>, {w.nights(daysBetween(a, b))}</> : <>{w.pickOut}{nights ? `: ${w.nights(nights)}` : ""}</>}</div>
       <div className="dr-nav">
-        <button type="button" aria-label={w.prev} onClick={() => shift(-1)} disabled={!canPrev}>‹</button>
-        <button type="button" aria-label={w.next} onClick={() => shift(1)}>›</button>
+        <button type="button" aria-label={w.prev} onClick={() => shift(-1)} disabled={!canPrev}><Ico of={ChevronLeft} size={18} /></button>
+        <button type="button" aria-label={w.next} onClick={() => shift(1)}><Ico of={ChevronRight} size={18} /></button>
       </div>
       <div className="dr-months">
         {months.map((mo, mi) => {
@@ -136,7 +138,7 @@ export default function DateRange({ checkIn, checkOut, onChange, lang = "en", ad
     <div className="dr" ref={box}>
       <button type="button" className="dr-trigger" aria-expanded={open} onClick={(e) => { const r = e.currentTarget.getBoundingClientRect(); setAlignRight(r.left + 720 > window.innerWidth - 16); setOpen((o) => !o); }}>
         <span className="dr-f"><small>{w.in}</small><b>{fmtShort(a)}</b></span>
-        <span className="dr-arrow" aria-hidden="true">→</span>
+        <ArrowRight className="dr-arrow" size={16} aria-hidden="true" />
         <span className="dr-f"><small>{w.out}</small><b>{b ? fmtShort(b) : "…"}</b></span>
         <span className="dr-n">{b ? w.nights(daysBetween(a, b)) : ""}</span>
       </button>

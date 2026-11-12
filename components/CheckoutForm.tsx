@@ -1,4 +1,6 @@
 "use client";
+import { Check, ChevronDown, Lock } from "lucide-react";
+import { Ico, Stars, To } from "@/components/Icon";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { loadStripe, type Appearance } from "@stripe/stripe-js";
 import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
@@ -106,7 +108,7 @@ export default function CheckoutForm(p: Props) {
   return (
     <div className="co">
       <ol className="co-steps" aria-label="Checkout steps">
-        {co.steps.map((s, i) => { const state = i === 0 || (i === 1 && locked) ? "done" : (i === 1 && !locked) || (i === 2 && locked) ? "now" : "next"; return <li key={s} className={state} aria-current={state === "now" ? "step" : undefined}><span>{state === "done" ? "✓" : i + 1}</span>{s}</li>; })}
+        {co.steps.map((s, i) => { const state = i === 0 || (i === 1 && locked) ? "done" : (i === 1 && !locked) || (i === 2 && locked) ? "now" : "next"; return <li key={s} className={state} aria-current={state === "now" ? "step" : undefined}><span>{state === "done" ? <Ico of={Check} size={14} /> : i + 1}</span>{s}</li>; })}
       </ol>
       <div className="co-grid">
         <form onSubmit={start} noValidate className="co-main">
@@ -156,7 +158,7 @@ export default function CheckoutForm(p: Props) {
           {!locked && <AddOns co={co} f={p.f} picks={picks} setPicks={setPicks} destination={p.destination} adults={p.adults} nights={p.nights} compare={p.compare} />}
 
           <details className="co-card co-more" open={items.length > 0 || !!note || !!arrival || undefined}>
-            <summary><span><b id="req-h">{co.optionalH}</b><small>{co.optionalSub(items.length + (note ? 1 : 0) + (arrival ? 1 : 0))}</small></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg></summary>
+            <summary><span><b id="req-h">{co.optionalH}</b><small>{co.optionalSub(items.length + (note ? 1 : 0) + (arrival ? 1 : 0))}</small></span><Ico of={ChevronDown} size={20} className="chev" /></summary>
             <p className="co-sub">{co.requestsSub}</p>
             <div className="chips" role="group" aria-label={co.requestsH}>
               {REQUESTS.map((k) => <button key={k} type="button" className="chip-btn" disabled={locked} aria-pressed={items.includes(k)} onClick={() => setItems(items.includes(k) ? items.filter((x) => x !== k) : [...items.filter((x) => !(k === "twin" && x === "double") && !(k === "double" && x === "twin")), k])}>{co.req[k]}</button>)}
@@ -214,14 +216,14 @@ function Policy({ co, p, P }: { co: Co; p: Props; P: (v: number, whole?: boolean
   // refundable on paper but the free period is already over: a fee from the first minute, never "free"
   if (!freeNow(p)) return (
     <ol className="timeline" aria-label={co.policyH} style={{ gridTemplateColumns: "1fr 1fr" }}>
-      <li className="warn"><b>{co.cancelNow}</b><span>{`→ ${d(p.checkIn)}`}</span><em>{co.feeLbl(p.cancelCharge ? P(p.cancelCharge) : P(p.amount))}</em></li>
+      <li className="warn"><b>{co.cancelNow}</b><span><To /> {d(p.checkIn)}</span><em>{co.feeLbl(p.cancelCharge ? P(p.cancelCharge) : P(p.amount))}</em></li>
       <li className="bad"><b>{co.noShow}</b><span>{d(p.checkIn)}</span><em>{co.feeLbl(P(p.amount))}</em></li>
     </ol>
   );
   return (
     <ol className="timeline" aria-label={co.policyH}>
       <li className="ok"><b>{co.freeUntil}</b><span>{p.cancelDeadline ? co.until(dt(p.cancelDeadline)) : ""}</span><em>{co.noFee}</em></li>
-      <li className="warn"><b>{co.then}</b><span>{p.cancelDeadline ? `${dt(p.cancelDeadline)} → ${d(p.checkIn)}` : ""}</span><em>{co.feeLbl(p.cancelCharge ? P(p.cancelCharge) : P(p.amount))}</em></li>
+      <li className="warn"><b>{co.then}</b><span>{p.cancelDeadline ? <>{dt(p.cancelDeadline)} <To /> {d(p.checkIn)}</> : ""}</span><em>{co.feeLbl(p.cancelCharge ? P(p.cancelCharge) : P(p.amount))}</em></li>
       <li className="bad"><b>{co.noShow}</b><span>{d(p.checkIn)}</span><em>{co.feeLbl(P(p.amount))}</em></li>
     </ol>
   );
@@ -236,7 +238,7 @@ function Summary({ co, p, lines, total, P, mobile }: { co: Co; p: Props; lines: 
     <>
       <div className="sum-hotel">
         {p.hotel.photo && <div className="sum-pic"><img src={photoSrc(p.hotel.photo.url, 640, p.hotel.photo.w)} alt="" /><span>{co.hotelPhoto}</span></div>}
-        <div><h3>{p.hotel.name}</h3>{p.hotel.stars ? <p className="stars" aria-label={`${p.hotel.stars} stars`}>{"★".repeat(p.hotel.stars)}</p> : null}{p.hotel.address && <p className="small mute">{p.hotel.address}</p>}</div>
+        <div><h3>{p.hotel.name}</h3>{p.hotel.stars ? <Stars n={p.hotel.stars} label={`${p.hotel.stars} stars`} size={12} /> : null}{p.hotel.address && <p className="small mute">{p.hotel.address}</p>}</div>
       </div>
       <div className="sum-dates">
         <div><span>{co.checkIn}</span><b suppressHydrationWarning>{day(p.checkIn)}</b></div>
@@ -276,7 +278,7 @@ function PayStep({ co, demo, amount, currency, reference, email, f, billing }: {
       <PaymentElement options={{ layout: { type: "accordion", defaultCollapsed: false, radios: "always", spacedAccordionItems: true }, wallets: { applePay: "auto", googlePay: "auto" }, defaultValues: { billingDetails: { name: billing.name, email: billing.email, phone: billing.phone, address: { country: billing.country } } } }} />
       {err && <div className="notice bad" role="alert" style={{ marginTop: 12 }}>{err}</div>}
       <button className="btn btn-brand btn-lg pay-btn" type="button" onClick={pay} disabled={busy || !stripe}>
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 11V8a5 5 0 0110 0v3M6 11h12v9H6z" /></svg>{busy ? co.paying : demo ? co.payDemo : co.pay(`${currency} ${money(amount, { lang: f.lang, currency })}`)}
+        <Ico of={Lock} size={17} />{busy ? co.paying : demo ? co.payDemo : co.pay(`${currency} ${money(amount, { lang: f.lang, currency })}`)}
       </button>
       <p className="secure small mute">{co.secure}</p>
     </>

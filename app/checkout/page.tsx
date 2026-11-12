@@ -1,3 +1,5 @@
+import { Clock } from "lucide-react";
+import { Ico } from "@/components/Icon";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import Link from "next/link";
@@ -38,7 +40,7 @@ export default async function Checkout({ searchParams }: { searchParams: Promise
       {expired
         ? (
           <section className="expired" role="alert">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v5l3 2M21 12a9 9 0 11-9-9 9 9 0 019 9z" /></svg>
+            <Ico of={Clock} size={20} />
             <h1>{hotel?.name}</h1>
             <p>{t.heldExpired}</p>
             <a className="btn btn-brand btn-lg" href={`/hotel/${quote.ebcId}?in=${quote.checkIn}&out=${quote.checkOut}&adults=${adults}#rooms`}>{t.freshPrice}</a>

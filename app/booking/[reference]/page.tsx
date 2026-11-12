@@ -1,3 +1,5 @@
+import { Ico, To } from "@/components/Icon";
+import { CalendarPlus, LifeBuoy, Mail, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { cookies, headers } from "next/headers";
@@ -115,7 +117,7 @@ export default async function BookingPage({ params, searchParams }: { params: Pr
             {lead && <div><dt>{L.guest}</dt><dd>{lead.firstName} {lead.lastName}, {L.adults(party)}</dd></div>}
             <div><dt>{t.room}</dt><dd>{b.roomName ?? t.room}, {t.board[b.board ?? "RO"]?.toLowerCase()}</dd></div>
           </dl>
-          {live && <div className="bk-actions no-print"><PrintButton label={L.print} /><a className="btn" href={`data:text/calendar;charset=utf-8,${encodeURIComponent(ics)}`} download={`${b.reference.replace(/\s+/g, "")}.ics`}>{L.calendar}</a><a className="btn" href="#hp-h">{L.getHelp}</a></div>}
+          {live && <div className="bk-actions no-print"><PrintButton label={L.print} /><a className="btn" href={`data:text/calendar;charset=utf-8,${encodeURIComponent(ics)}`} download={`${b.reference.replace(/\s+/g, "")}.ics`}><Ico of={CalendarPlus} size={17} />{L.calendar}</a><a className="btn" href="#hp-h"><Ico of={LifeBuoy} size={17} />{L.getHelp}</a></div>}
         </div>
       </section>
 
@@ -156,7 +158,7 @@ export default async function BookingPage({ params, searchParams }: { params: Pr
               <li key={s.title} className={`st-${s.tone}${s.now ? " now" : ""}`}>
                 {s.now && <span className="now-tag">{L.now}</span>}
                 <b>{s.title}</b>
-                <span className="small">{s.from ? `${fmtDate(s.from)} ` : ""}{s.to ? `→ ${fmtDate(s.to)}` : ""}</span>
+                <span className="small">{s.from ? `${fmtDate(s.from)} ` : ""}{s.to ? <><To /> {fmtDate(s.to)}</> : ""}</span>
                 <span className="pen"><em>{s.charge ? L.penalty(usd(s.charge)) : L.noPenalty}</em><small>{L.refund(usd(s.refund))}</small></span>
               </li>
             ))}
@@ -174,8 +176,8 @@ export default async function BookingPage({ params, searchParams }: { params: Pr
         <p className="small" style={{ color: "var(--ink-2)", margin: 0 }}>{helpOn ? L.ifWrongShort : mailOn ? t.ifWrongText : L.ifWrongNoMail}</p>
         {helpOn && (
           <div className="bk-actions no-print">
-            {env().SUPPORT_WHATSAPP && <a className="btn btn-brand" href={`https://wa.me/${env().SUPPORT_WHATSAPP}?text=${encodeURIComponent(`${b.reference}: `)}`} target="_blank" rel="noreferrer">{L.whatsapp}</a>}
-            {env().SUPPORT_EMAIL && <a className="btn" href={`mailto:${env().SUPPORT_EMAIL}?subject=${encodeURIComponent(b.reference)}`}>{L.emailUs}</a>}
+            {env().SUPPORT_WHATSAPP && <a className="btn btn-brand" href={`https://wa.me/${env().SUPPORT_WHATSAPP}?text=${encodeURIComponent(`${b.reference}: `)}`} target="_blank" rel="noreferrer"><Ico of={MessageCircle} size={17} />{L.whatsapp}</a>}
+            {env().SUPPORT_EMAIL && <a className="btn" href={`mailto:${env().SUPPORT_EMAIL}?subject=${encodeURIComponent(b.reference)}`}><Ico of={Mail} size={17} />{L.emailUs}</a>}
           </div>
         )}
       </section>
