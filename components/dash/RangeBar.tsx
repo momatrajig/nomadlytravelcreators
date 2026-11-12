@@ -11,7 +11,7 @@ const GRAINS: Array<[string, string]> = [["day", "Daily"], ["week", "Weekly"], [
  * The date controls, one row: quick presets, a custom from/to that applies in place, and how the chart groups days.
  * Everything lives in the URL (?r= or ?from=&to=, ?g=), so a view can be bookmarked or sent to the partner manager.
  */
-export default function RangeBar({ from, to, preset, grain, label, today }: { from: string; to: string; preset: string | null; grain: string; label: string; today: string }) {
+export default function RangeBar({ from, to, preset, grain, label, today, grains = true, defaultPreset = "30d" }: { from: string; to: string; preset: string | null; grain: string; label: string; today: string; grains?: boolean; defaultPreset?: string }) {
   const router = useRouter(), path = usePathname(), sp = useSearchParams();
   const [open, setOpen] = useState(false);
   const [f, setF] = useState(from), [t, setT] = useState(to);
@@ -43,10 +43,10 @@ export default function RangeBar({ from, to, preset, grain, label, today }: { fr
           </div>
         )}
       </div>
-      <div className="seg" role="group" aria-label="Group by">
+      {grains && <div className="seg" role="group" aria-label="Group by">
         {GRAINS.map(([k, l]) => <button key={k} type="button" aria-pressed={grain === k} onClick={() => go({ g: k })}>{l}</button>)}
-      </div>
-      {(custom || preset !== "30d" || sp.get("g")) && <button type="button" className="rreset" onClick={() => go({ r: null, from: null, to: null, g: null })}><Ico of={RotateCcw} size={14} />Reset</button>}
+      </div>}
+      {(custom || preset !== defaultPreset || sp.get("g")) && <button type="button" className="rreset" onClick={() => go({ r: null, from: null, to: null, g: null })}><Ico of={RotateCcw} size={14} />Reset</button>}
     </div>
   );
 }

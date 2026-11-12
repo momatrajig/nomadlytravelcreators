@@ -54,7 +54,7 @@ export default async function Transactions({ searchParams }: { searchParams: Pro
   return (
     <>
       <div className="dash-head"><div><h1>Transactions</h1><p>Every booking from your storefront and what you earn on it. Times in UTC.</p></div></div>
-      <RangeBar from={r.from} to={r.to} preset={r.preset} grain={r.grain} label={rangeLabel(r)} today={today} />
+      <RangeBar from={r.from} to={r.to} preset={r.preset} grain={r.grain} label={rangeLabel(r)} today={today} grains={false} defaultPreset="ytd" />
       {sample && <SampleNote realHref={`?${new URLSearchParams({ ...(sp as Record<string, string>), sample: "0" })}`} />}
       {!sample && demoCount > 0 && includeDemo && <div className="notice small notice-inline">Includes {demoCount} demo {demoCount === 1 ? "booking" : "bookings"} made with a test card. They are never paid. <Link href={`?${new URLSearchParams({ ...(sp as Record<string, string>), demo: "0" })}`}>Hide them</Link>.</div>}
       <div className="kpis kpis-4">
