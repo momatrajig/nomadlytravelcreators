@@ -17,7 +17,7 @@
   --save: #155c3e; --save-bg: #e7f5ed; --warn: #774205; --warn-bg: #fff2d7; --bad: #a12832; --bad-bg: #fceef0;
   --lina: #713f31; --lina-bg: #fbe9e0; --select: #edf2ff;
   --navy: var(--ink); --fg: var(--ink); --fg-2: var(--ink-2); --bg: var(--paper); --bg-2: var(--mist); --surface: var(--paper); --surface-2: var(--mist); --surface-3: var(--mist-2);
-  --ok: var(--save); --ok-bg: var(--save-bg); --gold: #c9a04a;
+  --ok: var(--save); --ok-bg: var(--save-bg); --gold: #e0a526;
   --font-display: "Newsreader", "Iowan Old Style", Georgia, serif;
   --font-body: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
   --r: 12px; --r-lg: 18px;

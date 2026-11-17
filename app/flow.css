@@ -118,3 +118,7 @@ a.nf-primary{text-decoration:none}
 @media (max-width:640px){.nf-head{flex-direction:column;align-items:flex-start;gap:8px}.nf-head p{font-size:14px}}
 
 @media (max-width:420px){.nf-count{display:none}.nf-badge{font-size:11.5px}}
+/* hotel class as drawn gold stars, the guest score as a small solid badge beside them */
+.nf-meta .nf-stars{gap:1px}
+.nf-meta .nf-stars svg{width:13px;height:13px;fill:#f0b429;stroke:#f0b429;stroke-width:1;opacity:1}
+.nf-meta .nf-score{font:700 12px/1 var(--font-body);background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.28);color:#fff;padding:3px 6px;border-radius:6px;backdrop-filter:blur(6px)}

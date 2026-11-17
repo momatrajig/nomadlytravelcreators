@@ -1,3 +1,4 @@
+import { Stars } from "@/components/Icon";
 import Link from "next/link";
 import CreatorMark from "@/components/CreatorMark";
 import { db } from "@/lib/db";
@@ -51,7 +52,7 @@ export default async function Picks({ searchParams }: { searchParams: Promise<Re
                 <li key={h.ebcId} className="pick-card">
                   <Link href={href} className="pick-pic" tabIndex={-1} aria-hidden="true">{p ? <img src={photoSrc(p.url, 720, p.w)} srcSet={photoSet(p.url, p.w)} sizes="(max-width: 700px) 100vw, 360px" alt="" loading="lazy" /> : <span className="pick-nopic">{h.name.slice(0, 1)}</span>}</Link>
                   <div className="pick-body">
-                    {h.stars ? <div className="stay-where">{t.star(h.stars)}</div> : null}
+                    {h.stars ? <div className="stay-where"><Stars n={h.stars} label={t.star(h.stars)} /></div> : null}
                     <h3><Link href={href}>{h.name}</Link></h3>
                     {h.tip && <p className="stay-tip">{h.tip}</p>}
                     <div className="pick-cta">

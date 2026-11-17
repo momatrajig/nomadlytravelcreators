@@ -1,5 +1,5 @@
 import { Check, Search, Trash2 } from "lucide-react";
-import { Ico } from "@/components/Icon";
+import { Ico, Stars } from "@/components/Icon";
 import { revalidatePath } from "next/cache";
 import { dashContext, editableContext } from "@/lib/dashboard/context";
 import { db } from "@/lib/db";
@@ -62,7 +62,7 @@ export default async function Hotels({ searchParams }: { searchParams: Promise<R
         {place && q && !searchErr && (
           <table className="dtable" style={{ marginTop: 12 }}><tbody>
             {found.map((h) => (
-              <tr key={h.ebcId}><td><b>{h.name}</b><div className="small mute">{[h.stars ? `${h.stars} star` : null, h.address, h.cityName].filter(Boolean).join(", ")}</div></td>
+              <tr key={h.ebcId}><td><b>{h.name}</b><div className="small mute">{h.stars ? <><Stars n={h.stars} label={`${h.stars} star`} size={12} /> </> : null}{[h.address, h.cityName].filter(Boolean).join(", ")}</div></td>
                 <td className="n">{pins.some((p) => p.ebcId === h.ebcId) ? <span className="chip chip-ok">On your storefront</span> : <form action={add}><input type="hidden" name="ebcId" value={h.ebcId} /><button className="btn" type="submit" disabled={!c.canEdit}>Add</button></form>}</td></tr>
             ))}
             {!found.length && <tr><td className="mute">No hotel with that name in {place}. Try fewer words.</td></tr>}
