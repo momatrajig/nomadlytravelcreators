@@ -835,3 +835,4 @@ html { scroll-behavior: smooth; }
 .auth-ic.warn { background: var(--warn-bg); color: var(--warn); }
 @keyframes spin { to { transform: rotate(360deg); } } svg.spin { animation: spin .9s linear infinite; }
 @media (max-width: 700px) { .pick-pic { aspect-ratio: 16 / 10; } }
+.stay-tip { color: var(--lina); }

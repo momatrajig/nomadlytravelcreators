@@ -65,7 +65,7 @@ const en = {
   seePrices: "See prices", searching: "Searching", nightsRange: "Check out has to be 1 to 30 nights after check in.",
   // cards and list
   biggestSaving: "Biggest saving", lowestPrice: "Lowest price", mostBooked: "Most booked by readers", seeRooms: "View rooms", compareHotels: "Compare hotels", viewHotel: "View hotel", jumpTo: "Jump to a destination", compareAria: (h: string) => `Compare ${h} with nearby hotels`, photos: "Photos", photosN: (n: number) => `${n} photos`,
-  allPhotosOf: (n: number, name: string) => `See all ${n} photos of ${name}`, star: (n: number) => `${n} star`, freeCancelUntil: (d: string) => `Free cancellation until ${d}`, noRefunds: "No refunds",
+  allPhotosOf: (n: number, name: string) => `See all ${n} photos of ${name}`, star: (n: number) => `${n} star hotel`, freeCancelUntil: (d: string) => `Free cancellation until ${d}`, noRefunds: "No refunds",
   nightsN: (n: number) => `${n} ${n === 1 ? "night" : "nights"}`, aNight: (p: string) => `${p} a night`, below: (p: string, src: string) => `${p} below ${src}`, above: (p: string, src: string) => `${p} above ${src}`,
   lessThan: (p: string, src: string) => `${p} less than ${src}`, noRoomsDates: "No rooms for these dates at these hotels. Try other dates.", showEvery: "Show every hotel",
   all: "All", stayLine: (a: string, b: string, n: number, ad: number) => `${a} to ${b}, ${n} ${n === 1 ? "night" : "nights"}, ${ad} ${ad === 1 ? "adult" : "adults"}`, listMeta: (a: string, b: string, n: number, ad: number) => `${a} to ${b}, ${n} ${n === 1 ? "night" : "nights"}, ${ad} ${ad === 1 ? "adult" : "adults"}. Total prices, tax included.`,
